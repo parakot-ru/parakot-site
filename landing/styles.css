@@ -564,10 +564,33 @@ h3 {
 }
 
 .form-status {
-  min-height: 1.4rem;
-  margin: 0;
-  color: var(--muted);
+  display: none;
+  margin: 0 0 0.2rem;
+  border-radius: 1rem;
+  padding: 0.95rem 1rem;
+  color: var(--text);
   font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.form-status.is-visible {
+  display: block;
+  animation: statusPop 180ms ease-out;
+}
+
+.form-status-info {
+  border: 1px solid rgba(32, 105, 158, 0.18);
+  background: rgba(232, 245, 255, 0.86);
+}
+
+.form-status-success {
+  border: 1px solid rgba(39, 132, 83, 0.22);
+  background: rgba(228, 248, 237, 0.9);
+}
+
+.form-status-error {
+  border: 1px solid rgba(184, 80, 62, 0.24);
+  background: rgba(255, 237, 233, 0.9);
 }
 
 .form button:disabled {
@@ -582,6 +605,18 @@ h3 {
 
   to {
     transform: translateY(8px) rotate(1.5deg);
+  }
+}
+
+@keyframes statusPop {
+  from {
+    opacity: 0;
+    transform: translateY(-0.35rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

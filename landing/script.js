@@ -1,6 +1,7 @@
 const parallaxItems = Array.from(document.querySelectorAll("[data-depth]"));
 const API_BASE =
   window.PARAKOT_API_BASE || "http://admin.konekon.ru/api";
+let formStatusTimer = null;
 
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -376,7 +377,7 @@ function wireLeadForm() {
       button.disabled = true;
     }
 
-    setFormStatus(status, "Отправляем заявку...");
+    setFormStatus(status, "Отправляем заявку...", "info");
 
     try {
       const response = await fetch(`${API_BASE}/leads`, {
@@ -398,11 +399,17 @@ function wireLeadForm() {
       }
 
       form.reset();
-      setFormStatus(status, "Заявка отправлена. Скоро с вами свяжутся.");
+      setFormStatus(
+        status,
+        "Заявка отправлена. Скоро с вами свяжутся.",
+        "success",
+        true,
+      );
     } catch (error) {
       setFormStatus(
         status,
         error instanceof Error ? error.message : "Не удалось отправить заявку",
+        "error",
       );
     } finally {
       if (button) {
@@ -412,8 +419,35 @@ function wireLeadForm() {
   });
 }
 
-function setFormStatus(status, message) {
-  if (status) {
-    status.textContent = message;
+function setFormStatus(status, message, type = "info", autoHide = false) {
+  if (!status) {
+    return;
+  }
+
+  if (formStatusTimer) {
+    window.clearTimeout(formStatusTimer);
+    formStatusTimer = null;
+  }
+
+  status.textContent = message;
+  status.classList.remove("form-status-info", "form-status-success", "form-status-error");
+
+  if (message) {
+    status.classList.add(`form-status-${type}`, "is-visible");
+  } else {
+    status.classList.remove("is-visible");
+  }
+
+  if (autoHide) {
+    formStatusTimer = window.setTimeout(() => {
+      status.textContent = "";
+      status.classList.remove(
+        "is-visible",
+        "form-status-info",
+        "form-status-success",
+        "form-status-error",
+      );
+      formStatusTimer = null;
+    }, 6000);
   }
 }

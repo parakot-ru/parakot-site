@@ -118,10 +118,20 @@ try {
             ':topic' => $topic !== '' ? $topic : null,
             ':message' => $message !== '' ? $message : null,
         ]);
+        $leadId = (int) $connection->lastInsertId();
+        $settings = fetchSettings($connection);
+        $notificationSent = sendLeadNotification($settings, [
+            'id' => $leadId,
+            'name' => $name,
+            'contact' => $contact,
+            'topic' => $topic,
+            'message' => $message,
+        ]);
 
         Response::json([
             'ok' => true,
-            'lead_id' => (int) $connection->lastInsertId(),
+            'lead_id' => $leadId,
+            'notification_sent' => $notificationSent,
             'message' => 'Lead stored successfully.',
         ], 201);
         exit;
@@ -718,6 +728,87 @@ function fetchSettings(PDO $connection): array
     $settings = $statement->fetch();
 
     return is_array($settings) ? $settings : [];
+}
+
+/**
+ * @param array<string, mixed> $settings
+ * @param array<string, mixed> $lead
+ */
+function sendLeadNotification(array $settings, array $lead): bool
+{
+    $recipient = trim((string) ($settings['recipient_email'] ?? Env::get('LEADS_EMAIL', '')));
+
+    if ($recipient === '') {
+        return false;
+    }
+
+    $subject = sprintf('Новая заявка с сайта Паракот #%d', (int) $lead['id']);
+    $body = implode("\n", [
+        'Новая заявка с сайта Паракот',
+        '',
+        'Имя: ' . (string) $lead['name'],
+        'Контакт: ' . (string) $lead['contact'],
+        'Что интересует: ' . valueOrDash((string) $lead['topic']),
+        '',
+        'Комментарий:',
+        valueOrDash((string) $lead['message']),
+        '',
+        'Заявка сохранена в админке сайта.',
+    ]);
+
+    $fromEmail = Env::get('MAIL_FROM_EMAIL', 'no-reply@parakot.konekon.ru');
+    $fromName = Env::get('MAIL_FROM_NAME', 'Parakot');
+    $headers = [
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: ' . formatEmailHeader($fromName, $fromEmail),
+    ];
+
+    $cc = trim((string) ($settings['recipient_email_cc'] ?? Env::get('LEADS_EMAIL_CC', '')));
+
+    if ($cc !== '') {
+        $headers[] = 'Cc: ' . $cc;
+    }
+
+    $encodedSubject = function_exists('mb_encode_mimeheader')
+        ? mb_encode_mimeheader($subject, 'UTF-8')
+        : '=?UTF-8?B?' . base64_encode($subject) . '?=';
+
+    $extraParams = filter_var($fromEmail, FILTER_VALIDATE_EMAIL)
+        ? '-f' . $fromEmail
+        : '';
+    $sent = $extraParams !== ''
+        ? mail($recipient, $encodedSubject, $body, implode("\r\n", $headers), $extraParams)
+        : mail($recipient, $encodedSubject, $body, implode("\r\n", $headers));
+
+    if (!$sent) {
+        error_log(sprintf('Lead notification #%d was not sent to %s.', (int) $lead['id'], $recipient));
+    }
+
+    return $sent;
+}
+
+function valueOrDash(string $value): string
+{
+    $value = trim($value);
+
+    return $value === '' ? '-' : $value;
+}
+
+function formatEmailHeader(string $name, string $email): string
+{
+    $name = trim($name);
+    $email = trim($email);
+
+    if ($name === '') {
+        return $email;
+    }
+
+    $encodedName = function_exists('mb_encode_mimeheader')
+        ? mb_encode_mimeheader($name, 'UTF-8')
+        : '=?UTF-8?B?' . base64_encode($name) . '?=';
+
+    return sprintf('%s <%s>', $encodedName, $email);
 }
 
 function fetchContacts(PDO $connection, bool $visibleOnly): array

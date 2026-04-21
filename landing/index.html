@@ -169,7 +169,30 @@
             </label>
             <label>
               <span>Что интересует</span>
-              <input type="text" name="topic" placeholder="Обучение, тур, консультация" />
+              <input type="hidden" name="topic" data-interest-value />
+              <div class="interest-select" data-interest-select>
+                <button class="interest-trigger" type="button" data-interest-trigger>
+                  Выбрать формат
+                </button>
+                <div class="interest-menu" data-interest-menu>
+                  <label>
+                    <input type="checkbox" value="Начальный курс" />
+                    Начальный курс
+                  </label>
+                  <label>
+                    <input type="checkbox" value="Повышение уровня" />
+                    Повышение уровня
+                  </label>
+                  <label>
+                    <input type="checkbox" value="Тур или выезд" />
+                    Тур или выезд
+                  </label>
+                  <label>
+                    <input type="checkbox" value="Консультация" />
+                    Консультация
+                  </label>
+                </div>
+              </div>
             </label>
             <label>
               <span>Комментарий</span>

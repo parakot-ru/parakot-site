@@ -47,6 +47,7 @@ if (parallaxItems.length > 0 && !prefersReducedMotion.matches) {
 const sectionClassByType = {
   cards_grid: "feature-card",
   cards_two_columns: "info-card",
+  services: "service-card",
   locations_grid: "location-card",
   timeline: "step-card",
   stats: "stat",
@@ -58,6 +59,7 @@ const sectionClassByType = {
 
 loadDynamicContent();
 wireLeadForm();
+wireInterestSelect();
 
 async function loadDynamicContent() {
   try {
@@ -265,7 +267,8 @@ function renderItems(section) {
   section.items.forEach((item) => {
     const card = document.createElement(isTimeline ? "li" : "article");
     card.className = sectionClassByType[section.type] || "info-card";
-    const placement = readPlacement(item.meta_json);
+    const placement = readMetaValue(item.meta_json, "placement");
+    const price = readMetaValue(item.meta_json, "price");
 
     if (placement) {
       card.classList.add(`placement-${placement}`);
@@ -274,6 +277,13 @@ function renderItems(section) {
     const title = document.createElement(isTimeline ? "strong" : "h3");
     title.textContent = item.title;
     card.appendChild(title);
+
+    if (price) {
+      const priceTag = document.createElement("strong");
+      priceTag.className = "service-price";
+      priceTag.textContent = price;
+      card.appendChild(priceTag);
+    }
 
     if (item.description) {
       const description = document.createElement(isTimeline ? "span" : "p");
@@ -291,14 +301,14 @@ function renderItems(section) {
   return container;
 }
 
-function readPlacement(metaJson) {
+function readMetaValue(metaJson, key) {
   if (!metaJson) {
     return "";
   }
 
   try {
     const parsed = JSON.parse(metaJson);
-    return typeof parsed.placement === "string" ? parsed.placement : "";
+    return typeof parsed[key] === "string" ? parsed[key] : "";
   } catch {
     return "";
   }
@@ -315,6 +325,10 @@ function sectionClassName(type) {
 
   if (type === "gallery") {
     return "section section-sky mood";
+  }
+
+  if (type === "services") {
+    return "section services-section";
   }
 
   return "section";
@@ -339,6 +353,10 @@ function containerClassName(type) {
 
   if (type === "cards_two_columns") {
     return "cards two-columns";
+  }
+
+  if (type === "services") {
+    return "cards service-grid";
   }
 
   if (type === "faq") {
@@ -430,6 +448,50 @@ function wireLeadForm() {
       }
     }
   });
+}
+
+function wireInterestSelect() {
+  const root = document.querySelector("[data-interest-select]");
+  const trigger = document.querySelector("[data-interest-trigger]");
+  const hidden = document.querySelector("[data-interest-value]");
+
+  if (!root || !trigger || !hidden) {
+    return;
+  }
+
+  const checkboxes = Array.from(root.querySelectorAll("input[type='checkbox']"));
+
+  const updateValue = () => {
+    const selected = checkboxes
+      .filter((checkbox) => checkbox.checked)
+      .map((checkbox) => checkbox.value);
+
+    hidden.value = selected.join(", ");
+    trigger.textContent = selected.length > 0
+      ? selected.join(", ")
+      : "Выбрать формат";
+    root.classList.toggle("has-value", selected.length > 0);
+  };
+
+  trigger.addEventListener("click", () => {
+    root.classList.toggle("is-open");
+  });
+
+  checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener("change", updateValue);
+  });
+
+  root.closest("form")?.addEventListener("reset", () => {
+    window.setTimeout(updateValue, 0);
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!root.contains(event.target)) {
+      root.classList.remove("is-open");
+    }
+  });
+
+  updateValue();
 }
 
 function setFormStatus(status, message, type = "info", autoHide = false) {

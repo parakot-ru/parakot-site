@@ -638,8 +638,41 @@ function App() {
     itemId: number,
     placement: string,
   ) {
+    updateSectionItemMeta(sectionId, itemId, { placement });
+  }
+
+  function updateSectionItemPrice(sectionId: number, itemId: number, price: string) {
+    updateSectionItemMeta(sectionId, itemId, { price });
+  }
+
+  function updateSectionItemMeta(
+    sectionId: number,
+    itemId: number,
+    patch: Record<string, string>,
+  ) {
+    const section = sections.find((currentSection) => currentSection.id === sectionId);
+    const item = section?.items.find((currentItem) => currentItem.id === itemId);
+
+    if (!item) {
+      return;
+    }
+
     updateSectionItem(sectionId, itemId, {
-      meta_json: placement ? JSON.stringify({ placement }) : "",
+      meta_json: updateMetaJson(item.meta_json, patch),
+    });
+  }
+
+  function updateDraftItemMeta(sectionId: number, patch: Record<string, string>) {
+    setDraftItems((current) => {
+      const draft = current[sectionId] ?? emptySectionItem;
+
+      return {
+        ...current,
+        [sectionId]: {
+          ...draft,
+          meta_json: updateMetaJson(draft.meta_json, patch),
+        },
+      };
     });
   }
 
@@ -839,6 +872,7 @@ function App() {
                     <option value="stats">Статистика</option>
                     <option value="cards_grid">Карточки</option>
                     <option value="cards_two_columns">Карточки 2 колонки</option>
+                    <option value="services">Услуги и цены</option>
                     <option value="locations_grid">Локации</option>
                     <option value="timeline">Таймлайн</option>
                     <option value="highlight">Акцент</option>
@@ -983,8 +1017,19 @@ function App() {
                           }
                           placeholder="Изображение"
                         />
+                        <input
+                          value={readMetaValue(item.meta_json, "price")}
+                          onChange={(event) =>
+                            updateSectionItemPrice(
+                              section.id,
+                              item.id,
+                              event.target.value,
+                            )
+                          }
+                          placeholder="Цена"
+                        />
                         <select
-                          value={readPlacement(item.meta_json)}
+                          value={readMetaValue(item.meta_json, "placement")}
                           onChange={(event) =>
                             updateSectionItemPlacement(
                               section.id,
@@ -1079,20 +1124,27 @@ function App() {
                       }
                       placeholder="Изображение"
                     />
-                    <select
-                      value={readPlacement(
+                    <input
+                      value={readMetaValue(
                         (draftItems[section.id] ?? emptySectionItem).meta_json,
+                        "price",
                       )}
                       onChange={(event) =>
-                        setDraftItems((current) => ({
-                          ...current,
-                          [section.id]: {
-                            ...(current[section.id] ?? emptySectionItem),
-                            meta_json: event.target.value
-                              ? JSON.stringify({ placement: event.target.value })
-                              : "",
-                          },
-                        }))
+                        updateDraftItemMeta(section.id, {
+                          price: event.target.value,
+                        })
+                      }
+                      placeholder="Цена"
+                    />
+                    <select
+                      value={readMetaValue(
+                        (draftItems[section.id] ?? emptySectionItem).meta_json,
+                        "placement",
+                      )}
+                      onChange={(event) =>
+                        updateDraftItemMeta(section.id, {
+                          placement: event.target.value,
+                        })
                       }
                     >
                       {placementOptions.map((option) => (
@@ -1125,6 +1177,8 @@ function App() {
               <option value="rich_text">Текст</option>
               <option value="stats">Статистика</option>
               <option value="cards_grid">Карточки</option>
+              <option value="cards_two_columns">Карточки 2 колонки</option>
+              <option value="services">Услуги и цены</option>
               <option value="locations_grid">Локации</option>
               <option value="timeline">Таймлайн</option>
               <option value="highlight">Акцент</option>
@@ -1370,17 +1424,53 @@ function nextSortOrder(items: Array<{ sort_order: number }>) {
   return Math.max(...items.map((item) => item.sort_order)) + 10;
 }
 
-function readPlacement(metaJson: string | null) {
+function readMetaValue(metaJson: string | null, key: string) {
   if (!metaJson) {
     return "";
   }
 
   try {
-    const parsed = JSON.parse(metaJson) as { placement?: unknown };
-    return typeof parsed.placement === "string" ? parsed.placement : "";
+    const parsed = JSON.parse(metaJson) as Record<string, unknown>;
+    const value = parsed[key];
+    return typeof value === "string" ? value : "";
   } catch {
     return "";
   }
+}
+
+function updateMetaJson(metaJson: string | null, patch: Record<string, string>) {
+  let parsed: Record<string, string> = {};
+
+  if (metaJson) {
+    try {
+      const value = JSON.parse(metaJson) as Record<string, unknown>;
+      parsed = Object.entries(value).reduce<Record<string, string>>(
+        (result, [key, entryValue]) => {
+          if (typeof entryValue === "string" && entryValue.trim() !== "") {
+            result[key] = entryValue;
+          }
+
+          return result;
+        },
+        {},
+      );
+    } catch {
+      parsed = {};
+    }
+  }
+
+  Object.entries(patch).forEach(([key, value]) => {
+    const trimmedValue = value.trim();
+
+    if (trimmedValue === "") {
+      delete parsed[key];
+      return;
+    }
+
+    parsed[key] = trimmedValue;
+  });
+
+  return Object.keys(parsed).length > 0 ? JSON.stringify(parsed) : "";
 }
 
 function sectionTypeLabel(type: string) {
@@ -1390,6 +1480,7 @@ function sectionTypeLabel(type: string) {
     stats: "Статистика",
     cards_grid: "Карточки",
     cards_two_columns: "Карточки 2 колонки",
+    services: "Услуги и цены",
     locations_grid: "Локации",
     timeline: "Таймлайн",
     highlight: "Акцент",

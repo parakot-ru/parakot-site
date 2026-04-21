@@ -267,6 +267,7 @@ a {
 .stat,
 .info-card,
 .feature-card,
+.service-card,
 .location-card,
 .highlight-box,
 .mood-card,
@@ -379,6 +380,7 @@ a {
 .stat,
 .info-card,
 .feature-card,
+.service-card,
 .location-card,
 .mood-card {
   border-radius: 1.4rem;
@@ -407,12 +409,45 @@ h3 {
 .stat span,
 .info-card p,
 .feature-card p,
+.service-card p,
 .location-card p,
 .steps span,
 .highlight-box p,
 .faq-list p {
   color: var(--muted);
   line-height: 1.7;
+}
+
+.services-section {
+  background:
+    radial-gradient(circle at 80% 12%, rgba(255, 187, 83, 0.18), transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(232, 243, 251, 0.42));
+}
+
+.service-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.service-card {
+  display: grid;
+  align-content: end;
+  min-height: 280px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(251, 254, 255, 0.92));
+  background-position: center;
+  background-size: cover;
+  overflow: hidden;
+}
+
+.service-price {
+  width: fit-content;
+  margin: -0.25rem 0 0.75rem;
+  border-radius: 999px;
+  padding: 0.5rem 0.75rem;
+  color: #17425e;
+  background: rgba(255, 189, 91, 0.9);
+  font-size: 0.98rem;
+  box-shadow: 0 12px 28px rgba(159, 104, 29, 0.16);
 }
 
 .three-columns {
@@ -617,6 +652,7 @@ h3 {
 }
 
 .form input,
+.interest-trigger,
 .form textarea {
   width: 100%;
   border: 1px solid rgba(24, 50, 72, 0.12);
@@ -625,6 +661,69 @@ h3 {
   background: rgba(255, 255, 255, 0.8);
   color: var(--text);
   font: inherit;
+}
+
+.interest-select {
+  position: relative;
+}
+
+.interest-trigger {
+  position: relative;
+  min-height: 3.25rem;
+  padding-right: 2.5rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.interest-trigger::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  width: 0.52rem;
+  height: 0.52rem;
+  border-right: 2px solid rgba(86, 113, 136, 0.75);
+  border-bottom: 2px solid rgba(86, 113, 136, 0.75);
+  transform: translateY(-65%) rotate(45deg);
+}
+
+.interest-menu {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  left: 0;
+  z-index: 5;
+  display: none;
+  gap: 0.35rem;
+  border: 1px solid rgba(24, 50, 72, 0.12);
+  border-radius: 1rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 18px 45px rgba(31, 73, 108, 0.16);
+}
+
+.interest-select.is-open .interest-menu {
+  display: grid;
+}
+
+.interest-menu label {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.interest-menu label:hover {
+  background: rgba(232, 245, 255, 0.78);
+}
+
+.interest-menu input {
+  width: auto;
+  min-height: auto;
 }
 
 .form input::placeholder,
@@ -730,6 +829,7 @@ h3 {
   .two-columns,
   .location-grid,
   .mood-grid,
+  .service-grid,
   .faq-list,
   .steps,
   .stats {

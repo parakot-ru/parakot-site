@@ -442,21 +442,21 @@
           <h2>Если такой формат откликается, можно написать или просто позвонить</h2>
         </div>
         <div class="contacts-grid">
-          <div class="contact-card">
+          <div class="contact-card" data-dynamic-contacts>
             <p class="contact-label">Телефоны</p>
             <a href="tel:+79197551443">+7 (919) 755-14-43</a>
             <a href="tel:+79283580603">+7 (928) 358-06-03</a>
             <p class="contact-label">Telegram</p>
             <a href="https://t.me/parakot_obuchenie">@parakot_obuchenie</a>
           </div>
-          <form class="form">
+          <form class="form" data-lead-form>
             <label>
               <span>Имя</span>
-              <input type="text" name="name" placeholder="Как к вам обращаться" />
+              <input type="text" name="name" placeholder="Как к вам обращаться" required />
             </label>
             <label>
               <span>Телефон или Telegram</span>
-              <input type="text" name="contact" placeholder="+7 ... / @username" />
+              <input type="text" name="contact" placeholder="+7 ... / @username" required />
             </label>
             <label>
               <span>Что интересует</span>
@@ -470,7 +470,8 @@
                 placeholder="Какие даты удобны и какой у вас опыт"
               ></textarea>
             </label>
-            <button class="button" type="button">Отправить заявку</button>
+            <button class="button" type="submit">Отправить заявку</button>
+            <p class="form-status" data-form-status aria-live="polite"></p>
           </form>
         </div>
       </section>

@@ -326,6 +326,13 @@ a {
   font-size: clamp(2.2rem, 5vw, 4rem);
 }
 
+.section-description {
+  max-width: 46rem;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
 .about-grid,
 .contacts-grid {
   display: grid;
@@ -454,6 +461,11 @@ h3 {
     linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(232, 245, 255, 0.8));
 }
 
+.highlight-list {
+  display: grid;
+  gap: 1rem;
+}
+
 .mood-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -544,6 +556,18 @@ h3 {
 .form input::placeholder,
 .form textarea::placeholder {
   color: rgba(86, 113, 136, 0.7);
+}
+
+.form-status {
+  min-height: 1.4rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.form button:disabled {
+  cursor: wait;
+  opacity: 0.7;
 }
 
 @keyframes doodleFloat {

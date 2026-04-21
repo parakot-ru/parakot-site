@@ -1,4 +1,4 @@
-import { StrictMode, useEffect, useMemo, useState } from "react";
+import { StrictMode, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Check,
@@ -162,7 +162,9 @@ function App() {
   const [draftItems, setDraftItems] = useState<Record<number, Omit<SectionItem, "id" | "section_id">>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
 
   const visibleContactsCount = useMemo(
     () => contacts.filter((contact) => Number(contact.is_visible) === 1).length,
@@ -180,7 +182,11 @@ function App() {
 
   async function request<T>(path: string, options?: RequestInit): Promise<T> {
     const headers = new Headers(options?.headers);
-    headers.set("Content-Type", "application/json");
+    const isFormData = options?.body instanceof FormData;
+
+    if (!isFormData) {
+      headers.set("Content-Type", "application/json");
+    }
 
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
@@ -326,6 +332,58 @@ function App() {
       showToast("error", getErrorMessage(error));
     } finally {
       setIsSavingSettings(false);
+    }
+  }
+
+  async function uploadLogo(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      showToast("error", "Логотип должен быть не тяжелее 2 МБ");
+      event.target.value = "";
+      return;
+    }
+
+    setIsUploadingLogo(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("logo", file);
+
+      const saved = await request<Settings>("/uploads/logo", {
+        method: "POST",
+        body: formData,
+      });
+
+      setSettings(saved);
+      showToast("success", "Логотип загружен");
+    } catch (error) {
+      showToast("error", getErrorMessage(error));
+    } finally {
+      setIsUploadingLogo(false);
+      event.target.value = "";
+    }
+  }
+
+  async function deleteLogo() {
+    if (!settings) {
+      return;
+    }
+
+    try {
+      const saved = await request<Settings>("/settings", {
+        method: "PUT",
+        body: JSON.stringify({ ...settings, logo_url: null }),
+      });
+
+      setSettings(saved);
+      showToast("success", "Логотип удален из настроек");
+    } catch (error) {
+      showToast("error", getErrorMessage(error));
     }
   }
 
@@ -809,15 +867,60 @@ function App() {
                   }
                 />
               </Field>
-              <Field label="Логотип">
-                <input
-                  value={settings.logo_url ?? ""}
-                  onChange={(event) =>
-                    setSettings({ ...settings, logo_url: event.target.value })
-                  }
-                  placeholder="/assets/parakot-logo.webp"
-                />
-              </Field>
+              <div className="logo-settings field-wide">
+                <div className="logo-preview">
+                  {settings.logo_url ? (
+                    <img src={settings.logo_url} alt="Текущий логотип" />
+                  ) : (
+                    <span>Лого не задан</span>
+                  )}
+                </div>
+                <div className="logo-controls">
+                  <Field label="Адрес логотипа">
+                    <input
+                      className="readonly-input"
+                      value={settings.logo_url ?? ""}
+                      placeholder="Логотип не выбран"
+                      readOnly
+                    />
+                  </Field>
+                  <p className="field-help">
+                    PNG, JPG или WEBP до 2 МБ. Лучше использовать
+                    горизонтальный логотип на прозрачном фоне, примерно 400×200 px.
+                  </p>
+                  <div className="row-actions">
+                    <input
+                      ref={logoInputRef}
+                      className="visually-hidden"
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={uploadLogo}
+                    />
+                    <button
+                      className="primary-button"
+                      type="button"
+                      disabled={isUploadingLogo}
+                      onClick={() => logoInputRef.current?.click()}
+                    >
+                      {isUploadingLogo ? (
+                        <Loader2 size={18} className="spin" />
+                      ) : (
+                        <Plus size={18} />
+                      )}
+                      {settings.logo_url ? "Заменить логотип" : "Загрузить логотип"}
+                    </button>
+                    <button
+                      className="danger-text-button"
+                      type="button"
+                      disabled={!settings.logo_url}
+                      onClick={deleteLogo}
+                    >
+                      <Trash2 size={17} />
+                      Удалить
+                    </button>
+                  </div>
+                </div>
+              </div>
               <Field label="Email для заявок">
                 <input
                   value={settings.recipient_email ?? ""}
@@ -868,7 +971,18 @@ function App() {
                     <strong>{section.label || "Без метки"}</strong>
                     <small>{sectionTypeLabel(section.type)}</small>
                   </div>
-                  <em>{Number(section.is_published) === 1 ? "На сайте" : "Черновик"}</em>
+                  <label className="publish-toggle">
+                    <input
+                      type="checkbox"
+                      checked={Number(section.is_published) === 1}
+                      onChange={(event) =>
+                        updateSection(section.id, {
+                          is_published: event.target.checked ? 1 : 0,
+                        })
+                      }
+                    />
+                    {Number(section.is_published) === 1 ? "На сайте" : "Черновик"}
+                  </label>
                 </div>
                 <div className="section-editor-head">
                   <select
@@ -907,18 +1021,6 @@ function App() {
                     }
                     placeholder="Порядок"
                   />
-                  <label className="toggle toggle-wide">
-                    <input
-                      type="checkbox"
-                      checked={Number(section.is_published) === 1}
-                      onChange={(event) =>
-                        updateSection(section.id, {
-                          is_published: event.target.checked ? 1 : 0,
-                        })
-                      }
-                    />
-                    Опубликовано
-                  </label>
                 </div>
                 <div className="form-grid">
                   <Field label="Заголовок">
@@ -930,14 +1032,29 @@ function App() {
                     />
                   </Field>
                   <Field label="Пункт меню">
-                    <input
-                      value={section.menu_title ?? ""}
-                      onChange={(event) =>
-                        updateSection(section.id, {
-                          menu_title: event.target.value,
-                        })
-                      }
-                    />
+                    <div className="menu-field">
+                      <input
+                        value={section.menu_title ?? ""}
+                        onChange={(event) =>
+                          updateSection(section.id, {
+                            menu_title: event.target.value,
+                          })
+                        }
+                        placeholder="Например: Цены"
+                      />
+                      <label className="menu-toggle">
+                        <input
+                          type="checkbox"
+                          checked={Number(section.show_in_menu) === 1}
+                          onChange={(event) =>
+                            updateSection(section.id, {
+                              show_in_menu: event.target.checked ? 1 : 0,
+                            })
+                          }
+                        />
+                        {Number(section.show_in_menu) === 1 ? "В меню" : "Не в меню"}
+                      </label>
+                    </div>
                   </Field>
                   <Field label="Изображение">
                     <input
@@ -950,21 +1067,6 @@ function App() {
                       placeholder="/uploads/image.jpg"
                     />
                   </Field>
-                  <label className="field checkbox-field">
-                    <span>Меню</span>
-                    <label className="toggle toggle-wide">
-                      <input
-                        type="checkbox"
-                        checked={Number(section.show_in_menu) === 1}
-                        onChange={(event) =>
-                          updateSection(section.id, {
-                            show_in_menu: event.target.checked ? 1 : 0,
-                          })
-                        }
-                      />
-                      Показывать
-                    </label>
-                  </label>
                   <Field label="Описание" wide>
                     <textarea
                       rows={3}

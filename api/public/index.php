@@ -158,6 +158,14 @@ try {
         exit;
     }
 
+    if ($method === 'POST' && $segments === ['uploads', 'logo']) {
+        Response::json([
+            'ok' => true,
+            'data' => uploadLogo($connection),
+        ], 201);
+        exit;
+    }
+
     if ($method === 'GET' && $segments === ['settings']) {
         Response::json([
             'ok' => true,
@@ -461,6 +469,11 @@ try {
         'ok' => false,
         'error' => 'Route not found.',
     ], 404);
+} catch (InvalidArgumentException $exception) {
+    Response::json([
+        'ok' => false,
+        'error' => $exception->getMessage(),
+    ], 422);
 } catch (Throwable $exception) {
     $debug = Env::get('APP_DEBUG', '0') === '1';
 
@@ -730,6 +743,107 @@ function fetchSettings(PDO $connection): array
     $settings = $statement->fetch();
 
     return is_array($settings) ? $settings : [];
+}
+
+function uploadLogo(PDO $connection): array
+{
+    if (!isset($_FILES['logo']) || !is_array($_FILES['logo'])) {
+        throw new InvalidArgumentException('Файл логотипа не передан.');
+    }
+
+    $file = $_FILES['logo'];
+    $error = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
+
+    if ($error !== UPLOAD_ERR_OK) {
+        throw new InvalidArgumentException(uploadErrorMessage($error));
+    }
+
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    $size = (int) ($file['size'] ?? 0);
+
+    if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+        throw new InvalidArgumentException('Не удалось прочитать загруженный файл.');
+    }
+
+    if ($size <= 0 || $size > 2 * 1024 * 1024) {
+        throw new InvalidArgumentException('Логотип должен быть не тяжелее 2 МБ.');
+    }
+
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = (string) $finfo->file($tmpName);
+    $allowedTypes = [
+        'image/png' => 'png',
+        'image/jpeg' => 'jpg',
+        'image/webp' => 'webp',
+    ];
+
+    if (!array_key_exists($mimeType, $allowedTypes)) {
+        throw new InvalidArgumentException('Можно загрузить только PNG, JPG или WEBP.');
+    }
+
+    $uploadDirectory = publicRootPath() . '/uploads';
+
+    if (!is_dir($uploadDirectory) && !mkdir($uploadDirectory, 0755, true) && !is_dir($uploadDirectory)) {
+        throw new RuntimeException('Не удалось создать папку uploads.');
+    }
+
+    $filename = sprintf(
+        'logo-%s-%s.%s',
+        date('Ymd-His'),
+        bin2hex(random_bytes(4)),
+        $allowedTypes[$mimeType]
+    );
+    $destination = $uploadDirectory . '/' . $filename;
+
+    if (!move_uploaded_file($tmpName, $destination)) {
+        throw new RuntimeException('Не удалось сохранить логотип.');
+    }
+
+    @chmod($destination, 0644);
+
+    $logoUrl = requestOrigin() . '/uploads/' . $filename;
+    $statement = $connection->prepare('UPDATE site_settings SET logo_url = :logo_url WHERE id = 1');
+    $statement->execute([':logo_url' => $logoUrl]);
+
+    return fetchSettings($connection);
+}
+
+function uploadErrorMessage(int $error): string
+{
+    if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
+        return 'Логотип слишком большой.';
+    }
+
+    if ($error === UPLOAD_ERR_NO_FILE) {
+        return 'Файл логотипа не выбран.';
+    }
+
+    return 'Не удалось загрузить логотип.';
+}
+
+function publicRootPath(): string
+{
+    $documentRoot = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
+
+    if ($documentRoot !== '' && is_dir($documentRoot)) {
+        return $documentRoot;
+    }
+
+    if (basename(__DIR__) === 'api') {
+        return dirname(__DIR__);
+    }
+
+    return __DIR__;
+}
+
+function requestOrigin(): string
+{
+    $forwardedProtocol = strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $forwardedProtocol === 'https';
+    $scheme = $isHttps ? 'https' : 'http';
+    $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
+
+    return $scheme . '://' . $host;
 }
 
 /**

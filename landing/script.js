@@ -105,9 +105,14 @@ function applySettings(settings) {
     brandText.textContent = settings.site_title;
   }
 
-  if (brandLogo && settings.logo_url) {
-    brandLogo.src = settings.logo_url;
-    brandLogo.alt = settings.site_title || "Паракот";
+  if (brandLogo) {
+    if (settings.logo_url) {
+      brandLogo.hidden = false;
+      brandLogo.src = settings.logo_url;
+      brandLogo.alt = settings.site_title || "Паракот";
+    } else {
+      brandLogo.hidden = true;
+    }
   }
 
   const hero = document.querySelector(".hero");

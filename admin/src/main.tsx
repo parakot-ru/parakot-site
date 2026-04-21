@@ -163,6 +163,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [imageBusyKey, setImageBusyKey] = useState<string | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
   const logoInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -458,6 +459,66 @@ function App() {
     }
   }
 
+  async function uploadSectionImage(
+    sectionId: number,
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    const file = event.target.files?.[0];
+    const busyKey = `section-${sectionId}`;
+
+    if (!file) {
+      return;
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+      showToast("error", "Изображение должно быть не тяжелее 8 МБ");
+      event.target.value = "";
+      return;
+    }
+
+    setImageBusyKey(busyKey);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const saved = await request<Section>(`/sections/${sectionId}/image`, {
+        method: "POST",
+        body: formData,
+      });
+
+      setSections((current) =>
+        current.map((section) => (section.id === saved.id ? saved : section)),
+      );
+      showToast("success", "Изображение секции обновлено");
+    } catch (error) {
+      showToast("error", getErrorMessage(error));
+    } finally {
+      setImageBusyKey(null);
+      event.target.value = "";
+    }
+  }
+
+  async function deleteSectionImage(sectionId: number) {
+    const busyKey = `section-${sectionId}`;
+    setImageBusyKey(busyKey);
+
+    try {
+      const saved = await request<Section>(`/sections/${sectionId}/image`, {
+        method: "DELETE",
+      });
+
+      setSections((current) =>
+        current.map((section) => (section.id === saved.id ? saved : section)),
+      );
+      showToast("success", "Изображение секции удалено");
+    } catch (error) {
+      showToast("error", getErrorMessage(error));
+    } finally {
+      setImageBusyKey(null);
+    }
+  }
+
   async function createSectionItem(sectionId: number) {
     const draft = draftItems[sectionId] ?? emptySectionItem;
 
@@ -510,6 +571,85 @@ function App() {
       showToast("success", "Карточка обновлена");
     } catch (error) {
       showToast("error", getErrorMessage(error));
+    }
+  }
+
+  async function uploadSectionItemImage(
+    sectionId: number,
+    itemId: number,
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    const file = event.target.files?.[0];
+    const busyKey = `item-${itemId}`;
+
+    if (!file) {
+      return;
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+      showToast("error", "Изображение должно быть не тяжелее 8 МБ");
+      event.target.value = "";
+      return;
+    }
+
+    setImageBusyKey(busyKey);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const saved = await request<SectionItem>(`/section-items/${itemId}/image`, {
+        method: "POST",
+        body: formData,
+      });
+
+      setSections((current) =>
+        current.map((section) =>
+          section.id === sectionId
+            ? {
+                ...section,
+                items: section.items.map((item) =>
+                  item.id === saved.id ? saved : item,
+                ),
+              }
+            : section,
+        ),
+      );
+      showToast("success", "Изображение карточки обновлено");
+    } catch (error) {
+      showToast("error", getErrorMessage(error));
+    } finally {
+      setImageBusyKey(null);
+      event.target.value = "";
+    }
+  }
+
+  async function deleteSectionItemImage(sectionId: number, itemId: number) {
+    const busyKey = `item-${itemId}`;
+    setImageBusyKey(busyKey);
+
+    try {
+      const saved = await request<SectionItem>(`/section-items/${itemId}/image`, {
+        method: "DELETE",
+      });
+
+      setSections((current) =>
+        current.map((section) =>
+          section.id === sectionId
+            ? {
+                ...section,
+                items: section.items.map((item) =>
+                  item.id === saved.id ? saved : item,
+                ),
+              }
+            : section,
+        ),
+      );
+      showToast("success", "Изображение карточки удалено");
+    } catch (error) {
+      showToast("error", getErrorMessage(error));
+    } finally {
+      setImageBusyKey(null);
     }
   }
 
@@ -1069,14 +1209,17 @@ function App() {
                     </div>
                   </Field>
                   <Field label="Изображение">
-                    <input
+                    <ManagedImageField
                       value={section.image_path ?? ""}
-                      onChange={(event) =>
+                      placeholder="/uploads/image.jpg"
+                      isBusy={imageBusyKey === `section-${section.id}`}
+                      onTextChange={(value) =>
                         updateSection(section.id, {
-                          image_path: event.target.value,
+                          image_path: value,
                         })
                       }
-                      placeholder="/uploads/image.jpg"
+                      onFileSelect={(event) => uploadSectionImage(section.id, event)}
+                      onDelete={() => deleteSectionImage(section.id)}
                     />
                   </Field>
                   <Field label="Описание" wide>
@@ -1132,14 +1275,20 @@ function App() {
                           }
                           placeholder="Описание"
                         />
-                        <input
+                        <ManagedImageField
+                          compact
                           value={item.image_path ?? ""}
-                          onChange={(event) =>
+                          placeholder="Изображение"
+                          isBusy={imageBusyKey === `item-${item.id}`}
+                          onTextChange={(value) =>
                             updateSectionItem(section.id, item.id, {
-                              image_path: event.target.value,
+                              image_path: value,
                             })
                           }
-                          placeholder="Изображение"
+                          onFileSelect={(event) =>
+                            uploadSectionItemImage(section.id, item.id, event)
+                          }
+                          onDelete={() => deleteSectionItemImage(section.id, item.id)}
                         />
                         <input
                           value={readMetaValue(item.meta_json, "price")}
@@ -1489,6 +1638,56 @@ function App() {
         </section>
       </section>
     </main>
+  );
+}
+
+function ManagedImageField({
+  value,
+  placeholder,
+  isBusy,
+  compact = false,
+  onTextChange,
+  onFileSelect,
+  onDelete,
+}: {
+  value: string;
+  placeholder: string;
+  isBusy: boolean;
+  compact?: boolean;
+  onTextChange: (value: string) => void;
+  onFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onDelete: () => void;
+}) {
+  return (
+    <div className={`image-field${compact ? " image-field-compact" : ""}`}>
+      <input
+        value={value}
+        onChange={(event) => onTextChange(event.target.value)}
+        placeholder={placeholder}
+      />
+      <div className="image-actions">
+        <label className={`media-upload-button${isBusy ? " is-disabled" : ""}`}>
+          {isBusy ? <Loader2 size={16} className="spin" /> : <Plus size={16} />}
+          {value ? "Заменить" : "Загрузить"}
+          <input
+            className="visually-hidden"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            disabled={isBusy}
+            onChange={onFileSelect}
+          />
+        </label>
+        <button
+          className="danger-text-button image-delete-button"
+          type="button"
+          disabled={!value || isBusy}
+          onClick={onDelete}
+        >
+          <Trash2 size={16} />
+          Удалить
+        </button>
+      </div>
+    </div>
   );
 }
 

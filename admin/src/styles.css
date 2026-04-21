@@ -529,6 +529,55 @@ textarea:focus {
   gap: 10px;
 }
 
+.image-field {
+  display: grid;
+  gap: 8px;
+}
+
+.image-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.media-upload-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 12px;
+  color: #fff;
+  background: #1f7fae;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.media-upload-button.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.image-delete-button {
+  min-height: 38px;
+  font-size: 13px;
+}
+
+.image-field-compact .image-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.image-field-compact .media-upload-button,
+.image-field-compact .image-delete-button {
+  min-width: 0;
+  padding: 0 8px;
+}
+
 .danger-text-button {
   display: inline-flex;
   align-items: center;
@@ -563,7 +612,7 @@ textarea:focus {
 }
 
 .section-item-row {
-  grid-template-columns: minmax(140px, 1fr) minmax(160px, 1.2fr) minmax(140px, 1fr) minmax(110px, 0.7fr) minmax(150px, 0.8fr) 92px 42px 42px;
+  grid-template-columns: minmax(140px, 1fr) minmax(160px, 1.1fr) minmax(230px, 1.35fr) minmax(110px, 0.6fr) minmax(150px, 0.75fr) 92px 42px 42px;
   padding: 10px;
   border: 1px solid #dbe4e8;
   border-radius: 12px;

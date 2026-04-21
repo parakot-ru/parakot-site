@@ -166,6 +166,42 @@ try {
         exit;
     }
 
+    if ($method === 'POST' && count($segments) === 3 && $segments[0] === 'sections' && $segments[2] === 'image') {
+        $sectionId = requirePositiveInt($segments[1], 'section id');
+        Response::json([
+            'ok' => true,
+            'data' => uploadSectionImage($connection, $sectionId),
+        ], 201);
+        exit;
+    }
+
+    if ($method === 'DELETE' && count($segments) === 3 && $segments[0] === 'sections' && $segments[2] === 'image') {
+        $sectionId = requirePositiveInt($segments[1], 'section id');
+        Response::json([
+            'ok' => true,
+            'data' => deleteSectionImage($connection, $sectionId),
+        ]);
+        exit;
+    }
+
+    if ($method === 'POST' && count($segments) === 3 && $segments[0] === 'section-items' && $segments[2] === 'image') {
+        $itemId = requirePositiveInt($segments[1], 'section item id');
+        Response::json([
+            'ok' => true,
+            'data' => uploadSectionItemImage($connection, $itemId),
+        ], 201);
+        exit;
+    }
+
+    if ($method === 'DELETE' && count($segments) === 3 && $segments[0] === 'section-items' && $segments[2] === 'image') {
+        $itemId = requirePositiveInt($segments[1], 'section item id');
+        Response::json([
+            'ok' => true,
+            'data' => deleteSectionItemImage($connection, $itemId),
+        ]);
+        exit;
+    }
+
     if ($method === 'GET' && $segments === ['settings']) {
         Response::json([
             'ok' => true,
@@ -315,7 +351,8 @@ try {
     if (($method === 'PUT' || $method === 'PATCH') && count($segments) === 2 && $segments[0] === 'sections') {
         $sectionId = requirePositiveInt($segments[1], 'section id');
         $payload = requireJsonBody();
-        ensureRecordExists($connection, 'sections', $sectionId);
+        $existingSection = ensureRecordExists($connection, 'sections', $sectionId);
+        $nextImagePath = nullableString($payload, 'image_path');
 
         $statement = $connection->prepare(
             'UPDATE sections
@@ -338,10 +375,14 @@ try {
             ':show_in_menu' => boolToInt($payload, 'show_in_menu', false),
             ':title' => requiredString($payload, 'title'),
             ':description' => nullableString($payload, 'description'),
-            ':image_path' => nullableString($payload, 'image_path'),
+            ':image_path' => $nextImagePath,
             ':sort_order' => intValue($payload, 'sort_order', 0),
             ':is_published' => boolToInt($payload, 'is_published', true),
         ]);
+
+        if ((string) ($existingSection['image_path'] ?? '') !== (string) ($nextImagePath ?? '')) {
+            deleteUnusedLocalUpload($connection, nullableString($existingSection, 'image_path'));
+        }
 
         Response::json([
             'ok' => true,
@@ -352,8 +393,15 @@ try {
 
     if ($method === 'DELETE' && count($segments) === 2 && $segments[0] === 'sections') {
         $sectionId = requirePositiveInt($segments[1], 'section id');
-        ensureRecordExists($connection, 'sections', $sectionId);
+        $existingSection = ensureRecordExists($connection, 'sections', $sectionId);
+        $existingItems = fetchSectionItems($connection, $sectionId, false);
         deleteById($connection, 'sections', $sectionId);
+        deleteUnusedLocalUpload($connection, nullableString($existingSection, 'image_path'));
+
+        foreach ($existingItems as $existingItem) {
+            deleteUnusedLocalUpload($connection, nullableString($existingItem, 'image_path'));
+        }
+
         Response::noContent();
         exit;
     }
@@ -391,6 +439,7 @@ try {
         $itemId = requirePositiveInt($segments[1], 'section item id');
         $payload = requireJsonBody();
         $existingItem = ensureRecordExists($connection, 'section_items', $itemId);
+        $nextImagePath = nullableString($payload, 'image_path');
 
         $sectionId = array_key_exists('section_id', $payload)
             ? requirePositiveInt((string) $payload['section_id'], 'section id')
@@ -414,12 +463,16 @@ try {
             ':section_id' => $sectionId,
             ':title' => requiredString($payload, 'title'),
             ':description' => nullableString($payload, 'description'),
-            ':image_path' => nullableString($payload, 'image_path'),
+            ':image_path' => $nextImagePath,
             ':link_url' => nullableString($payload, 'link_url'),
             ':meta_json' => encodeMetaJson($payload),
             ':sort_order' => intValue($payload, 'sort_order', 0),
             ':is_visible' => boolToInt($payload, 'is_visible', true),
         ]);
+
+        if ((string) ($existingItem['image_path'] ?? '') !== (string) ($nextImagePath ?? '')) {
+            deleteUnusedLocalUpload($connection, nullableString($existingItem, 'image_path'));
+        }
 
         Response::json([
             'ok' => true,
@@ -430,8 +483,9 @@ try {
 
     if ($method === 'DELETE' && count($segments) === 2 && $segments[0] === 'section-items') {
         $itemId = requirePositiveInt($segments[1], 'section item id');
-        ensureRecordExists($connection, 'section_items', $itemId);
+        $existingItem = ensureRecordExists($connection, 'section_items', $itemId);
         deleteById($connection, 'section_items', $itemId);
+        deleteUnusedLocalUpload($connection, nullableString($existingItem, 'image_path'));
         Response::noContent();
         exit;
     }
@@ -806,6 +860,217 @@ function uploadLogo(PDO $connection): array
     $statement->execute([':logo_url' => $logoUrl]);
 
     return fetchSettings($connection);
+}
+
+function uploadSectionImage(PDO $connection, int $sectionId): array
+{
+    $existingSection = ensureRecordExists($connection, 'sections', $sectionId);
+    $oldImagePath = nullableString($existingSection, 'image_path');
+    $newImagePath = storeUploadedImage('image', 8 * 1024 * 1024, 'section');
+
+    try {
+        $statement = $connection->prepare('UPDATE sections SET image_path = :image_path WHERE id = :id');
+        $statement->execute([
+            ':id' => $sectionId,
+            ':image_path' => $newImagePath,
+        ]);
+    } catch (Throwable $exception) {
+        deleteLocalUploadFile($newImagePath);
+        throw $exception;
+    }
+
+    deleteUnusedLocalUpload($connection, $oldImagePath);
+
+    return fetchSectionById($connection, $sectionId);
+}
+
+function deleteSectionImage(PDO $connection, int $sectionId): array
+{
+    $existingSection = ensureRecordExists($connection, 'sections', $sectionId);
+    $oldImagePath = nullableString($existingSection, 'image_path');
+    $statement = $connection->prepare('UPDATE sections SET image_path = NULL WHERE id = :id');
+    $statement->execute([':id' => $sectionId]);
+    deleteUnusedLocalUpload($connection, $oldImagePath);
+
+    return fetchSectionById($connection, $sectionId);
+}
+
+function uploadSectionItemImage(PDO $connection, int $itemId): array
+{
+    $existingItem = ensureRecordExists($connection, 'section_items', $itemId);
+    $oldImagePath = nullableString($existingItem, 'image_path');
+    $newImagePath = storeUploadedImage('image', 8 * 1024 * 1024, 'card');
+
+    try {
+        $statement = $connection->prepare('UPDATE section_items SET image_path = :image_path WHERE id = :id');
+        $statement->execute([
+            ':id' => $itemId,
+            ':image_path' => $newImagePath,
+        ]);
+    } catch (Throwable $exception) {
+        deleteLocalUploadFile($newImagePath);
+        throw $exception;
+    }
+
+    deleteUnusedLocalUpload($connection, $oldImagePath);
+
+    return findById($connection, 'section_items', $itemId);
+}
+
+function deleteSectionItemImage(PDO $connection, int $itemId): array
+{
+    $existingItem = ensureRecordExists($connection, 'section_items', $itemId);
+    $oldImagePath = nullableString($existingItem, 'image_path');
+    $statement = $connection->prepare('UPDATE section_items SET image_path = NULL WHERE id = :id');
+    $statement->execute([':id' => $itemId]);
+    deleteUnusedLocalUpload($connection, $oldImagePath);
+
+    return findById($connection, 'section_items', $itemId);
+}
+
+function storeUploadedImage(string $fieldName, int $maxBytes, string $prefix): string
+{
+    if (!isset($_FILES[$fieldName]) || !is_array($_FILES[$fieldName])) {
+        throw new InvalidArgumentException('Файл изображения не передан.');
+    }
+
+    $file = $_FILES[$fieldName];
+    $error = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
+
+    if ($error !== UPLOAD_ERR_OK) {
+        throw new InvalidArgumentException(uploadErrorMessage($error));
+    }
+
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    $size = (int) ($file['size'] ?? 0);
+
+    if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+        throw new InvalidArgumentException('Не удалось прочитать загруженный файл.');
+    }
+
+    if ($size <= 0 || $size > $maxBytes) {
+        throw new InvalidArgumentException('Изображение должно быть не тяжелее 8 МБ.');
+    }
+
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = (string) $finfo->file($tmpName);
+    $allowedTypes = [
+        'image/png' => 'png',
+        'image/jpeg' => 'jpg',
+        'image/webp' => 'webp',
+    ];
+
+    if (!array_key_exists($mimeType, $allowedTypes)) {
+        throw new InvalidArgumentException('Можно загрузить только PNG, JPG или WEBP.');
+    }
+
+    $uploadDirectory = publicRootPath() . '/uploads';
+
+    if (!is_dir($uploadDirectory) && !mkdir($uploadDirectory, 0755, true) && !is_dir($uploadDirectory)) {
+        throw new RuntimeException('Не удалось создать папку uploads.');
+    }
+
+    $filename = sprintf(
+        '%s-%s-%s.%s',
+        $prefix,
+        date('Ymd-His'),
+        bin2hex(random_bytes(4)),
+        $allowedTypes[$mimeType]
+    );
+    $destination = $uploadDirectory . '/' . $filename;
+
+    if (!move_uploaded_file($tmpName, $destination)) {
+        throw new RuntimeException('Не удалось сохранить изображение.');
+    }
+
+    @chmod($destination, 0644);
+
+    return requestOrigin() . '/uploads/' . $filename;
+}
+
+function deleteUnusedLocalUpload(PDO $connection, ?string $url): void
+{
+    if ($url === null || $url === '' || isUploadStillReferenced($connection, $url)) {
+        return;
+    }
+
+    deleteLocalUploadFile($url);
+}
+
+function isUploadStillReferenced(PDO $connection, string $url): bool
+{
+    $queries = [
+        [
+            'sql' => 'SELECT COUNT(*) FROM site_settings WHERE logo_url = :logo_url OR hero_background = :hero_background',
+            'params' => [
+                ':logo_url' => $url,
+                ':hero_background' => $url,
+            ],
+        ],
+        [
+            'sql' => 'SELECT COUNT(*) FROM sections WHERE image_path = :url',
+            'params' => [
+                ':url' => $url,
+            ],
+        ],
+        [
+            'sql' => 'SELECT COUNT(*) FROM section_items WHERE image_path = :url',
+            'params' => [
+                ':url' => $url,
+            ],
+        ],
+    ];
+
+    foreach ($queries as $query) {
+        $statement = $connection->prepare($query['sql']);
+        $statement->execute($query['params']);
+
+        if ((int) $statement->fetchColumn() > 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function deleteLocalUploadFile(string $url): void
+{
+    $relativePath = localUploadRelativePathFromUrl($url);
+
+    if ($relativePath === null) {
+        return;
+    }
+
+    $candidates = array_unique([
+        publicRootPath() . $relativePath,
+        dirname(__DIR__) . $relativePath,
+        dirname(__DIR__, 2) . $relativePath,
+    ]);
+
+    foreach ($candidates as $path) {
+        if (is_file($path)) {
+            @unlink($path);
+        }
+    }
+}
+
+function localUploadRelativePathFromUrl(string $url): ?string
+{
+    $host = parse_url($url, PHP_URL_HOST);
+    $currentHost = (string) ($_SERVER['HTTP_HOST'] ?? '');
+
+    if (is_string($host) && $currentHost !== '' && strcasecmp($host, $currentHost) !== 0) {
+        return null;
+    }
+
+    $path = parse_url($url, PHP_URL_PATH);
+    $path = is_string($path) ? $path : $url;
+
+    if (!preg_match('#^/uploads/[A-Za-z0-9._-]+$#', $path)) {
+        return null;
+    }
+
+    return $path;
 }
 
 function uploadErrorMessage(int $error): string

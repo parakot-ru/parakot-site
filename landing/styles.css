@@ -340,6 +340,11 @@ a {
   gap: 1.5rem;
 }
 
+.about-grid-single {
+  max-width: 860px;
+  grid-template-columns: 1fr;
+}
+
 .about-card,
 .contact-card,
 .form {

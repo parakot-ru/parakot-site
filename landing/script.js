@@ -45,6 +45,7 @@ if (parallaxItems.length > 0 && !prefersReducedMotion.matches) {
 
 const sectionClassByType = {
   cards_grid: "feature-card",
+  cards_two_columns: "info-card",
   locations_grid: "location-card",
   timeline: "step-card",
   stats: "stat",
@@ -75,7 +76,7 @@ async function loadDynamicContent() {
     applyContacts(payload.data.contacts);
     applySections(payload.data.sections);
   } catch {
-    // The static landing stays fully usable if the API is unavailable.
+    // Hero and contacts remain visible if the API is temporarily unavailable.
   }
 }
 
@@ -120,16 +121,24 @@ function applyContacts(contacts) {
 
   container.replaceChildren();
 
+  let previousLabel = "";
+
   contacts.forEach((contact) => {
-    const label = document.createElement("p");
-    label.className = "contact-label";
-    label.textContent = contact.label || contact.type || "Контакт";
+    const labelText = contact.label || contact.type || "Контакт";
+
+    if (labelText !== previousLabel) {
+      const label = document.createElement("p");
+      label.className = "contact-label";
+      label.textContent = labelText;
+      container.appendChild(label);
+      previousLabel = labelText;
+    }
 
     const link = document.createElement("a");
     link.href = contact.url || hrefFromContact(contact);
     link.textContent = contact.value || contact.url || contact.label;
 
-    container.append(label, link);
+    container.appendChild(link);
   });
 }
 
@@ -138,13 +147,6 @@ function applySections(sections) {
     return;
   }
 
-  const main = document.querySelector("main");
-
-  if (!main) {
-    return;
-  }
-
-  const contactsSection = document.querySelector("#contacts");
   const dynamicSections = document.createDocumentFragment();
 
   sections.forEach((section) => {
@@ -156,16 +158,13 @@ function applySections(sections) {
   });
 
   if (dynamicSections.childNodes.length > 0) {
-    const existingDynamic = document.querySelector("[data-api-sections]");
+    const wrapper = document.querySelector("[data-api-sections]");
 
-    if (existingDynamic) {
-      existingDynamic.remove();
+    if (!wrapper) {
+      return;
     }
 
-    const wrapper = document.createElement("div");
-    wrapper.dataset.apiSections = "true";
-    wrapper.appendChild(dynamicSections);
-    main.insertBefore(wrapper, contactsSection);
+    wrapper.replaceChildren(dynamicSections);
   }
 
   updateNavigation(sections);
@@ -218,7 +217,7 @@ function renderSection(section) {
 
   heading.append(eyebrow, title);
 
-  if (section.description) {
+  if (section.description && section.type !== "rich_text") {
     const description = document.createElement("p");
     description.className = "section-description";
     description.textContent = section.description;
@@ -227,11 +226,39 @@ function renderSection(section) {
 
   element.appendChild(heading);
 
+  if (section.type === "rich_text" && section.description) {
+    element.appendChild(renderRichText(section.description));
+  }
+
   if (Array.isArray(section.items) && section.items.length > 0) {
     element.appendChild(renderItems(section));
   }
 
   return element;
+}
+
+function renderRichText(text) {
+  const grid = document.createElement("div");
+  grid.className = "about-grid about-grid-single";
+
+  const card = document.createElement("div");
+  card.className = "about-card";
+
+  text.split(/\n{2,}/).forEach((paragraph) => {
+    const value = paragraph.trim();
+
+    if (!value) {
+      return;
+    }
+
+    const element = document.createElement("p");
+    element.textContent = value;
+    card.appendChild(element);
+  });
+
+  grid.appendChild(card);
+
+  return grid;
 }
 
 function renderItems(section) {
@@ -268,6 +295,10 @@ function sectionClassName(type) {
     return "section section-soft timeline";
   }
 
+  if (type === "rich_text") {
+    return "section section-soft about";
+  }
+
   if (type === "gallery") {
     return "section section-sky mood";
   }
@@ -286,6 +317,18 @@ function containerClassName(type) {
 
   if (type === "gallery") {
     return "mood-grid";
+  }
+
+  if (type === "stats") {
+    return "stats";
+  }
+
+  if (type === "cards_two_columns") {
+    return "cards two-columns";
+  }
+
+  if (type === "faq") {
+    return "faq-list";
   }
 
   if (type === "highlight") {

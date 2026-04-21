@@ -14,6 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Oranienbaum&display=swap"
       rel="stylesheet"
     />
+    <link rel="icon" type="image/png" href="./assets/favicon.png" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -180,7 +181,10 @@
               <input type="hidden" name="topic" data-interest-value />
               <div class="interest-select" data-interest-select>
                 <button class="interest-trigger" type="button" data-interest-trigger>
-                  Выбрать формат
+                  <span class="interest-placeholder" data-interest-placeholder>
+                    Выбрать формат
+                  </span>
+                  <span class="interest-clouds" data-interest-clouds></span>
                 </button>
                 <div class="interest-menu" data-interest-menu>
                   <label>

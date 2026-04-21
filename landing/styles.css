@@ -678,6 +678,10 @@ h3 {
 
 .interest-trigger {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
   min-height: 3.25rem;
   padding-right: 2.5rem;
   text-align: left;
@@ -694,6 +698,43 @@ h3 {
   border-right: 2px solid rgba(86, 113, 136, 0.75);
   border-bottom: 2px solid rgba(86, 113, 136, 0.75);
   transform: translateY(-65%) rotate(45deg);
+}
+
+.interest-placeholder {
+  color: rgba(86, 113, 136, 0.72);
+}
+
+.interest-clouds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.interest-cloud {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid rgba(93, 171, 219, 0.22);
+  border-radius: 999px;
+  padding: 0.38rem 0.58rem 0.38rem 0.72rem;
+  color: #17425e;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.95), transparent 34%),
+    rgba(232, 245, 255, 0.95);
+  box-shadow: 0 8px 18px rgba(57, 121, 164, 0.12);
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.interest-cloud-remove {
+  display: inline-grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  color: #20699e;
+  background: rgba(255, 255, 255, 0.78);
+  font-weight: 800;
 }
 
 .interest-menu {
@@ -717,7 +758,7 @@ h3 {
 
 .interest-menu label {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: 0.55rem;
   border-radius: 0.75rem;
@@ -731,8 +772,26 @@ h3 {
 }
 
 .interest-menu input {
-  width: auto;
-  min-height: auto;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.interest-menu label:has(input:checked) {
+  color: #17425e;
+  background: rgba(232, 245, 255, 0.95);
+  box-shadow: inset 0 0 0 1px rgba(93, 171, 219, 0.18);
+}
+
+.interest-menu label:has(input:checked)::after {
+  content: "выбрано";
+  justify-self: start;
+  border-radius: 999px;
+  padding: 0.18rem 0.48rem;
+  color: #20699e;
+  background: rgba(255, 255, 255, 0.82);
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .form input::placeholder,

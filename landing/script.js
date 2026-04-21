@@ -460,8 +460,10 @@ function wireInterestSelect() {
   const root = document.querySelector("[data-interest-select]");
   const trigger = document.querySelector("[data-interest-trigger]");
   const hidden = document.querySelector("[data-interest-value]");
+  const placeholder = document.querySelector("[data-interest-placeholder]");
+  const clouds = document.querySelector("[data-interest-clouds]");
 
-  if (!root || !trigger || !hidden) {
+  if (!root || !trigger || !hidden || !placeholder || !clouds) {
     return;
   }
 
@@ -473,9 +475,32 @@ function wireInterestSelect() {
       .map((checkbox) => checkbox.value);
 
     hidden.value = selected.join(", ");
-    trigger.textContent = selected.length > 0
-      ? selected.join(", ")
-      : "Выбрать формат";
+    placeholder.hidden = selected.length > 0;
+    clouds.replaceChildren();
+
+    selected.forEach((value) => {
+      const cloud = document.createElement("span");
+      cloud.className = "interest-cloud";
+      cloud.textContent = value;
+
+      const remove = document.createElement("span");
+      remove.className = "interest-cloud-remove";
+      remove.textContent = "×";
+      cloud.appendChild(remove);
+
+      cloud.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const checkbox = checkboxes.find((item) => item.value === value);
+
+        if (checkbox) {
+          checkbox.checked = false;
+          updateValue();
+        }
+      });
+
+      clouds.appendChild(cloud);
+    });
+
     root.classList.toggle("has-value", selected.length > 0);
   };
 

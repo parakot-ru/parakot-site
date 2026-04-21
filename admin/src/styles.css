@@ -452,6 +452,45 @@ textarea:focus {
   line-height: 1.45;
 }
 
+.settings-subpanel {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #dbe9ef;
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(240, 247, 250, 0.72)),
+    #f8fbfc;
+}
+
+.subpanel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.subpanel-heading div {
+  display: grid;
+  gap: 3px;
+}
+
+.subpanel-heading strong {
+  font-size: 17px;
+}
+
+.subpanel-heading small {
+  color: #70818d;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.seo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
 .menu-field {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 116px;
@@ -731,7 +770,8 @@ textarea:focus {
   }
 
   .metric-strip,
-  .form-grid {
+  .form-grid,
+  .seo-grid {
     grid-template-columns: 1fr;
   }
 

@@ -859,14 +859,6 @@ function App() {
                   }
                 />
               </Field>
-              <Field label="SEO title">
-                <input
-                  value={settings.seo_title ?? ""}
-                  onChange={(event) =>
-                    setSettings({ ...settings, seo_title: event.target.value })
-                  }
-                />
-              </Field>
               <div className="logo-settings field-wide">
                 <div className="logo-preview">
                   {settings.logo_url ? (
@@ -941,18 +933,38 @@ function App() {
                   }
                 />
               </Field>
-              <Field label="SEO description" wide>
-                <textarea
-                  rows={4}
-                  value={settings.seo_description ?? ""}
-                  onChange={(event) =>
-                    setSettings({
-                      ...settings,
-                      seo_description: event.target.value,
-                    })
-                  }
-                />
-              </Field>
+              <div className="settings-subpanel field-wide">
+                <div className="subpanel-heading">
+                  <div>
+                    <strong>SEO для поисковиков</strong>
+                    <small>
+                      Эти поля видны во вкладке браузера и в сниппете поисковой выдачи.
+                    </small>
+                  </div>
+                </div>
+                <div className="seo-grid">
+                  <Field label="SEO title">
+                    <input
+                      value={settings.seo_title ?? ""}
+                      onChange={(event) =>
+                        setSettings({ ...settings, seo_title: event.target.value })
+                      }
+                    />
+                  </Field>
+                  <Field label="SEO description" wide>
+                    <textarea
+                      rows={4}
+                      value={settings.seo_description ?? ""}
+                      onChange={(event) =>
+                        setSettings({
+                          ...settings,
+                          seo_description: event.target.value,
+                        })
+                      }
+                    />
+                  </Field>
+                </div>
+              </div>
             </div>
           )}
         </section>

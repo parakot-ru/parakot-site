@@ -134,6 +134,16 @@ const emptySectionItem: Omit<SectionItem, "id" | "section_id"> = {
   is_visible: 1,
 };
 
+const placementOptions = [
+  { value: "", label: "Авто" },
+  { value: "top-left", label: "Сверху слева" },
+  { value: "top-right", label: "Сверху справа" },
+  { value: "center-left", label: "По центру слева" },
+  { value: "center-right", label: "По центру справа" },
+  { value: "bottom-left", label: "Снизу слева" },
+  { value: "bottom-right", label: "Снизу справа" },
+];
+
 function App() {
   const [token, setToken] = useState<string | null>(() =>
     window.localStorage.getItem(TOKEN_STORAGE_KEY),
@@ -278,14 +288,16 @@ function App() {
     setIsLoading(true);
 
     try {
-      const [content, leadsList] = await Promise.all([
+      const [content, contactsList, sectionsList, leadsList] = await Promise.all([
         request<ContentPayload>("/content"),
+        request<Contact[]>("/contacts"),
+        request<Section[]>("/sections"),
         request<Lead[]>("/leads"),
       ]);
 
       setSettings(content.settings);
-      setContacts(content.contacts);
-      setSections(content.sections);
+      setContacts(contactsList);
+      setSections(sectionsList);
       setLeads(leadsList);
     } catch (error) {
       showToast("error", getErrorMessage(error));
@@ -323,9 +335,10 @@ function App() {
     }
 
     try {
+      const sortOrder = nextSortOrder(contacts);
       const created = await request<Contact>("/contacts", {
         method: "POST",
-        body: JSON.stringify(draftContact),
+        body: JSON.stringify({ ...draftContact, sort_order: sortOrder }),
       });
 
       setContacts((current) => [...current, created]);
@@ -343,9 +356,10 @@ function App() {
     }
 
     try {
+      const sortOrder = nextSortOrder(sections);
       const created = await request<Section>("/sections", {
         method: "POST",
-        body: JSON.stringify(draftSection),
+        body: JSON.stringify({ ...draftSection, sort_order: sortOrder }),
       });
 
       setSections((current) => [...current, created]);
@@ -394,9 +408,11 @@ function App() {
     }
 
     try {
+      const section = sections.find((currentSection) => currentSection.id === sectionId);
+      const sortOrder = section ? nextSortOrder(section.items) : 10;
       const created = await request<SectionItem>(`/sections/${sectionId}/items`, {
         method: "POST",
-        body: JSON.stringify(draft),
+        body: JSON.stringify({ ...draft, sort_order: sortOrder }),
       });
 
       setSections((current) =>
@@ -438,6 +454,51 @@ function App() {
     }
   }
 
+  async function moveSectionItem(sectionId: number, itemId: number, direction: -1 | 1) {
+    const section = sections.find((currentSection) => currentSection.id === sectionId);
+
+    if (!section) {
+      return;
+    }
+
+    const orderedItems = [...section.items].sort(sortByOrder);
+    const currentIndex = orderedItems.findIndex((item) => item.id === itemId);
+    const targetIndex = currentIndex + direction;
+
+    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= orderedItems.length) {
+      return;
+    }
+
+    const nextItems = reorderWithStep(orderedItems, currentIndex, targetIndex);
+    const changedItems = nextItems.filter((item) => {
+      const previous = section.items.find((currentItem) => currentItem.id === item.id);
+      return previous && previous.sort_order !== item.sort_order;
+    });
+
+    setSections((current) =>
+      current.map((currentSection) =>
+        currentSection.id === sectionId
+          ? { ...currentSection, items: nextItems }
+          : currentSection,
+      ),
+    );
+
+    try {
+      await Promise.all(
+        changedItems.map((item) =>
+          request<SectionItem>(`/section-items/${item.id}`, {
+            method: "PUT",
+            body: JSON.stringify(item),
+          }),
+        ),
+      );
+      showToast("success", "Порядок карточек обновлен");
+    } catch (error) {
+      showToast("error", getErrorMessage(error));
+      await loadDashboard();
+    }
+  }
+
   async function deleteSectionItem(sectionId: number, itemId: number) {
     try {
       await request<void>(`/section-items/${itemId}`, {
@@ -473,6 +534,39 @@ function App() {
       showToast("success", "Контакт обновлен");
     } catch (error) {
       showToast("error", getErrorMessage(error));
+    }
+  }
+
+  async function moveContact(contactId: number, direction: -1 | 1) {
+    const orderedContacts = [...contacts].sort(sortByOrder);
+    const currentIndex = orderedContacts.findIndex((contact) => contact.id === contactId);
+    const targetIndex = currentIndex + direction;
+
+    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= orderedContacts.length) {
+      return;
+    }
+
+    const nextContacts = reorderWithStep(orderedContacts, currentIndex, targetIndex);
+    const changedContacts = nextContacts.filter((contact) => {
+      const previous = contacts.find((currentContact) => currentContact.id === contact.id);
+      return previous && previous.sort_order !== contact.sort_order;
+    });
+
+    setContacts(nextContacts);
+
+    try {
+      await Promise.all(
+        changedContacts.map((contact) =>
+          request<Contact>(`/contacts/${contact.id}`, {
+            method: "PUT",
+            body: JSON.stringify(contact),
+          }),
+        ),
+      );
+      showToast("success", "Порядок контактов обновлен");
+    } catch (error) {
+      showToast("error", getErrorMessage(error));
+      await loadDashboard();
     }
   }
 
@@ -537,6 +631,16 @@ function App() {
           : section,
       ),
     );
+  }
+
+  function updateSectionItemPlacement(
+    sectionId: number,
+    itemId: number,
+    placement: string,
+  ) {
+    updateSectionItem(sectionId, itemId, {
+      meta_json: placement ? JSON.stringify({ placement }) : "",
+    });
   }
 
   function showToast(kind: Toast["kind"], text: string) {
@@ -713,8 +817,16 @@ function App() {
             {sections.length === 0 && (
               <p className="empty-state">Секции пока не добавлены.</p>
             )}
-            {sections.map((section) => (
+            {[...sections].sort(sortByOrder).map((section, sectionIndex) => (
               <article className="section-editor" key={section.id}>
+                <div className="section-editor-title">
+                  <span>{String(sectionIndex + 1).padStart(2, "0")}</span>
+                  <div>
+                    <strong>{section.label || "Без метки"}</strong>
+                    <small>{sectionTypeLabel(section.type)}</small>
+                  </div>
+                  <em>{Number(section.is_published) === 1 ? "На сайте" : "Черновик"}</em>
+                </div>
                 <div className="section-editor-head">
                   <select
                     value={section.type}
@@ -726,6 +838,7 @@ function App() {
                     <option value="rich_text">Текст</option>
                     <option value="stats">Статистика</option>
                     <option value="cards_grid">Карточки</option>
+                    <option value="cards_two_columns">Карточки 2 колонки</option>
                     <option value="locations_grid">Локации</option>
                     <option value="timeline">Таймлайн</option>
                     <option value="highlight">Акцент</option>
@@ -841,7 +954,7 @@ function App() {
                 <div className="items-block">
                   <h3>Карточки секции</h3>
                   <div className="section-item-list">
-                    {section.items.map((item) => (
+                    {[...section.items].sort(sortByOrder).map((item, itemIndex, orderedItems) => (
                       <article className="section-item-row" key={item.id}>
                         <input
                           value={item.title}
@@ -870,16 +983,43 @@ function App() {
                           }
                           placeholder="Изображение"
                         />
-                        <input
-                          type="number"
-                          value={item.sort_order}
+                        <select
+                          value={readPlacement(item.meta_json)}
                           onChange={(event) =>
-                            updateSectionItem(section.id, item.id, {
-                              sort_order: Number(event.target.value),
-                            })
+                            updateSectionItemPlacement(
+                              section.id,
+                              item.id,
+                              event.target.value,
+                            )
                           }
-                          placeholder="Порядок"
-                        />
+                          title="Расположение карточки"
+                        >
+                          {placementOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="order-buttons">
+                          <button
+                            className="icon-button"
+                            type="button"
+                            title="Поднять выше"
+                            disabled={itemIndex === 0}
+                            onClick={() => moveSectionItem(section.id, item.id, -1)}
+                          >
+                            ↑
+                          </button>
+                          <button
+                            className="icon-button"
+                            type="button"
+                            title="Опустить ниже"
+                            disabled={itemIndex === orderedItems.length - 1}
+                            onClick={() => moveSectionItem(section.id, item.id, 1)}
+                          >
+                            ↓
+                          </button>
+                        </div>
                         <button
                           className="icon-button"
                           type="button"
@@ -939,6 +1079,28 @@ function App() {
                       }
                       placeholder="Изображение"
                     />
+                    <select
+                      value={readPlacement(
+                        (draftItems[section.id] ?? emptySectionItem).meta_json,
+                      )}
+                      onChange={(event) =>
+                        setDraftItems((current) => ({
+                          ...current,
+                          [section.id]: {
+                            ...(current[section.id] ?? emptySectionItem),
+                            meta_json: event.target.value
+                              ? JSON.stringify({ placement: event.target.value })
+                              : "",
+                          },
+                        }))
+                      }
+                    >
+                      {placementOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
                     <button
                       className="primary-button"
                       type="button"
@@ -994,7 +1156,7 @@ function App() {
         <section className="panel" id="contacts">
           <PanelHeader icon={<MessageCircle size={19} />} title="Контакты" />
           <div className="contact-list">
-            {contacts.map((contact) => (
+            {[...contacts].sort(sortByOrder).map((contact, contactIndex, orderedContacts) => (
               <article className="contact-row" key={contact.id}>
                 <select
                   value={contact.type}
@@ -1042,6 +1204,26 @@ function App() {
                   />
                   <Eye size={16} />
                 </label>
+                <div className="order-buttons">
+                  <button
+                    className="icon-button"
+                    type="button"
+                    title="Поднять выше"
+                    disabled={contactIndex === 0}
+                    onClick={() => moveContact(contact.id, -1)}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    className="icon-button"
+                    type="button"
+                    title="Опустить ниже"
+                    disabled={contactIndex === orderedContacts.length - 1}
+                    onClick={() => moveContact(contact.id, 1)}
+                  >
+                    ↓
+                  </button>
+                </div>
                 <button
                   className="icon-button"
                   type="button"
@@ -1159,6 +1341,64 @@ function PanelHeader({
       {action}
     </div>
   );
+}
+
+function sortByOrder<T extends { id: number; sort_order: number }>(a: T, b: T) {
+  return a.sort_order - b.sort_order || a.id - b.id;
+}
+
+function reorderWithStep<T extends { sort_order: number }>(
+  items: T[],
+  currentIndex: number,
+  targetIndex: number,
+) {
+  const nextItems = [...items];
+  const [movedItem] = nextItems.splice(currentIndex, 1);
+  nextItems.splice(targetIndex, 0, movedItem);
+
+  return nextItems.map((item, index) => ({
+    ...item,
+    sort_order: (index + 1) * 10,
+  }));
+}
+
+function nextSortOrder(items: Array<{ sort_order: number }>) {
+  if (items.length === 0) {
+    return 10;
+  }
+
+  return Math.max(...items.map((item) => item.sort_order)) + 10;
+}
+
+function readPlacement(metaJson: string | null) {
+  if (!metaJson) {
+    return "";
+  }
+
+  try {
+    const parsed = JSON.parse(metaJson) as { placement?: unknown };
+    return typeof parsed.placement === "string" ? parsed.placement : "";
+  } catch {
+    return "";
+  }
+}
+
+function sectionTypeLabel(type: string) {
+  const labels: Record<string, string> = {
+    hero: "Hero",
+    rich_text: "Текст",
+    stats: "Статистика",
+    cards_grid: "Карточки",
+    cards_two_columns: "Карточки 2 колонки",
+    locations_grid: "Локации",
+    timeline: "Таймлайн",
+    highlight: "Акцент",
+    gallery: "Галерея",
+    faq: "FAQ",
+    contacts: "Контакты",
+  };
+
+  return labels[type] ?? type;
 }
 
 function Field({

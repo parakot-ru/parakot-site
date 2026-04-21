@@ -520,16 +520,85 @@ h3 {
   padding: 1.4rem;
 }
 
-.contact-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
+.contacts {
+  overflow: hidden;
+  color: #f4fbff;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(231, 243, 252, 0.78));
+    radial-gradient(circle at 18% 18%, rgba(111, 180, 220, 0.34), transparent 28%),
+    linear-gradient(180deg, rgba(28, 62, 84, 0.96), rgba(9, 22, 32, 0.98));
 }
 
-.contact-card a {
-  font-size: 1.15rem;
+.contacts::before {
+  content: "";
+  position: absolute;
+  inset: auto -8% -1px;
+  height: 44%;
+  background:
+    linear-gradient(135deg, transparent 0 32%, rgba(232, 241, 235, 0.14) 32% 34%, transparent 34%),
+    linear-gradient(24deg, #142e3c 0 24%, transparent 24%),
+    linear-gradient(-18deg, transparent 0 18%, #1e4558 18% 48%, transparent 48%),
+    linear-gradient(10deg, transparent 0 42%, #102633 42% 72%, transparent 72%);
+  opacity: 0.86;
+  pointer-events: none;
+}
+
+.contacts .section-heading h2,
+.contacts .eyebrow {
+  color: inherit;
+}
+
+.contacts .section-heading::after {
+  background: linear-gradient(90deg, rgba(149, 213, 247, 0.9), rgba(149, 213, 247, 0));
+}
+
+.contact-card {
+  display: grid;
+  gap: 0.8rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08));
+}
+
+.contact-link {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1rem;
+  border: 1px solid rgba(222, 241, 250, 0.18);
+  border-radius: 1.1rem;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.08);
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    background 180ms ease;
+}
+
+.contact-link:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.contact-link span {
+  color: rgba(244, 251, 255, 0.66);
+  font-size: 0.86rem;
+}
+
+.contact-link strong {
+  font-size: clamp(1rem, 2vw, 1.22rem);
+  font-weight: 700;
+}
+
+.contacts .form,
+.contacts .contact-card {
+  border-color: rgba(222, 241, 250, 0.18);
+  box-shadow: 0 24px 70px rgba(1, 10, 18, 0.25);
+}
+
+.contacts .form {
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.contacts .form-status {
+  color: var(--text);
 }
 
 .form {
@@ -596,6 +665,36 @@ h3 {
 .form button:disabled {
   cursor: wait;
   opacity: 0.7;
+}
+
+.placement-top-left {
+  align-self: start;
+  text-align: left;
+}
+
+.placement-top-right {
+  align-self: start;
+  text-align: right;
+}
+
+.placement-center-left {
+  align-self: center;
+  text-align: left;
+}
+
+.placement-center-right {
+  align-self: center;
+  text-align: right;
+}
+
+.placement-bottom-left {
+  align-self: end;
+  text-align: left;
+}
+
+.placement-bottom-right {
+  align-self: end;
+  text-align: right;
 }
 
 @keyframes doodleFloat {

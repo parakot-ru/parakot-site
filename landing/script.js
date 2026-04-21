@@ -122,23 +122,18 @@ function applyContacts(contacts) {
 
   container.replaceChildren();
 
-  let previousLabel = "";
-
   contacts.forEach((contact) => {
-    const labelText = contact.label || contact.type || "Контакт";
-
-    if (labelText !== previousLabel) {
-      const label = document.createElement("p");
-      label.className = "contact-label";
-      label.textContent = labelText;
-      container.appendChild(label);
-      previousLabel = labelText;
-    }
-
     const link = document.createElement("a");
+    link.className = "contact-link";
     link.href = contact.url || hrefFromContact(contact);
-    link.textContent = contact.value || contact.url || contact.label;
 
+    const label = document.createElement("span");
+    label.textContent = contact.label || contact.type || "Контакт";
+
+    const value = document.createElement("strong");
+    value.textContent = contact.value || contact.url || contact.label;
+
+    link.append(label, value);
     container.appendChild(link);
   });
 }
@@ -270,6 +265,11 @@ function renderItems(section) {
   section.items.forEach((item) => {
     const card = document.createElement(isTimeline ? "li" : "article");
     card.className = sectionClassByType[section.type] || "info-card";
+    const placement = readPlacement(item.meta_json);
+
+    if (placement) {
+      card.classList.add(`placement-${placement}`);
+    }
 
     const title = document.createElement(isTimeline ? "strong" : "h3");
     title.textContent = item.title;
@@ -289,6 +289,19 @@ function renderItems(section) {
   });
 
   return container;
+}
+
+function readPlacement(metaJson) {
+  if (!metaJson) {
+    return "";
+  }
+
+  try {
+    const parsed = JSON.parse(metaJson);
+    return typeof parsed.placement === "string" ? parsed.placement : "";
+  } catch {
+    return "";
+  }
 }
 
 function sectionClassName(type) {

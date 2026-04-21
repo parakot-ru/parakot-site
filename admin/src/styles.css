@@ -300,16 +300,70 @@ textarea:focus {
 .section-list,
 .section-item-list {
   display: grid;
-  gap: 10px;
+  gap: 18px;
 }
 
 .section-editor {
   display: grid;
-  gap: 16px;
-  padding: 16px;
-  border: 1px solid #dbe4e8;
-  border-radius: 8px;
-  background: #fbfdfe;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid #cbdce5;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 251, 253, 0.94));
+  box-shadow: 0 18px 44px rgba(31, 53, 70, 0.08);
+}
+
+.section-editor + .section-editor {
+  margin-top: 8px;
+}
+
+.section-editor-title {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid #d6e7ee;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 2% 50%, rgba(31, 127, 174, 0.18), transparent 28%),
+    #edf7fb;
+}
+
+.section-editor-title span {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  color: #fff;
+  background: #1f7fae;
+  font-weight: 900;
+}
+
+.section-editor-title div {
+  display: grid;
+  gap: 2px;
+}
+
+.section-editor-title strong {
+  font-size: 17px;
+}
+
+.section-editor-title small {
+  color: #61717f;
+}
+
+.section-editor-title em {
+  justify-self: end;
+  border-radius: 999px;
+  padding: 7px 11px;
+  color: #1c6b42;
+  background: #ddf3e5;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 800;
 }
 
 .section-editor-head,
@@ -346,9 +400,11 @@ textarea:focus {
 
 .items-block {
   display: grid;
-  gap: 10px;
-  padding-top: 14px;
-  border-top: 1px solid #dbe4e8;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #dbe9ef;
+  border-radius: 14px;
+  background: rgba(238, 247, 251, 0.55);
 }
 
 .items-block h3 {
@@ -357,11 +413,15 @@ textarea:focus {
 }
 
 .section-item-row {
-  grid-template-columns: minmax(140px, 1fr) minmax(160px, 1.4fr) minmax(140px, 1fr) 90px 42px 42px;
+  grid-template-columns: minmax(140px, 1fr) minmax(160px, 1.3fr) minmax(140px, 1fr) minmax(150px, 0.8fr) 92px 42px 42px;
+  padding: 10px;
+  border: 1px solid #dbe4e8;
+  border-radius: 12px;
+  background: #fff;
 }
 
 .new-section-item {
-  grid-template-columns: minmax(140px, 1fr) minmax(160px, 1.4fr) minmax(140px, 1fr) 132px;
+  grid-template-columns: minmax(140px, 1fr) minmax(160px, 1.3fr) minmax(140px, 1fr) minmax(150px, 0.8fr) 132px;
   padding-top: 10px;
   border-top: 1px solid #edf2f4;
 }
@@ -376,9 +436,13 @@ textarea:focus {
 .contact-row,
 .new-contact {
   display: grid;
-  grid-template-columns: 150px minmax(140px, 1fr) minmax(140px, 1fr) minmax(160px, 1.3fr) 46px 46px 46px;
+  grid-template-columns: 150px minmax(140px, 1fr) minmax(140px, 1fr) minmax(160px, 1.3fr) 46px 92px 46px 46px;
   gap: 8px;
   align-items: center;
+  padding: 10px;
+  border: 1px solid #dbe4e8;
+  border-radius: 12px;
+  background: #fbfdfe;
 }
 
 .new-contact {
@@ -386,6 +450,12 @@ textarea:focus {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid #dbe4e8;
+}
+
+.order-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 42px);
+  gap: 8px;
 }
 
 .toggle,
@@ -433,6 +503,11 @@ textarea:focus {
 .danger-button {
   border: 1px solid #cedae0;
   background: #fff;
+}
+
+.icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
 }
 
 .danger-button {

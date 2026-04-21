@@ -20,8 +20,36 @@ if ($method === 'OPTIONS') {
 
 $segments = routeSegments();
 $lastSegment = $segments === [] ? '' : end($segments);
+$connection = null;
 
 try {
+    if ($method === 'POST' && $segments === ['login']) {
+        $payload = requireJsonBody();
+        $email = strtolower(requiredString($payload, 'email'));
+        $password = requiredString($payload, 'password');
+        $connection = Database::connection();
+        $user = findAdminByEmail($connection, $email);
+
+        if ($user === [] || (int) $user['is_active'] !== 1 || !password_verify($password, $user['password_hash'])) {
+            Response::json([
+                'ok' => false,
+                'error' => 'Invalid email or password.',
+            ], 401);
+            exit;
+        }
+
+        $token = createAdminToken($connection, (int) $user['id']);
+
+        Response::json([
+            'ok' => true,
+            'data' => [
+                'token' => $token,
+                'user' => publicAdminUser($user),
+            ],
+        ]);
+        exit;
+    }
+
     if ($method === 'GET' && ($lastSegment === '' || $lastSegment === 'health')) {
         Response::json([
             'ok' => true,
@@ -38,315 +66,6 @@ try {
         Response::json([
             'ok' => true,
             'database' => $statement->fetch(),
-        ]);
-        exit;
-    }
-
-    if ($method === 'GET' && $segments === ['settings']) {
-        Response::json([
-            'ok' => true,
-            'data' => fetchSettings(Database::connection()),
-        ]);
-        exit;
-    }
-
-    if (($method === 'PUT' || $method === 'PATCH') && $segments === ['settings']) {
-        $payload = requireJsonBody();
-        $data = [
-            ':site_title' => requiredString($payload, 'site_title'),
-            ':seo_title' => nullableString($payload, 'seo_title'),
-            ':seo_description' => nullableString($payload, 'seo_description'),
-            ':hero_background' => nullableString($payload, 'hero_background'),
-            ':recipient_email' => nullableString($payload, 'recipient_email'),
-            ':recipient_email_cc' => nullableString($payload, 'recipient_email_cc'),
-        ];
-
-        $connection = Database::connection();
-        $statement = $connection->prepare(
-            'UPDATE site_settings
-             SET site_title = :site_title,
-                 seo_title = :seo_title,
-                 seo_description = :seo_description,
-                 hero_background = :hero_background,
-                 recipient_email = :recipient_email,
-                 recipient_email_cc = :recipient_email_cc
-             WHERE id = 1'
-        );
-        $statement->execute($data);
-
-        Response::json([
-            'ok' => true,
-            'data' => fetchSettings($connection),
-        ]);
-        exit;
-    }
-
-    if ($method === 'GET' && $segments === ['contacts']) {
-        Response::json([
-            'ok' => true,
-            'data' => fetchContacts(Database::connection(), false),
-        ]);
-        exit;
-    }
-
-    if ($method === 'POST' && $segments === ['contacts']) {
-        $payload = requireJsonBody();
-        $connection = Database::connection();
-        $statement = $connection->prepare(
-            'INSERT INTO contacts (type, label, value, url, sort_order, is_visible)
-             VALUES (:type, :label, :value, :url, :sort_order, :is_visible)'
-        );
-        $statement->execute([
-            ':type' => requiredString($payload, 'type'),
-            ':label' => requiredString($payload, 'label'),
-            ':value' => nullableString($payload, 'value'),
-            ':url' => nullableString($payload, 'url'),
-            ':sort_order' => intValue($payload, 'sort_order', 0),
-            ':is_visible' => boolToInt($payload, 'is_visible', true),
-        ]);
-
-        $contact = findById($connection, 'contacts', (int) $connection->lastInsertId());
-        Response::json([
-            'ok' => true,
-            'data' => $contact,
-        ], 201);
-        exit;
-    }
-
-    if (($method === 'PUT' || $method === 'PATCH') && count($segments) === 2 && $segments[0] === 'contacts') {
-        $contactId = requirePositiveInt($segments[1], 'contact id');
-        $payload = requireJsonBody();
-        $connection = Database::connection();
-        ensureRecordExists($connection, 'contacts', $contactId);
-
-        $statement = $connection->prepare(
-            'UPDATE contacts
-             SET type = :type,
-                 label = :label,
-                 value = :value,
-                 url = :url,
-                 sort_order = :sort_order,
-                 is_visible = :is_visible
-             WHERE id = :id'
-        );
-        $statement->execute([
-            ':id' => $contactId,
-            ':type' => requiredString($payload, 'type'),
-            ':label' => requiredString($payload, 'label'),
-            ':value' => nullableString($payload, 'value'),
-            ':url' => nullableString($payload, 'url'),
-            ':sort_order' => intValue($payload, 'sort_order', 0),
-            ':is_visible' => boolToInt($payload, 'is_visible', true),
-        ]);
-
-        Response::json([
-            'ok' => true,
-            'data' => findById($connection, 'contacts', $contactId),
-        ]);
-        exit;
-    }
-
-    if ($method === 'DELETE' && count($segments) === 2 && $segments[0] === 'contacts') {
-        $contactId = requirePositiveInt($segments[1], 'contact id');
-        $connection = Database::connection();
-        ensureRecordExists($connection, 'contacts', $contactId);
-        deleteById($connection, 'contacts', $contactId);
-        Response::noContent();
-        exit;
-    }
-
-    if ($method === 'GET' && $segments === ['sections']) {
-        Response::json([
-            'ok' => true,
-            'data' => fetchSections(Database::connection(), false),
-        ]);
-        exit;
-    }
-
-    if ($method === 'POST' && $segments === ['sections']) {
-        $payload = requireJsonBody();
-        $connection = Database::connection();
-        $statement = $connection->prepare(
-            'INSERT INTO sections
-             (type, label, menu_title, show_in_menu, title, description, image_path, sort_order, is_published)
-             VALUES
-             (:type, :label, :menu_title, :show_in_menu, :title, :description, :image_path, :sort_order, :is_published)'
-        );
-        $statement->execute([
-            ':type' => requiredString($payload, 'type'),
-            ':label' => requiredString($payload, 'label'),
-            ':menu_title' => nullableString($payload, 'menu_title'),
-            ':show_in_menu' => boolToInt($payload, 'show_in_menu', false),
-            ':title' => requiredString($payload, 'title'),
-            ':description' => nullableString($payload, 'description'),
-            ':image_path' => nullableString($payload, 'image_path'),
-            ':sort_order' => intValue($payload, 'sort_order', 0),
-            ':is_published' => boolToInt($payload, 'is_published', true),
-        ]);
-
-        Response::json([
-            'ok' => true,
-            'data' => fetchSectionById($connection, (int) $connection->lastInsertId()),
-        ], 201);
-        exit;
-    }
-
-    if (($method === 'PUT' || $method === 'PATCH') && count($segments) === 2 && $segments[0] === 'sections') {
-        $sectionId = requirePositiveInt($segments[1], 'section id');
-        $payload = requireJsonBody();
-        $connection = Database::connection();
-        ensureRecordExists($connection, 'sections', $sectionId);
-
-        $statement = $connection->prepare(
-            'UPDATE sections
-             SET type = :type,
-                 label = :label,
-                 menu_title = :menu_title,
-                 show_in_menu = :show_in_menu,
-                 title = :title,
-                 description = :description,
-                 image_path = :image_path,
-                 sort_order = :sort_order,
-                 is_published = :is_published
-             WHERE id = :id'
-        );
-        $statement->execute([
-            ':id' => $sectionId,
-            ':type' => requiredString($payload, 'type'),
-            ':label' => requiredString($payload, 'label'),
-            ':menu_title' => nullableString($payload, 'menu_title'),
-            ':show_in_menu' => boolToInt($payload, 'show_in_menu', false),
-            ':title' => requiredString($payload, 'title'),
-            ':description' => nullableString($payload, 'description'),
-            ':image_path' => nullableString($payload, 'image_path'),
-            ':sort_order' => intValue($payload, 'sort_order', 0),
-            ':is_published' => boolToInt($payload, 'is_published', true),
-        ]);
-
-        Response::json([
-            'ok' => true,
-            'data' => fetchSectionById($connection, $sectionId),
-        ]);
-        exit;
-    }
-
-    if ($method === 'DELETE' && count($segments) === 2 && $segments[0] === 'sections') {
-        $sectionId = requirePositiveInt($segments[1], 'section id');
-        $connection = Database::connection();
-        ensureRecordExists($connection, 'sections', $sectionId);
-        deleteById($connection, 'sections', $sectionId);
-        Response::noContent();
-        exit;
-    }
-
-    if ($method === 'POST' && count($segments) === 3 && $segments[0] === 'sections' && $segments[2] === 'items') {
-        $sectionId = requirePositiveInt($segments[1], 'section id');
-        $payload = requireJsonBody();
-        $connection = Database::connection();
-        ensureRecordExists($connection, 'sections', $sectionId);
-
-        $statement = $connection->prepare(
-            'INSERT INTO section_items
-             (section_id, title, description, image_path, link_url, meta_json, sort_order, is_visible)
-             VALUES
-             (:section_id, :title, :description, :image_path, :link_url, :meta_json, :sort_order, :is_visible)'
-        );
-        $statement->execute([
-            ':section_id' => $sectionId,
-            ':title' => requiredString($payload, 'title'),
-            ':description' => nullableString($payload, 'description'),
-            ':image_path' => nullableString($payload, 'image_path'),
-            ':link_url' => nullableString($payload, 'link_url'),
-            ':meta_json' => encodeMetaJson($payload),
-            ':sort_order' => intValue($payload, 'sort_order', 0),
-            ':is_visible' => boolToInt($payload, 'is_visible', true),
-        ]);
-
-        Response::json([
-            'ok' => true,
-            'data' => findById($connection, 'section_items', (int) $connection->lastInsertId()),
-        ], 201);
-        exit;
-    }
-
-    if (($method === 'PUT' || $method === 'PATCH') && count($segments) === 2 && $segments[0] === 'section-items') {
-        $itemId = requirePositiveInt($segments[1], 'section item id');
-        $payload = requireJsonBody();
-        $connection = Database::connection();
-        $existingItem = ensureRecordExists($connection, 'section_items', $itemId);
-
-        $sectionId = array_key_exists('section_id', $payload)
-            ? requirePositiveInt((string) $payload['section_id'], 'section id')
-            : (int) $existingItem['section_id'];
-        ensureRecordExists($connection, 'sections', $sectionId);
-
-        $statement = $connection->prepare(
-            'UPDATE section_items
-             SET section_id = :section_id,
-                 title = :title,
-                 description = :description,
-                 image_path = :image_path,
-                 link_url = :link_url,
-                 meta_json = :meta_json,
-                 sort_order = :sort_order,
-                 is_visible = :is_visible
-             WHERE id = :id'
-        );
-        $statement->execute([
-            ':id' => $itemId,
-            ':section_id' => $sectionId,
-            ':title' => requiredString($payload, 'title'),
-            ':description' => nullableString($payload, 'description'),
-            ':image_path' => nullableString($payload, 'image_path'),
-            ':link_url' => nullableString($payload, 'link_url'),
-            ':meta_json' => encodeMetaJson($payload),
-            ':sort_order' => intValue($payload, 'sort_order', 0),
-            ':is_visible' => boolToInt($payload, 'is_visible', true),
-        ]);
-
-        Response::json([
-            'ok' => true,
-            'data' => findById($connection, 'section_items', $itemId),
-        ]);
-        exit;
-    }
-
-    if ($method === 'DELETE' && count($segments) === 2 && $segments[0] === 'section-items') {
-        $itemId = requirePositiveInt($segments[1], 'section item id');
-        $connection = Database::connection();
-        ensureRecordExists($connection, 'section_items', $itemId);
-        deleteById($connection, 'section_items', $itemId);
-        Response::noContent();
-        exit;
-    }
-
-    if ($method === 'GET' && $segments === ['leads']) {
-        $connection = Database::connection();
-        $statement = $connection->query('SELECT * FROM leads ORDER BY created_at DESC, id DESC');
-
-        Response::json([
-            'ok' => true,
-            'data' => $statement->fetchAll(),
-        ]);
-        exit;
-    }
-
-    if (($method === 'PUT' || $method === 'PATCH') && count($segments) === 2 && $segments[0] === 'leads') {
-        $leadId = requirePositiveInt($segments[1], 'lead id');
-        $payload = requireJsonBody();
-        $status = requiredString($payload, 'status');
-        $connection = Database::connection();
-        ensureRecordExists($connection, 'leads', $leadId);
-
-        $statement = $connection->prepare('UPDATE leads SET status = :status WHERE id = :id');
-        $statement->execute([
-            ':id' => $leadId,
-            ':status' => $status,
-        ]);
-
-        Response::json([
-            'ok' => true,
-            'data' => findById($connection, 'leads', $leadId),
         ]);
         exit;
     }
@@ -408,6 +127,324 @@ try {
         exit;
     }
 
+    $connection = Database::connection();
+    $currentUser = requireAdminUser($connection);
+
+    if ($method === 'GET' && $segments === ['me']) {
+        Response::json([
+            'ok' => true,
+            'data' => publicAdminUser($currentUser),
+        ]);
+        exit;
+    }
+
+    if ($method === 'POST' && $segments === ['logout']) {
+        revokeCurrentToken($connection);
+
+        Response::json([
+            'ok' => true,
+            'data' => null,
+        ]);
+        exit;
+    }
+
+    if ($method === 'GET' && $segments === ['settings']) {
+        Response::json([
+            'ok' => true,
+            'data' => fetchSettings($connection),
+        ]);
+        exit;
+    }
+
+    if (($method === 'PUT' || $method === 'PATCH') && $segments === ['settings']) {
+        $payload = requireJsonBody();
+        $data = [
+            ':site_title' => requiredString($payload, 'site_title'),
+            ':seo_title' => nullableString($payload, 'seo_title'),
+            ':seo_description' => nullableString($payload, 'seo_description'),
+            ':hero_background' => nullableString($payload, 'hero_background'),
+            ':recipient_email' => nullableString($payload, 'recipient_email'),
+            ':recipient_email_cc' => nullableString($payload, 'recipient_email_cc'),
+        ];
+
+        $statement = $connection->prepare(
+            'UPDATE site_settings
+             SET site_title = :site_title,
+                 seo_title = :seo_title,
+                 seo_description = :seo_description,
+                 hero_background = :hero_background,
+                 recipient_email = :recipient_email,
+                 recipient_email_cc = :recipient_email_cc
+             WHERE id = 1'
+        );
+        $statement->execute($data);
+
+        Response::json([
+            'ok' => true,
+            'data' => fetchSettings($connection),
+        ]);
+        exit;
+    }
+
+    if ($method === 'GET' && $segments === ['contacts']) {
+        Response::json([
+            'ok' => true,
+            'data' => fetchContacts($connection, false),
+        ]);
+        exit;
+    }
+
+    if ($method === 'POST' && $segments === ['contacts']) {
+        $payload = requireJsonBody();
+        $statement = $connection->prepare(
+            'INSERT INTO contacts (type, label, value, url, sort_order, is_visible)
+             VALUES (:type, :label, :value, :url, :sort_order, :is_visible)'
+        );
+        $statement->execute([
+            ':type' => requiredString($payload, 'type'),
+            ':label' => requiredString($payload, 'label'),
+            ':value' => nullableString($payload, 'value'),
+            ':url' => nullableString($payload, 'url'),
+            ':sort_order' => intValue($payload, 'sort_order', 0),
+            ':is_visible' => boolToInt($payload, 'is_visible', true),
+        ]);
+
+        $contact = findById($connection, 'contacts', (int) $connection->lastInsertId());
+        Response::json([
+            'ok' => true,
+            'data' => $contact,
+        ], 201);
+        exit;
+    }
+
+    if (($method === 'PUT' || $method === 'PATCH') && count($segments) === 2 && $segments[0] === 'contacts') {
+        $contactId = requirePositiveInt($segments[1], 'contact id');
+        $payload = requireJsonBody();
+        ensureRecordExists($connection, 'contacts', $contactId);
+
+        $statement = $connection->prepare(
+            'UPDATE contacts
+             SET type = :type,
+                 label = :label,
+                 value = :value,
+                 url = :url,
+                 sort_order = :sort_order,
+                 is_visible = :is_visible
+             WHERE id = :id'
+        );
+        $statement->execute([
+            ':id' => $contactId,
+            ':type' => requiredString($payload, 'type'),
+            ':label' => requiredString($payload, 'label'),
+            ':value' => nullableString($payload, 'value'),
+            ':url' => nullableString($payload, 'url'),
+            ':sort_order' => intValue($payload, 'sort_order', 0),
+            ':is_visible' => boolToInt($payload, 'is_visible', true),
+        ]);
+
+        Response::json([
+            'ok' => true,
+            'data' => findById($connection, 'contacts', $contactId),
+        ]);
+        exit;
+    }
+
+    if ($method === 'DELETE' && count($segments) === 2 && $segments[0] === 'contacts') {
+        $contactId = requirePositiveInt($segments[1], 'contact id');
+        ensureRecordExists($connection, 'contacts', $contactId);
+        deleteById($connection, 'contacts', $contactId);
+        Response::noContent();
+        exit;
+    }
+
+    if ($method === 'GET' && $segments === ['sections']) {
+        Response::json([
+            'ok' => true,
+            'data' => fetchSections($connection, false),
+        ]);
+        exit;
+    }
+
+    if ($method === 'POST' && $segments === ['sections']) {
+        $payload = requireJsonBody();
+        $statement = $connection->prepare(
+            'INSERT INTO sections
+             (type, label, menu_title, show_in_menu, title, description, image_path, sort_order, is_published)
+             VALUES
+             (:type, :label, :menu_title, :show_in_menu, :title, :description, :image_path, :sort_order, :is_published)'
+        );
+        $statement->execute([
+            ':type' => requiredString($payload, 'type'),
+            ':label' => requiredString($payload, 'label'),
+            ':menu_title' => nullableString($payload, 'menu_title'),
+            ':show_in_menu' => boolToInt($payload, 'show_in_menu', false),
+            ':title' => requiredString($payload, 'title'),
+            ':description' => nullableString($payload, 'description'),
+            ':image_path' => nullableString($payload, 'image_path'),
+            ':sort_order' => intValue($payload, 'sort_order', 0),
+            ':is_published' => boolToInt($payload, 'is_published', true),
+        ]);
+
+        Response::json([
+            'ok' => true,
+            'data' => fetchSectionById($connection, (int) $connection->lastInsertId()),
+        ], 201);
+        exit;
+    }
+
+    if (($method === 'PUT' || $method === 'PATCH') && count($segments) === 2 && $segments[0] === 'sections') {
+        $sectionId = requirePositiveInt($segments[1], 'section id');
+        $payload = requireJsonBody();
+        ensureRecordExists($connection, 'sections', $sectionId);
+
+        $statement = $connection->prepare(
+            'UPDATE sections
+             SET type = :type,
+                 label = :label,
+                 menu_title = :menu_title,
+                 show_in_menu = :show_in_menu,
+                 title = :title,
+                 description = :description,
+                 image_path = :image_path,
+                 sort_order = :sort_order,
+                 is_published = :is_published
+             WHERE id = :id'
+        );
+        $statement->execute([
+            ':id' => $sectionId,
+            ':type' => requiredString($payload, 'type'),
+            ':label' => requiredString($payload, 'label'),
+            ':menu_title' => nullableString($payload, 'menu_title'),
+            ':show_in_menu' => boolToInt($payload, 'show_in_menu', false),
+            ':title' => requiredString($payload, 'title'),
+            ':description' => nullableString($payload, 'description'),
+            ':image_path' => nullableString($payload, 'image_path'),
+            ':sort_order' => intValue($payload, 'sort_order', 0),
+            ':is_published' => boolToInt($payload, 'is_published', true),
+        ]);
+
+        Response::json([
+            'ok' => true,
+            'data' => fetchSectionById($connection, $sectionId),
+        ]);
+        exit;
+    }
+
+    if ($method === 'DELETE' && count($segments) === 2 && $segments[0] === 'sections') {
+        $sectionId = requirePositiveInt($segments[1], 'section id');
+        ensureRecordExists($connection, 'sections', $sectionId);
+        deleteById($connection, 'sections', $sectionId);
+        Response::noContent();
+        exit;
+    }
+
+    if ($method === 'POST' && count($segments) === 3 && $segments[0] === 'sections' && $segments[2] === 'items') {
+        $sectionId = requirePositiveInt($segments[1], 'section id');
+        $payload = requireJsonBody();
+        ensureRecordExists($connection, 'sections', $sectionId);
+
+        $statement = $connection->prepare(
+            'INSERT INTO section_items
+             (section_id, title, description, image_path, link_url, meta_json, sort_order, is_visible)
+             VALUES
+             (:section_id, :title, :description, :image_path, :link_url, :meta_json, :sort_order, :is_visible)'
+        );
+        $statement->execute([
+            ':section_id' => $sectionId,
+            ':title' => requiredString($payload, 'title'),
+            ':description' => nullableString($payload, 'description'),
+            ':image_path' => nullableString($payload, 'image_path'),
+            ':link_url' => nullableString($payload, 'link_url'),
+            ':meta_json' => encodeMetaJson($payload),
+            ':sort_order' => intValue($payload, 'sort_order', 0),
+            ':is_visible' => boolToInt($payload, 'is_visible', true),
+        ]);
+
+        Response::json([
+            'ok' => true,
+            'data' => findById($connection, 'section_items', (int) $connection->lastInsertId()),
+        ], 201);
+        exit;
+    }
+
+    if (($method === 'PUT' || $method === 'PATCH') && count($segments) === 2 && $segments[0] === 'section-items') {
+        $itemId = requirePositiveInt($segments[1], 'section item id');
+        $payload = requireJsonBody();
+        $existingItem = ensureRecordExists($connection, 'section_items', $itemId);
+
+        $sectionId = array_key_exists('section_id', $payload)
+            ? requirePositiveInt((string) $payload['section_id'], 'section id')
+            : (int) $existingItem['section_id'];
+        ensureRecordExists($connection, 'sections', $sectionId);
+
+        $statement = $connection->prepare(
+            'UPDATE section_items
+             SET section_id = :section_id,
+                 title = :title,
+                 description = :description,
+                 image_path = :image_path,
+                 link_url = :link_url,
+                 meta_json = :meta_json,
+                 sort_order = :sort_order,
+                 is_visible = :is_visible
+             WHERE id = :id'
+        );
+        $statement->execute([
+            ':id' => $itemId,
+            ':section_id' => $sectionId,
+            ':title' => requiredString($payload, 'title'),
+            ':description' => nullableString($payload, 'description'),
+            ':image_path' => nullableString($payload, 'image_path'),
+            ':link_url' => nullableString($payload, 'link_url'),
+            ':meta_json' => encodeMetaJson($payload),
+            ':sort_order' => intValue($payload, 'sort_order', 0),
+            ':is_visible' => boolToInt($payload, 'is_visible', true),
+        ]);
+
+        Response::json([
+            'ok' => true,
+            'data' => findById($connection, 'section_items', $itemId),
+        ]);
+        exit;
+    }
+
+    if ($method === 'DELETE' && count($segments) === 2 && $segments[0] === 'section-items') {
+        $itemId = requirePositiveInt($segments[1], 'section item id');
+        ensureRecordExists($connection, 'section_items', $itemId);
+        deleteById($connection, 'section_items', $itemId);
+        Response::noContent();
+        exit;
+    }
+
+    if ($method === 'GET' && $segments === ['leads']) {
+        $statement = $connection->query('SELECT * FROM leads ORDER BY created_at DESC, id DESC');
+
+        Response::json([
+            'ok' => true,
+            'data' => $statement->fetchAll(),
+        ]);
+        exit;
+    }
+
+    if (($method === 'PUT' || $method === 'PATCH') && count($segments) === 2 && $segments[0] === 'leads') {
+        $leadId = requirePositiveInt($segments[1], 'lead id');
+        $payload = requireJsonBody();
+        $status = requiredString($payload, 'status');
+        ensureRecordExists($connection, 'leads', $leadId);
+
+        $statement = $connection->prepare('UPDATE leads SET status = :status WHERE id = :id');
+        $statement->execute([
+            ':id' => $leadId,
+            ':status' => $status,
+        ]);
+
+        Response::json([
+            'ok' => true,
+            'data' => findById($connection, 'leads', $leadId),
+        ]);
+        exit;
+    }
+
     Response::json([
         'ok' => false,
         'error' => 'Route not found.',
@@ -439,6 +476,107 @@ function sendCorsHeaders(): void
 
     header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, Authorization');
+}
+
+function bearerToken(): ?string
+{
+    $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+
+    if ($header === '' && function_exists('apache_request_headers')) {
+        $headers = apache_request_headers();
+        $header = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+    }
+
+    if (strpos($header, 'Bearer ') !== 0) {
+        return null;
+    }
+
+    return trim(substr($header, 7));
+}
+
+function requireAdminUser(PDO $connection): array
+{
+    $token = bearerToken();
+
+    if ($token === null || strlen($token) < 32) {
+        Response::json([
+            'ok' => false,
+            'error' => 'Unauthorized.',
+        ], 401);
+        exit;
+    }
+
+    $statement = $connection->prepare(
+        'SELECT admin_users.*
+         FROM admin_tokens
+         INNER JOIN admin_users ON admin_users.id = admin_tokens.user_id
+         WHERE admin_tokens.token_hash = :token_hash
+           AND admin_tokens.expires_at > NOW()
+           AND admin_users.is_active = 1
+         LIMIT 1'
+    );
+    $statement->execute([
+        ':token_hash' => hash('sha256', $token),
+    ]);
+
+    $user = $statement->fetch();
+
+    if (!is_array($user)) {
+        Response::json([
+            'ok' => false,
+            'error' => 'Unauthorized.',
+        ], 401);
+        exit;
+    }
+
+    return $user;
+}
+
+function findAdminByEmail(PDO $connection, string $email): array
+{
+    $statement = $connection->prepare('SELECT * FROM admin_users WHERE email = :email LIMIT 1');
+    $statement->execute([':email' => $email]);
+    $user = $statement->fetch();
+
+    return is_array($user) ? $user : [];
+}
+
+function createAdminToken(PDO $connection, int $userId): string
+{
+    $token = bin2hex(random_bytes(32));
+    $statement = $connection->prepare(
+        'INSERT INTO admin_tokens (user_id, token_hash, expires_at)
+         VALUES (:user_id, :token_hash, DATE_ADD(NOW(), INTERVAL 14 DAY))'
+    );
+    $statement->execute([
+        ':user_id' => $userId,
+        ':token_hash' => hash('sha256', $token),
+    ]);
+
+    return $token;
+}
+
+function revokeCurrentToken(PDO $connection): void
+{
+    $token = bearerToken();
+
+    if ($token === null) {
+        return;
+    }
+
+    $statement = $connection->prepare('DELETE FROM admin_tokens WHERE token_hash = :token_hash');
+    $statement->execute([
+        ':token_hash' => hash('sha256', $token),
+    ]);
+}
+
+function publicAdminUser(array $user): array
+{
+    return [
+        'id' => (int) $user['id'],
+        'email' => $user['email'],
+        'name' => $user['name'],
+    ];
 }
 
 /**

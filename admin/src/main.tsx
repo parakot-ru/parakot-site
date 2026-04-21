@@ -5,6 +5,7 @@ import {
   CircleAlert,
   Eye,
   Loader2,
+  LogOut,
   Mail,
   MessageCircle,
   Plus,
@@ -16,6 +17,7 @@ import "./styles.css";
 
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL ?? "http://admin.konekon.ru/api";
+const TOKEN_STORAGE_KEY = "parakot_admin_token";
 
 type ApiResponse<T> = {
   ok: boolean;
@@ -63,6 +65,17 @@ type Toast = {
   text: string;
 };
 
+type AdminUser = {
+  id: number;
+  email: string;
+  name: string;
+};
+
+type LoginPayload = {
+  token: string;
+  user: AdminUser;
+};
+
 const emptyContact: Omit<Contact, "id"> = {
   type: "telegram",
   label: "",
@@ -73,6 +86,13 @@ const emptyContact: Omit<Contact, "id"> = {
 };
 
 function App() {
+  const [token, setToken] = useState<string | null>(() =>
+    window.localStorage.getItem(TOKEN_STORAGE_KEY),
+  );
+  const [user, setUser] = useState<AdminUser | null>(null);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -87,15 +107,25 @@ function App() {
   );
 
   useEffect(() => {
-    void loadDashboard();
-  }, []);
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
+
+    void bootstrapSession(token);
+  }, [token]);
 
   async function request<T>(path: string, options?: RequestInit): Promise<T> {
+    const headers = new Headers(options?.headers);
+    headers.set("Content-Type", "application/json");
+
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+
     const response = await fetch(`${API_BASE}${path}`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
       ...options,
+      headers,
     });
 
     if (response.status === 204) {
@@ -104,11 +134,91 @@ function App() {
 
     const payload = (await response.json()) as ApiResponse<T>;
 
+    if (response.status === 401) {
+      resetSession();
+      throw new Error("Нужно войти заново");
+    }
+
     if (!response.ok || !payload.ok) {
       throw new Error(payload.error ?? "API error");
     }
 
     return payload.data as T;
+  }
+
+  async function bootstrapSession(currentToken: string) {
+    setIsLoading(true);
+
+    try {
+      const headers = new Headers();
+      headers.set("Content-Type", "application/json");
+      headers.set("Authorization", `Bearer ${currentToken}`);
+
+      const response = await fetch(`${API_BASE}/me`, { headers });
+      const payload = (await response.json()) as ApiResponse<AdminUser>;
+
+      if (!response.ok || !payload.ok || !payload.data) {
+        throw new Error(payload.error ?? "Session expired");
+      }
+
+      setUser(payload.data);
+      await loadDashboard();
+    } catch {
+      resetSession();
+      setIsLoading(false);
+    }
+  }
+
+  async function login(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsLoggingIn(true);
+
+    try {
+      const response = await fetch(`${API_BASE}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: loginEmail,
+          password: loginPassword,
+        }),
+      });
+      const payload = (await response.json()) as ApiResponse<LoginPayload>;
+
+      if (!response.ok || !payload.ok || !payload.data) {
+        throw new Error(payload.error ?? "Не удалось войти");
+      }
+
+      window.localStorage.setItem(TOKEN_STORAGE_KEY, payload.data.token);
+      setToken(payload.data.token);
+      setUser(payload.data.user);
+      setLoginPassword("");
+      showToast("success", "Вход выполнен");
+    } catch (error) {
+      showToast("error", getErrorMessage(error));
+    } finally {
+      setIsLoggingIn(false);
+    }
+  }
+
+  async function logout() {
+    try {
+      await request<void>("/logout", { method: "POST" });
+    } catch {
+      // Session is cleared locally even if the token was already invalid server-side.
+    } finally {
+      resetSession();
+    }
+  }
+
+  function resetSession() {
+    window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+    setToken(null);
+    setUser(null);
+    setSettings(null);
+    setContacts([]);
+    setLeads([]);
   }
 
   async function loadDashboard() {
@@ -229,6 +339,47 @@ function App() {
     window.setTimeout(() => setToast(null), 2800);
   }
 
+  if (!token || !user) {
+    return (
+      <main className="login-shell">
+        {toast && (
+          <div className={`toast toast-${toast.kind}`}>
+            {toast.kind === "success" ? <Check size={18} /> : <CircleAlert size={18} />}
+            {toast.text}
+          </div>
+        )}
+        <form className="login-panel" onSubmit={login}>
+          <div>
+            <p className="eyebrow">Parakot CMS</p>
+            <h1>Вход в админку</h1>
+          </div>
+          <Field label="Email">
+            <input
+              type="email"
+              value={loginEmail}
+              onChange={(event) => setLoginEmail(event.target.value)}
+              autoComplete="username"
+              required
+            />
+          </Field>
+          <Field label="Пароль">
+            <input
+              type="password"
+              value={loginPassword}
+              onChange={(event) => setLoginPassword(event.target.value)}
+              autoComplete="current-password"
+              required
+            />
+          </Field>
+          <button className="primary-button login-button" type="submit" disabled={isLoggingIn}>
+            {isLoggingIn ? <Loader2 size={18} className="spin" /> : <Check size={18} />}
+            Войти
+          </button>
+        </form>
+      </main>
+    );
+  }
+
   return (
     <main className="app-shell">
       <aside className="sidebar">
@@ -245,6 +396,10 @@ function App() {
           <RefreshCw size={18} />
           Обновить
         </button>
+        <button className="ghost-button" type="button" onClick={logout}>
+          <LogOut size={18} />
+          Выйти
+        </button>
       </aside>
 
       <section className="workspace">
@@ -252,6 +407,10 @@ function App() {
           <div>
             <p className="eyebrow">API</p>
             <strong>{API_BASE}</strong>
+          </div>
+          <div className="user-block">
+            <span>{user.name}</span>
+            <small>{user.email}</small>
           </div>
           <div className="status-pill">
             {isLoading ? <Loader2 size={16} className="spin" /> : <Check size={16} />}

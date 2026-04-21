@@ -37,6 +37,34 @@ button {
   min-height: 100vh;
 }
 
+.login-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.login-panel {
+  width: min(420px, 100%);
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+  border: 1px solid #dbe4e8;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 22px 70px rgba(31, 53, 70, 0.14);
+}
+
+.login-panel h1 {
+  margin: 6px 0 0;
+  font-size: 30px;
+  line-height: 1.08;
+}
+
+.login-button {
+  width: 100%;
+}
+
 .sidebar {
   position: sticky;
   top: 0;
@@ -118,6 +146,21 @@ button {
   display: block;
   margin-top: 4px;
   font-size: 15px;
+}
+
+.user-block {
+  display: grid;
+  gap: 2px;
+  margin-left: auto;
+  text-align: right;
+}
+
+.user-block span {
+  font-weight: 800;
+}
+
+.user-block small {
+  color: #667684;
 }
 
 .status-pill,

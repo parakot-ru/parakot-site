@@ -170,6 +170,7 @@ try {
         $payload = requireJsonBody();
         $data = [
             ':site_title' => requiredString($payload, 'site_title'),
+            ':logo_url' => nullableString($payload, 'logo_url'),
             ':seo_title' => nullableString($payload, 'seo_title'),
             ':seo_description' => nullableString($payload, 'seo_description'),
             ':hero_background' => nullableString($payload, 'hero_background'),
@@ -180,6 +181,7 @@ try {
         $statement = $connection->prepare(
             'UPDATE site_settings
              SET site_title = :site_title,
+                 logo_url = :logo_url,
                  seo_title = :seo_title,
                  seo_description = :seo_description,
                  hero_background = :hero_background,

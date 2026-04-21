@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS site_settings (
   id TINYINT UNSIGNED NOT NULL PRIMARY KEY DEFAULT 1,
   site_title VARCHAR(255) NOT NULL,
+  logo_url VARCHAR(255) DEFAULT NULL,
   seo_title VARCHAR(255) DEFAULT NULL,
   seo_description TEXT DEFAULT NULL,
   hero_background VARCHAR(255) DEFAULT NULL,
@@ -90,6 +91,7 @@ CREATE TABLE IF NOT EXISTS admin_tokens (
 INSERT INTO site_settings (
   id,
   site_title,
+  logo_url,
   seo_title,
   seo_description,
   hero_background,
@@ -99,6 +101,7 @@ INSERT INTO site_settings (
 VALUES (
   1,
   'Паракот',
+  '/assets/parakot-logo.webp',
   'Паракот - Парапланерные курсы и туры по Кавказу',
   'Обучение полетам на параплане, туры и выезды по Кавказу с Константином "Котом".',
   NULL,
@@ -107,6 +110,7 @@ VALUES (
 )
 ON DUPLICATE KEY UPDATE
   site_title = VALUES(site_title),
+  logo_url = VALUES(logo_url),
   seo_title = VALUES(seo_title),
   seo_description = VALUES(seo_description),
   hero_background = VALUES(hero_background),

@@ -16,6 +16,7 @@ try {
         'INSERT INTO site_settings (
             id,
             site_title,
+            logo_url,
             seo_title,
             seo_description,
             hero_background,
@@ -25,6 +26,7 @@ try {
          VALUES (
             1,
             :site_title,
+            :logo_url,
             :seo_title,
             :seo_description,
             :hero_background,
@@ -33,6 +35,7 @@ try {
          )
          ON DUPLICATE KEY UPDATE
             site_title = VALUES(site_title),
+            logo_url = VALUES(logo_url),
             seo_title = VALUES(seo_title),
             seo_description = VALUES(seo_description),
             hero_background = VALUES(hero_background),
@@ -41,6 +44,7 @@ try {
     );
     $statement->execute([
         ':site_title' => 'Паракот',
+        ':logo_url' => '/assets/parakot-logo.webp',
         ':seo_title' => 'Паракот - Парапланерные курсы и туры по Кавказу',
         ':seo_description' => 'Обучение полетам на параплане, туры и выезды по Кавказу с Константином "Котом". Юца, Пятигорск, Чегем, Даргавс, Джилы-Су, Дигория.',
         ':hero_background' => null,

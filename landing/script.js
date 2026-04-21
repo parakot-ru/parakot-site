@@ -98,10 +98,16 @@ function applySettings(settings) {
     description.setAttribute("content", settings.seo_description);
   }
 
-  const brand = document.querySelector(".brand");
+  const brandText = document.querySelector("[data-brand-text]");
+  const brandLogo = document.querySelector("[data-brand-logo]");
 
-  if (brand && settings.site_title) {
-    brand.textContent = settings.site_title;
+  if (brandText && settings.site_title) {
+    brandText.textContent = settings.site_title;
+  }
+
+  if (brandLogo && settings.logo_url) {
+    brandLogo.src = settings.logo_url;
+    brandLogo.alt = settings.site_title || "Паракот";
   }
 
   const hero = document.querySelector(".hero");

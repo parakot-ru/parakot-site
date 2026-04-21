@@ -28,6 +28,7 @@ type ApiResponse<T> = {
 
 type Settings = {
   site_title: string;
+  logo_url: string | null;
   seo_title: string | null;
   seo_description: string | null;
   hero_background: string | null;
@@ -806,6 +807,15 @@ function App() {
                   onChange={(event) =>
                     setSettings({ ...settings, seo_title: event.target.value })
                   }
+                />
+              </Field>
+              <Field label="Логотип">
+                <input
+                  value={settings.logo_url ?? ""}
+                  onChange={(event) =>
+                    setSettings({ ...settings, logo_url: event.target.value })
+                  }
+                  placeholder="/assets/parakot-logo.webp"
                 />
               </Field>
               <Field label="Email для заявок">

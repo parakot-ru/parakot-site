@@ -61,9 +61,18 @@ a {
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
   font-family: "Oranienbaum", serif;
   font-size: 1.7rem;
   letter-spacing: 0.04em;
+}
+
+.brand-logo {
+  width: 3.25rem;
+  height: auto;
+  display: block;
 }
 
 .nav {

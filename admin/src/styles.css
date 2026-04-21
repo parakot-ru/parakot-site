@@ -1,0 +1,421 @@
+:root {
+  color: #18212c;
+  background: #eef2f4;
+  font-family:
+    "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.7), transparent 42%),
+    #eef2f4;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 28px;
+  color: #f7fafb;
+  background:
+    linear-gradient(180deg, rgba(21, 37, 50, 0.94), rgba(25, 44, 58, 0.98)),
+    #172633;
+}
+
+.sidebar h1 {
+  margin: 6px 0 0;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #79c6e6;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 8px;
+}
+
+.sidebar a,
+.ghost-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  color: inherit;
+  background: transparent;
+  text-decoration: none;
+}
+
+.sidebar a:hover,
+.ghost-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ghost-button {
+  margin-top: auto;
+}
+
+.workspace {
+  display: grid;
+  gap: 22px;
+  align-content: start;
+  padding: 28px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 70px;
+  padding: 0 22px;
+  border: 1px solid #dbe4e8;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.topbar strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 15px;
+}
+
+.status-pill,
+.primary-button,
+.icon-button,
+.danger-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  border-radius: 8px;
+}
+
+.status-pill {
+  padding: 0 12px;
+  color: #1c6b42;
+  background: #e1f5e8;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.metric,
+.panel {
+  border: 1px solid #dbe4e8;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.metric {
+  display: grid;
+  gap: 4px;
+  padding: 18px;
+}
+
+.metric span {
+  color: #667684;
+  font-size: 13px;
+}
+
+.metric strong {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.panel {
+  padding: 22px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.panel-header > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.field,
+.field-wide {
+  display: grid;
+  gap: 6px;
+}
+
+.field-wide {
+  grid-column: 1 / -1;
+}
+
+.field span {
+  color: #61717f;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #cedae0;
+  border-radius: 8px;
+  padding: 9px 11px;
+  color: #18212c;
+  background: #fbfdfe;
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #3797c5;
+  box-shadow: 0 0 0 3px rgba(55, 151, 197, 0.16);
+}
+
+.primary-button {
+  border: 0;
+  padding: 0 14px;
+  color: #fff;
+  background: #1f7fae;
+  font-weight: 800;
+}
+
+.primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.contact-list,
+.lead-list {
+  display: grid;
+  gap: 10px;
+}
+
+.contact-row,
+.new-contact {
+  display: grid;
+  grid-template-columns: 150px minmax(140px, 1fr) minmax(140px, 1fr) minmax(160px, 1.3fr) 46px 46px 46px;
+  gap: 8px;
+  align-items: center;
+}
+
+.new-contact {
+  grid-template-columns: 150px minmax(140px, 1fr) minmax(140px, 1fr) minmax(160px, 1.3fr) 132px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #dbe4e8;
+}
+
+.toggle,
+.icon-button,
+.danger-button {
+  width: 42px;
+  height: 42px;
+}
+
+.toggle {
+  display: grid;
+  place-items: center;
+  border: 1px solid #cedae0;
+  border-radius: 8px;
+  background: #fbfdfe;
+}
+
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle:has(input:checked) {
+  color: #1f7fae;
+  border-color: #8bc9e6;
+  background: #e5f5fc;
+}
+
+.icon-button,
+.danger-button {
+  border: 1px solid #cedae0;
+  background: #fff;
+}
+
+.danger-button {
+  color: #ba342e;
+}
+
+.lead-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1.5fr 150px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #dbe4e8;
+  border-radius: 8px;
+  background: #fbfdfe;
+}
+
+.lead-row div {
+  display: grid;
+  gap: 4px;
+}
+
+.lead-row span,
+.lead-row p {
+  margin: 0;
+  color: #61717f;
+  font-size: 14px;
+}
+
+.empty-state {
+  margin: 0;
+  color: #667684;
+}
+
+.toast {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(380px, calc(100vw - 36px));
+  padding: 13px 14px;
+  border-radius: 8px;
+  color: #12212e;
+  background: #fff;
+  box-shadow: 0 16px 40px rgba(31, 53, 70, 0.16);
+}
+
+.toast-success {
+  color: #1c6b42;
+}
+
+.toast-error {
+  color: #ba342e;
+}
+
+.spin {
+  animation: spin 0.85s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+  }
+
+  .sidebar nav {
+    grid-template-columns: repeat(3, max-content);
+  }
+
+  .ghost-button {
+    margin-top: 0;
+  }
+
+  .contact-row,
+  .new-contact,
+  .lead-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .workspace,
+  .sidebar {
+    padding: 18px;
+  }
+
+  .topbar,
+  .panel-header,
+  .sidebar nav {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .metric-strip,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field-wide {
+    grid-column: auto;
+  }
+}

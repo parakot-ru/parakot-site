@@ -1,0 +1,102 @@
+CREATE TABLE IF NOT EXISTS site_settings (
+  id TINYINT UNSIGNED NOT NULL PRIMARY KEY DEFAULT 1,
+  site_title VARCHAR(255) NOT NULL,
+  seo_title VARCHAR(255) DEFAULT NULL,
+  seo_description TEXT DEFAULT NULL,
+  hero_background VARCHAR(255) DEFAULT NULL,
+  recipient_email VARCHAR(255) DEFAULT NULL,
+  recipient_email_cc VARCHAR(255) DEFAULT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS contacts (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  type VARCHAR(50) NOT NULL,
+  label VARCHAR(120) NOT NULL,
+  value VARCHAR(255) DEFAULT NULL,
+  url VARCHAR(255) DEFAULT NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  is_visible TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS sections (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  type VARCHAR(50) NOT NULL,
+  label VARCHAR(120) NOT NULL,
+  menu_title VARCHAR(120) DEFAULT NULL,
+  show_in_menu TINYINT(1) NOT NULL DEFAULT 0,
+  title VARCHAR(255) NOT NULL,
+  description TEXT DEFAULT NULL,
+  image_path VARCHAR(255) DEFAULT NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  is_published TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS section_items (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  section_id INT UNSIGNED NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT DEFAULT NULL,
+  image_path VARCHAR(255) DEFAULT NULL,
+  link_url VARCHAR(255) DEFAULT NULL,
+  meta_json TEXT DEFAULT NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  is_visible TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_section_items_section_id
+    FOREIGN KEY (section_id)
+    REFERENCES sections (id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS leads (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  contact VARCHAR(255) NOT NULL,
+  topic VARCHAR(255) DEFAULT NULL,
+  message TEXT DEFAULT NULL,
+  status VARCHAR(30) NOT NULL DEFAULT 'new',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS admin_users (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO site_settings (
+  id,
+  site_title,
+  seo_title,
+  seo_description,
+  hero_background,
+  recipient_email,
+  recipient_email_cc
+)
+VALUES (
+  1,
+  'Паракот',
+  'Паракот - Парапланерные курсы и туры по Кавказу',
+  'Обучение полетам на параплане, туры и выезды по Кавказу с Константином "Котом".',
+  NULL,
+  NULL,
+  NULL
+)
+ON DUPLICATE KEY UPDATE
+  site_title = VALUES(site_title),
+  seo_title = VALUES(seo_title),
+  seo_description = VALUES(seo_description),
+  hero_background = VALUES(hero_background),
+  recipient_email = VALUES(recipient_email),
+  recipient_email_cc = VALUES(recipient_email_cc);

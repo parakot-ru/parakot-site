@@ -467,16 +467,26 @@ function wireInterestSelect() {
     return;
   }
 
-  const checkboxes = Array.from(root.querySelectorAll("input[type='checkbox']"));
+  const options = Array.from(root.querySelectorAll("input[type='checkbox']")).map(
+    (checkbox) => ({
+      checkbox,
+      label: checkbox.closest("label"),
+    }),
+  );
+  const checkboxes = options.map((option) => option.checkbox);
 
   const updateValue = () => {
-    const selected = checkboxes
-      .filter((checkbox) => checkbox.checked)
-      .map((checkbox) => checkbox.value);
+    const selected = options
+      .filter((option) => option.checkbox.checked)
+      .map((option) => option.checkbox.value);
 
     hidden.value = selected.join(", ");
     placeholder.hidden = selected.length > 0;
     clouds.replaceChildren();
+
+    options.forEach((option) => {
+      option.label?.classList.toggle("is-selected", option.checkbox.checked);
+    });
 
     selected.forEach((value) => {
       const cloud = document.createElement("span");
@@ -508,8 +518,11 @@ function wireInterestSelect() {
     root.classList.toggle("is-open");
   });
 
-  checkboxes.forEach((checkbox) => {
-    checkbox.addEventListener("change", updateValue);
+  options.forEach((option) => {
+    option.label?.addEventListener("click", () => {
+      window.setTimeout(updateValue, 0);
+    });
+    option.checkbox.addEventListener("change", updateValue);
   });
 
   root.closest("form")?.addEventListener("reset", () => {

@@ -1,0 +1,642 @@
+:root {
+  --bg: #f4f8fc;
+  --bg-soft: #e7f1fb;
+  --surface: rgba(255, 255, 255, 0.7);
+  --surface-strong: rgba(255, 255, 255, 0.9);
+  --text: #183248;
+  --muted: #567188;
+  --accent: #ffb85c;
+  --accent-strong: #ffcb7d;
+  --sky: #9fd6ff;
+  --sky-strong: #68bfff;
+  --line: rgba(24, 50, 72, 0.1);
+  --shadow: 0 20px 60px rgba(62, 107, 148, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "Manrope", sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(104, 191, 255, 0.35), transparent 30%),
+    linear-gradient(180deg, #eef8ff 0%, #f6fbff 38%, #ecf4fa 100%);
+  color: var(--text);
+}
+
+.doodle-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+main {
+  overflow: clip;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 5vw;
+  backdrop-filter: blur(20px);
+  background: rgba(244, 248, 252, 0.78);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  font-family: "Oranienbaum", serif;
+  font-size: 1.7rem;
+  letter-spacing: 0.04em;
+}
+
+.nav {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.85rem 1.35rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: #5b3908;
+  font-weight: 800;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  background: var(--accent-strong);
+}
+
+.button-secondary,
+.button-ghost {
+  background: rgba(255, 255, 255, 0.45);
+  color: var(--text);
+  border-color: rgba(24, 50, 72, 0.14);
+}
+
+.hero {
+  position: relative;
+  min-height: 92vh;
+  display: grid;
+  place-items: center;
+  padding: 7rem 5vw 5rem;
+  background:
+    linear-gradient(180deg, rgba(250, 253, 255, 0.02), rgba(236, 244, 250, 0.2)),
+    url("https://images.pexels.com/photos/8936566/pexels-photo-8936566.jpeg?auto=compress&cs=tinysrgb&w=1800")
+      center/cover no-repeat;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(235, 247, 255, 0.12), rgba(245, 249, 252, 0.58)),
+    radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.62), transparent 28%),
+    linear-gradient(180deg, rgba(107, 176, 255, 0.08), rgba(255, 255, 255, 0.24));
+}
+
+.doodles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.doodle {
+  position: absolute;
+  width: var(--size, 160px);
+  color: rgba(32, 105, 158, 0.4);
+  opacity: 0.95;
+  transform:
+    translate3d(0, var(--parallax-shift, 0px), 0)
+    rotate(var(--rotate, 0deg));
+  will-change: transform;
+}
+
+.doodle svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+  filter: drop-shadow(0 12px 26px rgba(62, 107, 148, 0.08));
+  animation: doodleFloat var(--float-duration, 10s) ease-in-out infinite alternate;
+}
+
+.doodle-soft {
+  color: rgba(76, 148, 190, 0.28);
+}
+
+.doodle-line {
+  color: rgba(32, 105, 158, 0.34);
+}
+
+.doodle-accent {
+  color: rgba(255, 184, 92, 0.68);
+}
+
+.hero-cloud {
+  top: 8%;
+  left: 4%;
+  --size: 152px;
+}
+
+.hero-paraglider {
+  top: 12%;
+  right: 5%;
+  --size: 148px;
+}
+
+.hero-mountains {
+  left: -1%;
+  bottom: 5%;
+  --size: 250px;
+}
+
+.about-mountains {
+  top: -0.4rem;
+  right: 2%;
+  --size: 220px;
+}
+
+.locations-paraglider {
+  top: 2.6rem;
+  right: 3%;
+  --size: 132px;
+}
+
+.mood-cloud {
+  top: 0.6rem;
+  left: -1.2rem;
+  --size: 185px;
+}
+
+.mood-paraglider {
+  top: 1.8rem;
+  right: 4%;
+  --size: 144px;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 860px;
+  padding: clamp(1rem, 2vw, 1.8rem);
+  border-radius: 2rem;
+  background: linear-gradient(180deg, rgba(252, 254, 255, 0.18), rgba(252, 254, 255, 0.04));
+  backdrop-filter: blur(10px);
+}
+
+.eyebrow {
+  margin: 0 0 1rem;
+  color: #2873aa;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.hero h1,
+.section-heading h2 {
+  margin: 0;
+  font-family: "Oranienbaum", serif;
+  line-height: 0.95;
+  font-weight: 400;
+}
+
+.hero h1 {
+  font-size: clamp(3.4rem, 8vw, 6.8rem);
+  max-width: 10ch;
+}
+
+.hero h1 span {
+  display: block;
+  color: #20699e;
+}
+
+.hero-text {
+  max-width: 44rem;
+  margin: 1.5rem 0 0;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.steps {
+  padding: 0;
+  list-style: none;
+}
+.stat,
+.info-card,
+.feature-card,
+.location-card,
+.highlight-box,
+.mood-card,
+.faq-list article,
+.contact-card,
+.form {
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+.section {
+  position: relative;
+  padding: 5.5rem 5vw;
+}
+
+.section-soft {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(232, 243, 251, 0.56));
+  border-top: 1px solid rgba(24, 50, 72, 0.06);
+  border-bottom: 1px solid rgba(24, 50, 72, 0.06);
+}
+
+.section-sky {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(159, 214, 255, 0.24), transparent 24%),
+    linear-gradient(180deg, rgba(228, 242, 253, 0.62), rgba(244, 250, 255, 0.38));
+}
+
+.section-heading,
+.about-grid,
+.cards,
+.steps,
+.highlight-box,
+.faq-list,
+.contacts-grid {
+  position: relative;
+  z-index: 2;
+}
+
+.section-heading {
+  display: grid;
+  gap: 0.7rem;
+  max-width: 760px;
+  margin-bottom: 2rem;
+}
+
+.section-heading::after {
+  content: "";
+  width: 5.2rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(32, 105, 158, 0.7), rgba(32, 105, 158, 0));
+}
+
+.section-heading h2 {
+  font-size: clamp(2.2rem, 5vw, 4rem);
+}
+
+.about-grid,
+.contacts-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1.5rem;
+}
+
+.about-card,
+.contact-card,
+.form {
+  border-radius: 1.6rem;
+  padding: 1.6rem;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.about-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.about-card p + p {
+  margin-top: 1rem;
+}
+
+.stats,
+.cards,
+.faq-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stat,
+.info-card,
+.feature-card,
+.location-card,
+.mood-card {
+  border-radius: 1.4rem;
+  padding: 1.4rem;
+}
+
+h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.18rem;
+}
+
+.stat strong,
+.steps strong,
+.contact-label {
+  display: block;
+  font-size: 1.1rem;
+}
+
+.stat strong {
+  font-family: "Oranienbaum", serif;
+  font-size: 2rem;
+  color: #20699e;
+  line-height: 0.9;
+}
+
+.stat span,
+.info-card p,
+.feature-card p,
+.location-card p,
+.steps span,
+.highlight-box p,
+.faq-list p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.three-columns {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.two-columns,
+.location-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+  counter-reset: step;
+}
+
+.steps li {
+  position: relative;
+  padding: 1.25rem 1.2rem 1.35rem;
+  border-radius: 1.4rem;
+  border: 1px solid rgba(24, 50, 72, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 14px 40px rgba(62, 107, 148, 0.08);
+}
+
+.steps li:nth-child(even) {
+  transform: translateY(1rem);
+}
+
+.steps li::before {
+  counter-increment: step;
+  content: "0" counter(step);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  margin-bottom: 0.9rem;
+  border-radius: 50%;
+  background: rgba(32, 105, 158, 0.1);
+  color: #20699e;
+  font-weight: 800;
+}
+
+.highlight-box {
+  border-radius: 1.8rem;
+  padding: 1.7rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(232, 245, 255, 0.8));
+}
+
+.mood-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.mood-card {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.mood-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(242, 248, 253, 0.88));
+}
+
+.mood-card > * {
+  position: relative;
+}
+
+.mood-card-sky {
+  background-image: url("https://images.pexels.com/photos/33375458/pexels-photo-33375458.jpeg?auto=compress&cs=tinysrgb&w=1200");
+}
+
+.mood-card-mountain {
+  background-image: url("https://images.pexels.com/photos/8578705/pexels-photo-8578705.jpeg?auto=compress&cs=tinysrgb&w=1200");
+}
+
+.mood-card-sun {
+  background-image: url("https://images.pexels.com/photos/35926053/pexels-photo-35926053.jpeg?auto=compress&cs=tinysrgb&w=1200");
+}
+
+.faq-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.faq-list article {
+  border-radius: 1.4rem;
+  padding: 1.4rem;
+}
+
+.contact-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(231, 243, 252, 0.78));
+}
+
+.contact-card a {
+  font-size: 1.15rem;
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+}
+
+.form label {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.form span {
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.form input,
+.form textarea {
+  width: 100%;
+  border: 1px solid rgba(24, 50, 72, 0.12);
+  border-radius: 1rem;
+  padding: 0.95rem 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--text);
+  font: inherit;
+}
+
+.form input::placeholder,
+.form textarea::placeholder {
+  color: rgba(86, 113, 136, 0.7);
+}
+
+@keyframes doodleFloat {
+  from {
+    transform: translateY(-6px) rotate(-1.5deg);
+  }
+
+  to {
+    transform: translateY(8px) rotate(1.5deg);
+  }
+}
+
+@media (max-width: 980px) {
+  .nav {
+    display: none;
+  }
+
+  .about-grid,
+  .contacts-grid,
+  .three-columns,
+  .two-columns,
+  .location-grid,
+  .mood-grid,
+  .faq-list,
+  .steps,
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    min-height: auto;
+    padding-top: 6rem;
+  }
+
+  .hero-cloud,
+  .about-mountains,
+  .mood-cloud {
+    display: none;
+  }
+
+  .hero-paraglider,
+  .locations-paraglider,
+  .mood-paraglider {
+    --size: 112px;
+    opacity: 0.7;
+  }
+
+  .hero-mountains {
+    --size: 190px;
+    left: -2.5rem;
+    bottom: 1rem;
+  }
+
+  .steps li:nth-child(even) {
+    transform: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .site-header {
+    padding: 0.9rem 1rem;
+  }
+
+  .section,
+  .hero {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .hero h1 {
+    max-width: none;
+  }
+
+  .button,
+  .button-secondary,
+  .button-ghost {
+    width: 100%;
+  }
+
+  .hero-paraglider,
+  .locations-paraglider,
+  .mood-paraglider,
+  .hero-mountains {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doodle {
+    transform: none !important;
+  }
+
+  .doodle svg {
+    animation: none;
+  }
+}

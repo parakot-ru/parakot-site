@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Паракот - Парапланерные курсы и туры по Кавказу</title>
+    <meta
+      name="description"
+      content='Обучение полетам на параплане, туры и выезды по Кавказу с Константином "Котом". Юца, Пятигорск, Чегем, Даргавс, Джилы-Су, Дигория.'
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Oranienbaum&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <svg class="doodle-sprite" aria-hidden="true" focusable="false">
+      <defs>
+        <symbol
+          id="doodle-paraglider"
+          viewBox="0 0 200 140"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M20 52c24-28 136-28 160 0" />
+          <path d="M42 61c17 13 99 13 116 0" />
+          <path d="M56 62 75 98" />
+          <path d="M84 62 93 102" />
+          <path d="M100 62v44" />
+          <path d="M116 62 107 102" />
+          <path d="M144 62 125 98" />
+          <path d="M92 106c0-5 4-9 8-9s8 4 8 9" />
+          <path d="M92 106c-8 5-13 12-14 20" />
+          <path d="M108 106c8 5 13 12 14 20" />
+        </symbol>
+        <symbol
+          id="doodle-mountains"
+          viewBox="0 0 260 140"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M8 118 62 54l26 34 34-52 64 82" />
+          <path d="M94 118 148 30l44 58 26-28 34 58" />
+          <path d="M122 36l10 16 10-11" />
+          <path d="M62 54l8 14 9-10" />
+          <path d="M182 88h58" />
+          <path d="M16 118h228" />
+        </symbol>
+        <symbol
+          id="doodle-cloud"
+          viewBox="0 0 220 120"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M46 82c-19 0-34-13-34-30 0-16 12-29 28-30 4-14 18-24 35-24 21 0 37 14 39 34h4c18 0 33 12 33 27 0 15-15 23-35 23H46Z"
+          />
+        </symbol>
+      </defs>
+    </svg>
+
+    <header class="site-header">
+      <a class="brand" href="#top">Паракот</a>
+      <nav class="nav">
+        <a href="#about">Обо мне</a>
+        <a href="#programs">Направления</a>
+        <a href="#locations">Локации</a>
+        <a href="#contacts">Контакты</a>
+      </nav>
+      <a class="button button-ghost" href="#contacts">Записаться</a>
+    </header>
+
+    <main id="top">
+      <section class="hero parallax-scope">
+        <div class="hero-overlay"></div>
+        <div class="doodles doodles-hero" aria-hidden="true">
+          <span
+            class="doodle doodle-soft doodle-cloud hero-cloud"
+            data-depth="0.4"
+            style="--float-duration: 12s; --rotate: -5deg"
+          >
+            <svg viewBox="0 0 220 120">
+              <use href="#doodle-cloud"></use>
+            </svg>
+          </span>
+          <span
+            class="doodle doodle-accent hero-paraglider"
+            data-depth="0.75"
+            style="--float-duration: 8s; --rotate: 8deg"
+          >
+            <svg viewBox="0 0 200 140">
+              <use href="#doodle-paraglider"></use>
+            </svg>
+          </span>
+          <span
+            class="doodle doodle-line hero-mountains"
+            data-depth="0.55"
+            style="--float-duration: 14s; --rotate: -2deg"
+          >
+            <svg viewBox="0 0 260 140">
+              <use href="#doodle-mountains"></use>
+            </svg>
+          </span>
+        </div>
+        <div class="hero-content">
+          <p class="eyebrow">Паракот.ру</p>
+          <h1>
+            Небо. Горы. Свобода полета.
+            <span>С Константином "Котом"</span>
+          </h1>
+          <p class="hero-text">
+            Паракот — мой позывной, а для друзей и учеников я просто Кот.
+            Здесь — обучение, туры и выезды для пилотов в лучших локациях
+            Кавказа: с настоящими горами, воздушным настроением и спокойным,
+            надежным подходом к полетам.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="#contacts">Оставить заявку</a>
+            <a class="button button-secondary" href="https://t.me/parakot_obuchenie"
+              >Написать в Telegram</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-soft about parallax-scope" id="about">
+        <div class="doodles doodles-about" aria-hidden="true">
+          <span
+            class="doodle doodle-line about-mountains"
+            data-depth="0.35"
+            style="--float-duration: 13s; --rotate: 4deg"
+          >
+            <svg viewBox="0 0 260 140">
+              <use href="#doodle-mountains"></use>
+            </svg>
+          </span>
+        </div>
+        <div class="section-heading">
+          <p class="eyebrow">Обо мне</p>
+          <h2>Больше 20 лет в парапланеризме, обучении и горных выездах</h2>
+        </div>
+        <div class="about-grid">
+          <div class="about-card">
+            <p>
+              В парапланеризме больше 20 лет. Паракот — позывной, под которым
+              знают многие пилоты и ученики. В работе для меня важны не
+              эффектные обещания, а понятная база: логика полета, рельеф,
+              погода и спокойное отношение к безопасности.
+            </p>
+            <p>
+              Основные районы полетов — Юца, Пятигорск и Северный Кавказ.
+              Локации для программ и выездов подбираются по сезону, погоде и
+              уровню группы, чтобы полеты были не только красивыми, но и
+              правильными по условиям.
+            </p>
+          </div>
+          <div class="stats">
+            <article class="stat">
+              <strong>20+ лет</strong>
+              <span>в парапланеризме</span>
+            </article>
+            <article class="stat">
+              <strong>Кавказ</strong>
+              <span>как главный регион полетов</span>
+            </article>
+            <article class="stat">
+              <strong>С нуля</strong>
+              <span>до уверенной базы и роста навыка</span>
+            </article>
+            <article class="stat">
+              <strong>Безопасность</strong>
+              <span>как главный принцип обучения</span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section audience">
+        <div class="section-heading">
+          <p class="eyebrow">Для кого</p>
+          <h2>Формат для новичков, продолжающих и самостоятельных пилотов</h2>
+        </div>
+        <div class="cards three-columns">
+          <article class="info-card">
+            <h3>Начинающим</h3>
+            <p>
+              Тем, кто хочет начать с нуля, здесь все выстроено спокойно и
+              последовательно: от знакомства с крылом и наземки до теории и
+              первых полетов.
+            </p>
+          </article>
+          <article class="info-card">
+            <h3>Продолжающим</h3>
+            <p>
+              Если база уже есть, дальше идет работа над динамиком, термиками,
+              анализом погоды и уверенностью в полете.
+            </p>
+          </article>
+          <article class="info-card">
+            <h3>Самостоятельным пилотам</h3>
+            <p>
+              Для опытных пилотов доступны выезды по новым локациям Кавказа —
+              с сопровождением и живым знанием региона.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section programs" id="programs">
+        <div class="section-heading">
+          <p class="eyebrow">Направления</p>
+          <h2>Не аттракцион, а настоящая летная практика</h2>
+        </div>
+        <div class="cards three-columns">
+          <article class="feature-card">
+            <h3>Обучение с нуля</h3>
+            <p>
+              В программе — наземная подготовка, техника старта, посадки,
+              теория и первые осознанные шаги в небе.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>Повышение уровня</h3>
+            <p>
+              Дальше — работа над динамиком, термиками, маршрутным мышлением и
+              исправлением типичных ошибок пилота.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>Туры и выезды</h3>
+            <p>
+              Горные поездки по Кавказу с подбором локаций под сезон, прогноз и
+              уровень группы.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section locations parallax-scope" id="locations">
+        <div class="doodles doodles-locations" aria-hidden="true">
+          <span
+            class="doodle doodle-accent locations-paraglider"
+            data-depth="0.55"
+            style="--float-duration: 10s; --rotate: -10deg"
+          >
+            <svg viewBox="0 0 200 140">
+              <use href="#doodle-paraglider"></use>
+            </svg>
+          </span>
+        </div>
+        <div class="section-heading">
+          <p class="eyebrow">Локации</p>
+          <h2>Лучшие места Кавказа для обучения, роста и сильных впечатлений</h2>
+        </div>
+        <div class="cards location-grid">
+          <article class="location-card">
+            <h3>Юца</h3>
+            <p>Базовая точка для обучения, тренировок и регулярной практики.</p>
+          </article>
+          <article class="location-card">
+            <h3>Пятигорск и КМВ</h3>
+            <p>Удобная база для логистики, проживания и выездов по прогнозу.</p>
+          </article>
+          <article class="location-card">
+            <h3>Чегем</h3>
+            <p>Горная классика с мощной атмосферой и ярким характером полетов.</p>
+          </article>
+          <article class="location-card">
+            <h3>Даргавс</h3>
+            <p>Масштабный рельеф, простор и настоящее ощущение высоты.</p>
+          </article>
+          <article class="location-card">
+            <h3>Джилы-Су</h3>
+            <p>Одна из самых впечатляющих локаций региона и по видам, и по пути.</p>
+          </article>
+          <article class="location-card">
+            <h3>Дигория</h3>
+            <p>Место, где полет легко превращается в настоящее путешествие.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section-soft timeline">
+        <div class="section-heading">
+          <p class="eyebrow">Как проходит обучение</p>
+          <h2>Последовательно, понятно и без спешки</h2>
+        </div>
+        <ol class="steps">
+          <li>
+            <strong>Знакомство</strong>
+            <span>Определяем ваш уровень, цели и удобный формат участия.</span>
+          </li>
+          <li>
+            <strong>Наземная подготовка</strong>
+            <span>Учимся понимать крыло, старт и базовые движения.</span>
+          </li>
+          <li>
+            <strong>Теория</strong>
+            <span>Разбираем погоду, аэрологию, безопасность и логику полета.</span>
+          </li>
+          <li>
+            <strong>Первые полеты</strong>
+            <span>Переходим к практике с контролем и радиоведением.</span>
+          </li>
+          <li>
+            <strong>Рост навыка</strong>
+            <span>Постепенно добавляем новые задачи и более сложные условия.</span>
+          </li>
+        </ol>
+      </section>
+
+      <section class="section reasons">
+        <div class="section-heading">
+          <p class="eyebrow">Подход</p>
+          <h2>Спокойный ритм, честные условия и то самое воздушное настроение Кавказа</h2>
+        </div>
+        <div class="cards two-columns">
+          <article class="info-card">
+            <h3>Реальный опыт</h3>
+            <p>За плечами много лет практики в горах, на разных стартах и в разных сезонах.</p>
+          </article>
+          <article class="info-card">
+            <h3>Индивидуальный подход</h3>
+            <p>Формат строится не под поток, а под уровень, темп и задачи конкретного человека.</p>
+          </article>
+          <article class="info-card">
+            <h3>Честный выбор условий</h3>
+            <p>Если погода не подходит, в воздух никто не идет ради галочки.</p>
+          </article>
+          <article class="info-card">
+            <h3>Атмосфера сообщества</h3>
+            <p>Здесь важны не только полеты, но и сообщество: горы, выезды и люди, с которыми хочется увидеться снова.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section tours">
+        <div class="section-heading">
+          <p class="eyebrow">Туры и сборы</p>
+          <h2>Ближайшие выезды под сезон, погоду и уровень группы</h2>
+        </div>
+        <div class="highlight-box">
+          <p>
+            Актуальные даты, продолжительность и стоимость сборов лучше уточнять
+            напрямую: программа зависит от сезона, погодного окна и состава
+            группы. Сюда можно будет добавить 2-3 карточки с конкретными
+            выездами, когда появится ближайшее подтвержденное расписание.
+          </p>
+        </div>
+      </section>
+
+      <section class="section section-sky mood parallax-scope">
+        <div class="doodles doodles-mood" aria-hidden="true">
+          <span
+            class="doodle doodle-soft mood-cloud"
+            data-depth="0.25"
+            style="--float-duration: 15s; --rotate: 2deg"
+          >
+            <svg viewBox="0 0 220 120">
+              <use href="#doodle-cloud"></use>
+            </svg>
+          </span>
+          <span
+            class="doodle doodle-line mood-paraglider"
+            data-depth="0.6"
+            style="--float-duration: 9s; --rotate: 12deg"
+          >
+            <svg viewBox="0 0 200 140">
+              <use href="#doodle-paraglider"></use>
+            </svg>
+          </span>
+        </div>
+        <div class="section-heading">
+          <p class="eyebrow">Атмосфера</p>
+          <h2>Полет здесь — это не только навык, но и чувство пространства</h2>
+        </div>
+        <div class="mood-grid">
+          <article class="mood-card mood-card-sky">
+            <h3>Голубое небо и белые облака</h3>
+            <p>
+              То самое ощущение, ради которого едут в горы: ясный воздух,
+              большой простор и полет, который запоминается не только на фото.
+            </p>
+          </article>
+          <article class="mood-card mood-card-mountain">
+            <h3>Кавказские вершины</h3>
+            <p>
+              Снежные пики, хребты и большие долины вокруг делают каждый выезд
+              не только летным, но и настоящим путешествием.
+            </p>
+          </article>
+          <article class="mood-card mood-card-sun">
+            <h3>Нормальное человеческое общение</h3>
+            <p>
+              Без суеты, показного героизма и лишнего пафоса. С вниманием к
+              уровню, погоде и тому, чтобы в полете было спокойно.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section faq">
+        <div class="section-heading">
+          <p class="eyebrow">FAQ</p>
+          <h2>Частые вопросы</h2>
+        </div>
+        <div class="faq-list">
+          <article>
+            <h3>Можно ли без опыта?</h3>
+            <p>Да, обучение подходит и тем, кто никогда раньше не летал.</p>
+          </article>
+          <article>
+            <h3>Когда лучше приезжать?</h3>
+            <p>Это зависит от вашей цели: обучение, динамик, термики или выезд в горы.</p>
+          </article>
+          <article>
+            <h3>Это безопасно?</h3>
+            <p>Полеты проводятся только при подходящих условиях и с учетом уровня участника.</p>
+          </article>
+          <article>
+            <h3>Можно приехать одному?</h3>
+            <p>Да, можно приехать индивидуально или присоединиться к группе.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section contacts" id="contacts">
+        <div class="section-heading">
+          <p class="eyebrow">Контакты</p>
+          <h2>Если такой формат откликается, можно написать или просто позвонить</h2>
+        </div>
+        <div class="contacts-grid">
+          <div class="contact-card">
+            <p class="contact-label">Телефоны</p>
+            <a href="tel:+79197551443">+7 (919) 755-14-43</a>
+            <a href="tel:+79283580603">+7 (928) 358-06-03</a>
+            <p class="contact-label">Telegram</p>
+            <a href="https://t.me/parakot_obuchenie">@parakot_obuchenie</a>
+          </div>
+          <form class="form">
+            <label>
+              <span>Имя</span>
+              <input type="text" name="name" placeholder="Как к вам обращаться" />
+            </label>
+            <label>
+              <span>Телефон или Telegram</span>
+              <input type="text" name="contact" placeholder="+7 ... / @username" />
+            </label>
+            <label>
+              <span>Что интересует</span>
+              <input type="text" name="topic" placeholder="Обучение, тур, консультация" />
+            </label>
+            <label>
+              <span>Комментарий</span>
+              <textarea
+                name="message"
+                rows="4"
+                placeholder="Какие даты удобны и какой у вас опыт"
+              ></textarea>
+            </label>
+            <button class="button" type="button">Отправить заявку</button>
+          </form>
+        </div>
+      </section>
+    </main>
+    <script src="./script.js" defer></script>
+  </body>
+</html>

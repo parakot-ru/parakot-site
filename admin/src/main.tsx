@@ -1031,8 +1031,8 @@ function App() {
         </div>
         <nav>
           <a href="#settings">Настройки</a>
-          <a href="#sections">Секции</a>
           <a href="#help">Справка</a>
+          <a href="#sections">Секции</a>
           <a href="#contacts">Контакты</a>
           <a href="#leads">Заявки</a>
         </nav>
@@ -1209,6 +1209,25 @@ function App() {
               </div>
             </div>
           )}
+        </section>
+
+        <section className="panel" id="help">
+          <PanelHeader icon={<BookOpen size={19} />} title="Справка по типам секций" />
+          <div className="help-intro">
+            <p>
+              Поля у секций похожи специально: так проще управлять контентом.
+              Отличается не админка, а то, как лендинг рисует эти данные на сайте.
+            </p>
+          </div>
+          <div className="type-help-grid">
+            {sectionTypeDocs.map((item) => (
+              <article className="type-help-card" key={item.type}>
+                <span>{item.type}</span>
+                <strong>{item.label}</strong>
+                <p>{item.description}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="panel" id="sections">
@@ -1625,25 +1644,6 @@ function App() {
               <Plus size={18} />
               Добавить секцию
             </button>
-          </div>
-        </section>
-
-        <section className="panel" id="help">
-          <PanelHeader icon={<BookOpen size={19} />} title="Справка по типам секций" />
-          <div className="help-intro">
-            <p>
-              Поля у секций похожи специально: так проще управлять контентом.
-              Отличается не админка, а то, как лендинг рисует эти данные на сайте.
-            </p>
-          </div>
-          <div className="type-help-grid">
-            {sectionTypeDocs.map((item) => (
-              <article className="type-help-card" key={item.type}>
-                <span>{item.type}</span>
-                <strong>{item.label}</strong>
-                <p>{item.description}</p>
-              </article>
-            ))}
           </div>
         </section>
 

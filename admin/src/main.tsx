@@ -1,6 +1,7 @@
 import { StrictMode, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
+  BookOpen,
   Check,
   CircleAlert,
   Eye,
@@ -145,6 +146,69 @@ const placementOptions = [
   { value: "bottom-right", label: "Снизу справа" },
 ];
 
+const sectionTypeDocs = [
+  {
+    type: "hero",
+    label: "Hero",
+    description: "Первый экран: крупный заголовок, вводный текст, фон и основные кнопки.",
+  },
+  {
+    type: "rich_text",
+    label: "Текст",
+    description: "Обычный текстовый блок для рассказа о человеке, подходе или программе.",
+  },
+  {
+    type: "stats",
+    label: "Статистика",
+    description: "Короткие факты и цифры. В карточках важны заголовок и описание.",
+  },
+  {
+    type: "cards_grid",
+    label: "Карточки",
+    description: "Универсальная сетка для преимуществ, направлений, услуг или тезисов.",
+  },
+  {
+    type: "cards_two_columns",
+    label: "Карточки 2 колонки",
+    description: "Более крупные карточки в две колонки, когда текста или смысла больше.",
+  },
+  {
+    type: "services",
+    label: "Услуги и цены",
+    description: "Карточки программ с описанием и ценой. Поле “Цена” выводится заметно.",
+  },
+  {
+    type: "locations_grid",
+    label: "Локации",
+    description: "Места полетов и туров. Хорошо работают карточки с изображениями.",
+  },
+  {
+    type: "timeline",
+    label: "Таймлайн",
+    description: "Последовательность шагов: как проходит курс, выезд или подготовка.",
+  },
+  {
+    type: "highlight",
+    label: "Акцент",
+    description: "Один выделенный смысловой блок: важная мысль, обещание или предупреждение.",
+  },
+  {
+    type: "gallery",
+    label: "Галерея",
+    description: "Атмосферные фотографии. В карточках особенно важны изображения.",
+  },
+  {
+    type: "faq",
+    label: "FAQ",
+    description: "Вопросы и ответы. Заголовок карточки — вопрос, описание — ответ.",
+  },
+  {
+    type: "contacts",
+    label: "Контакты",
+    description: "Финальный блок связи. Контакты берутся из отдельного раздела админки.",
+  },
+];
+
 function App() {
   const [token, setToken] = useState<string | null>(() =>
     window.localStorage.getItem(TOKEN_STORAGE_KEY),
@@ -160,6 +224,7 @@ function App() {
   const [draftContact, setDraftContact] = useState(emptyContact);
   const [draftSection, setDraftSection] = useState(emptySection);
   const [draftItems, setDraftItems] = useState<Record<number, Omit<SectionItem, "id" | "section_id">>>({});
+  const [draftItemImages, setDraftItemImages] = useState<Record<number, File | null>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
@@ -521,10 +586,15 @@ function App() {
 
   async function createSectionItem(sectionId: number) {
     const draft = draftItems[sectionId] ?? emptySectionItem;
+    const draftImage = draftItemImages[sectionId] ?? null;
 
     if (!draft.title.trim()) {
       showToast("error", "У карточки должен быть заголовок");
       return;
+    }
+
+    if (draftImage) {
+      setImageBusyKey(`draft-${sectionId}`);
     }
 
     try {
@@ -532,20 +602,47 @@ function App() {
       const sortOrder = section ? nextSortOrder(section.items) : 10;
       const created = await request<SectionItem>(`/sections/${sectionId}/items`, {
         method: "POST",
-        body: JSON.stringify({ ...draft, sort_order: sortOrder }),
+        body: JSON.stringify({
+          ...draft,
+          image_path: draftImage ? "" : draft.image_path,
+          sort_order: sortOrder,
+        }),
       });
+      let savedItem = created;
+      let imageUploadFailed = false;
+
+      if (draftImage) {
+        try {
+          savedItem = await uploadSectionItemImageFile(created.id, draftImage);
+        } catch (error) {
+          imageUploadFailed = true;
+          showToast(
+            "error",
+            `Карточка добавлена, но изображение не загрузилось: ${getErrorMessage(error)}`,
+          );
+        }
+      }
 
       setSections((current) =>
         current.map((section) =>
           section.id === sectionId
-            ? { ...section, items: [...section.items, created] }
+            ? { ...section, items: [...section.items, savedItem] }
             : section,
         ),
       );
       setDraftItems((current) => ({ ...current, [sectionId]: emptySectionItem }));
-      showToast("success", "Карточка добавлена");
+      setDraftItemImages((current) => ({ ...current, [sectionId]: null }));
+
+      if (!imageUploadFailed) {
+        showToast(
+          "success",
+          draftImage ? "Карточка добавлена с изображением" : "Карточка добавлена",
+        );
+      }
     } catch (error) {
       showToast("error", getErrorMessage(error));
+    } finally {
+      setImageBusyKey(null);
     }
   }
 
@@ -595,13 +692,7 @@ function App() {
     setImageBusyKey(busyKey);
 
     try {
-      const formData = new FormData();
-      formData.append("image", file);
-
-      const saved = await request<SectionItem>(`/section-items/${itemId}/image`, {
-        method: "POST",
-        body: formData,
-      });
+      const saved = await uploadSectionItemImageFile(itemId, file);
 
       setSections((current) =>
         current.map((section) =>
@@ -622,6 +713,16 @@ function App() {
       setImageBusyKey(null);
       event.target.value = "";
     }
+  }
+
+  async function uploadSectionItemImageFile(itemId: number, file: File) {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    return request<SectionItem>(`/section-items/${itemId}/image`, {
+      method: "POST",
+      body: formData,
+    });
   }
 
   async function deleteSectionItemImage(sectionId: number, itemId: number) {
@@ -931,6 +1032,7 @@ function App() {
         <nav>
           <a href="#settings">Настройки</a>
           <a href="#sections">Секции</a>
+          <a href="#help">Справка</a>
           <a href="#contacts">Контакты</a>
           <a href="#leads">Заявки</a>
         </nav>
@@ -1384,18 +1486,64 @@ function App() {
                       }
                       placeholder="Описание"
                     />
-                    <input
+                    <ManagedImageField
+                      compact
                       value={(draftItems[section.id] ?? emptySectionItem).image_path ?? ""}
-                      onChange={(event) =>
+                      placeholder="Изображение"
+                      selectedFileName={draftItemImages[section.id]?.name ?? null}
+                      isBusy={imageBusyKey === `draft-${section.id}`}
+                      onTextChange={(value) => {
                         setDraftItems((current) => ({
                           ...current,
                           [section.id]: {
                             ...(current[section.id] ?? emptySectionItem),
-                            image_path: event.target.value,
+                            image_path: value,
                           },
-                        }))
-                      }
-                      placeholder="Изображение"
+                        }));
+                        setDraftItemImages((current) => ({
+                          ...current,
+                          [section.id]: null,
+                        }));
+                      }}
+                      onFileSelect={(event) => {
+                        const file = event.target.files?.[0] ?? null;
+
+                        if (!file) {
+                          return;
+                        }
+
+                        if (file.size > 8 * 1024 * 1024) {
+                          showToast("error", "Изображение должно быть не тяжелее 8 МБ");
+                          event.target.value = "";
+                          return;
+                        }
+
+                        setDraftItemImages((current) => ({
+                          ...current,
+                          [section.id]: file,
+                        }));
+                        setDraftItems((current) => ({
+                          ...current,
+                          [section.id]: {
+                            ...(current[section.id] ?? emptySectionItem),
+                            image_path: "",
+                          },
+                        }));
+                        event.target.value = "";
+                      }}
+                      onDelete={() => {
+                        setDraftItemImages((current) => ({
+                          ...current,
+                          [section.id]: null,
+                        }));
+                        setDraftItems((current) => ({
+                          ...current,
+                          [section.id]: {
+                            ...(current[section.id] ?? emptySectionItem),
+                            image_path: "",
+                          },
+                        }));
+                      }}
                     />
                     <input
                       value={readMetaValue(
@@ -1477,6 +1625,25 @@ function App() {
               <Plus size={18} />
               Добавить секцию
             </button>
+          </div>
+        </section>
+
+        <section className="panel" id="help">
+          <PanelHeader icon={<BookOpen size={19} />} title="Справка по типам секций" />
+          <div className="help-intro">
+            <p>
+              Поля у секций похожи специально: так проще управлять контентом.
+              Отличается не админка, а то, как лендинг рисует эти данные на сайте.
+            </p>
+          </div>
+          <div className="type-help-grid">
+            {sectionTypeDocs.map((item) => (
+              <article className="type-help-card" key={item.type}>
+                <span>{item.type}</span>
+                <strong>{item.label}</strong>
+                <p>{item.description}</p>
+              </article>
+            ))}
           </div>
         </section>
 
@@ -1644,6 +1811,7 @@ function App() {
 function ManagedImageField({
   value,
   placeholder,
+  selectedFileName,
   isBusy,
   compact = false,
   onTextChange,
@@ -1652,6 +1820,7 @@ function ManagedImageField({
 }: {
   value: string;
   placeholder: string;
+  selectedFileName?: string | null;
   isBusy: boolean;
   compact?: boolean;
   onTextChange: (value: string) => void;
@@ -1663,12 +1832,12 @@ function ManagedImageField({
       <input
         value={value}
         onChange={(event) => onTextChange(event.target.value)}
-        placeholder={placeholder}
+        placeholder={selectedFileName ? "Файл выбран" : placeholder}
       />
       <div className="image-actions">
         <label className={`media-upload-button${isBusy ? " is-disabled" : ""}`}>
           {isBusy ? <Loader2 size={16} className="spin" /> : <Plus size={16} />}
-          {value ? "Заменить" : "Загрузить"}
+          {value || selectedFileName ? "Заменить" : "Загрузить"}
           <input
             className="visually-hidden"
             type="file"
@@ -1680,13 +1849,14 @@ function ManagedImageField({
         <button
           className="danger-text-button image-delete-button"
           type="button"
-          disabled={!value || isBusy}
+          disabled={(!value && !selectedFileName) || isBusy}
           onClick={onDelete}
         >
           <Trash2 size={16} />
           Удалить
         </button>
       </div>
+      {selectedFileName && <small>Будет загружено: {selectedFileName}</small>}
     </div>
   );
 }

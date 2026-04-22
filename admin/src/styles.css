@@ -534,6 +534,14 @@ textarea:focus {
   gap: 8px;
 }
 
+.image-field small {
+  overflow: hidden;
+  color: #70818d;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .image-actions {
   display: flex;
   flex-wrap: wrap;
@@ -613,6 +621,7 @@ textarea:focus {
 
 .section-item-row {
   grid-template-columns: minmax(140px, 1fr) minmax(160px, 1.1fr) minmax(230px, 1.35fr) minmax(110px, 0.6fr) minmax(150px, 0.75fr) 92px 42px 42px;
+  align-items: start;
   padding: 10px;
   border: 1px solid #dbe4e8;
   border-radius: 12px;
@@ -620,9 +629,16 @@ textarea:focus {
 }
 
 .new-section-item {
-  grid-template-columns: minmax(140px, 1fr) minmax(160px, 1.2fr) minmax(140px, 1fr) minmax(110px, 0.7fr) minmax(150px, 0.8fr) 132px;
+  grid-template-columns: minmax(140px, 1fr) minmax(160px, 1.1fr) minmax(230px, 1.35fr) minmax(110px, 0.6fr) minmax(150px, 0.75fr) 132px;
   padding-top: 10px;
   border-top: 1px solid #edf2f4;
+}
+
+.section-item-row > .order-buttons,
+.section-item-row > .icon-button,
+.section-item-row > .danger-button,
+.new-section-item > .primary-button {
+  align-self: start;
 }
 
 .new-section {
@@ -736,6 +752,51 @@ textarea:focus {
   font-size: 14px;
 }
 
+.help-intro {
+  max-width: 840px;
+  margin-bottom: 16px;
+  color: #61717f;
+  line-height: 1.55;
+}
+
+.help-intro p {
+  margin: 0;
+}
+
+.type-help-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.type-help-card {
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+  border: 1px solid #dbe9ef;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(246, 251, 253, 0.92));
+}
+
+.type-help-card span {
+  color: #1f7fae;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.type-help-card strong {
+  font-size: 16px;
+}
+
+.type-help-card p {
+  margin: 0;
+  color: #61717f;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .empty-state {
   margin: 0;
   color: #667684;
@@ -799,6 +860,7 @@ textarea:focus {
   .section-item-row,
   .logo-settings,
   .menu-field,
+  .type-help-grid,
   .new-section,
   .lead-row {
     grid-template-columns: 1fr;

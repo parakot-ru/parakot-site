@@ -22,7 +22,7 @@ if (parallaxItems.length > 0 && !prefersReducedMotion.matches) {
       const depth = Number.parseFloat(item.dataset.depth || "0");
       const progress =
         (viewportHeight * 0.5 - rect.top) / (viewportHeight + rect.height);
-      const shift = (progress - 0.2) * depth * 180;
+      const shift = (progress - 0.22) * depth * 320;
 
       item.style.setProperty("--parallax-shift", `${shift.toFixed(1)}px`);
     });

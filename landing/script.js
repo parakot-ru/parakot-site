@@ -156,6 +156,12 @@ function applySections(sections) {
     return;
   }
 
+  const heroSection = sections.find((section) => section.type === "hero");
+
+  if (heroSection) {
+    applyHeroSection(heroSection);
+  }
+
   const dynamicSections = document.createDocumentFragment();
 
   sections.forEach((section) => {
@@ -177,6 +183,65 @@ function applySections(sections) {
   }
 
   updateNavigation(sections);
+}
+
+function applyHeroSection(section) {
+  const hero = document.querySelector(".hero");
+
+  if (!hero) {
+    return;
+  }
+
+  const eyebrow = hero.querySelector(".hero-content .eyebrow");
+  const title = hero.querySelector(".hero-content h1");
+  const text = hero.querySelector(".hero-text");
+
+  if (eyebrow && section.label) {
+    eyebrow.textContent = section.label;
+  }
+
+  if (title && section.title) {
+    renderHeroTitle(title, section.title);
+  }
+
+  if (text && section.description) {
+    text.textContent = section.description;
+  }
+
+  if (section.image_path) {
+    hero.style.backgroundImage = `linear-gradient(180deg, rgba(250, 253, 255, 0.02), rgba(236, 244, 250, 0.2)), url("${section.image_path}")`;
+  }
+}
+
+function renderHeroTitle(container, value) {
+  const title = value.trim();
+
+  if (!title) {
+    return;
+  }
+
+  const explicitParts = title.split("|").map((part) => part.trim()).filter(Boolean);
+  const parts = explicitParts.length > 1 ? explicitParts : splitHeroTitle(title);
+
+  container.replaceChildren();
+  container.append(document.createTextNode(parts[0] || title));
+
+  if (parts[1]) {
+    const accent = document.createElement("span");
+    accent.textContent = parts.slice(1).join(" ");
+    container.appendChild(accent);
+  }
+}
+
+function splitHeroTitle(title) {
+  const marker = " С Константином";
+  const markerIndex = title.indexOf(marker);
+
+  if (markerIndex > 0) {
+    return [title.slice(0, markerIndex).trim(), title.slice(markerIndex + 1).trim()];
+  }
+
+  return [title];
 }
 
 function updateNavigation(sections) {

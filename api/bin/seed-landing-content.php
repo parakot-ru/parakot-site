@@ -60,6 +60,17 @@ try {
     insertContact($connection, 'phone', 'Телефон', '+7 (928) 358-06-03', 'tel:+79283580603', 20);
     insertContact($connection, 'telegram', 'Telegram', '@parakot_obuchenie', 'https://t.me/parakot_obuchenie', 30);
 
+    insertSection(
+        $connection,
+        'hero',
+        'Паракот.ру',
+        null,
+        false,
+        'Небо. Горы. Свобода полета. С Константином "Котом"',
+        'Паракот - мой позывной, а для друзей и учеников я просто Кот. Здесь - обучение, туры и выезды для пилотов в лучших локациях Кавказа: с настоящими горами, воздушным настроением и спокойным, надежным подходом к полетам.',
+        0
+    );
+
     $aboutId = insertSection(
         $connection,
         'rich_text',

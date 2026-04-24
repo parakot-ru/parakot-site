@@ -160,6 +160,8 @@ function applySections(sections) {
 
   if (heroSection) {
     applyHeroSection(heroSection);
+  } else {
+    hideHeroSection();
   }
 
   const dynamicSections = document.createDocumentFragment();
@@ -192,6 +194,8 @@ function applyHeroSection(section) {
     return;
   }
 
+  hero.hidden = false;
+
   const eyebrow = hero.querySelector(".hero-content .eyebrow");
   const title = hero.querySelector(".hero-content h1");
   const text = hero.querySelector(".hero-text");
@@ -210,6 +214,14 @@ function applyHeroSection(section) {
 
   if (section.image_path) {
     hero.style.backgroundImage = `linear-gradient(180deg, rgba(250, 253, 255, 0.02), rgba(236, 244, 250, 0.2)), url("${section.image_path}")`;
+  }
+}
+
+function hideHeroSection() {
+  const hero = document.querySelector(".hero");
+
+  if (hero) {
+    hero.hidden = true;
   }
 }
 

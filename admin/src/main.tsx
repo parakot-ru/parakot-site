@@ -229,6 +229,7 @@ function App() {
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [imageBusyKey, setImageBusyKey] = useState<string | null>(null);
+  const [publishingSectionId, setPublishingSectionId] = useState<number | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
   const logoInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -508,6 +509,46 @@ function App() {
       showToast("success", "Секция обновлена");
     } catch (error) {
       showToast("error", getErrorMessage(error));
+    }
+  }
+
+  async function autosaveSectionPatch(
+    sectionId: number,
+    patch: Partial<Section>,
+    successMessage: string,
+  ) {
+    const section = sections.find((currentSection) => currentSection.id === sectionId);
+
+    if (!section) {
+      return;
+    }
+
+    const nextSection = { ...section, ...patch };
+    setSections((current) =>
+      current.map((currentSection) =>
+        currentSection.id === sectionId ? nextSection : currentSection,
+      ),
+    );
+
+    setPublishingSectionId(sectionId);
+
+    try {
+      const saved = await request<Section>(`/sections/${sectionId}`, {
+        method: "PUT",
+        body: JSON.stringify(nextSection),
+      });
+
+      setSections((current) =>
+        current.map((currentSection) =>
+          currentSection.id === saved.id ? saved : currentSection,
+        ),
+      );
+      showToast("success", successMessage);
+    } catch (error) {
+      showToast("error", getErrorMessage(error));
+      await loadDashboard();
+    } finally {
+      setPublishingSectionId(null);
     }
   }
 
@@ -1248,13 +1289,29 @@ function App() {
                     <input
                       type="checkbox"
                       checked={Number(section.is_published) === 1}
+                      disabled={publishingSectionId === section.id}
                       onChange={(event) =>
-                        updateSection(section.id, {
-                          is_published: event.target.checked ? 1 : 0,
-                        })
+                        void autosaveSectionPatch(
+                          section.id,
+                          {
+                            is_published: event.target.checked ? 1 : 0,
+                          },
+                          event.target.checked
+                            ? "Секция опубликована"
+                            : "Секция переведена в черновик",
+                        )
                       }
                     />
-                    {Number(section.is_published) === 1 ? "На сайте" : "Черновик"}
+                    {publishingSectionId === section.id ? (
+                      <>
+                        <Loader2 size={14} className="spin" />
+                        Сохраняется…
+                      </>
+                    ) : Number(section.is_published) === 1 ? (
+                      "На сайте"
+                    ) : (
+                      "Черновик"
+                    )}
                   </label>
                 </div>
                 <div className="section-editor-head">

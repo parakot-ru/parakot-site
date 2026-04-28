@@ -151,61 +151,73 @@ const sectionTypeDocs = [
     type: "hero",
     label: "Hero",
     description: "Первый экран: крупный заголовок, вводный текст, фон и основные кнопки.",
+    itemHint: "Карточки пока не используются: важны заголовок, описание и фон секции.",
   },
   {
     type: "rich_text",
     label: "Текст",
     description: "Обычный текстовый блок для рассказа о человеке, подходе или программе.",
+    itemHint: "Карточки обычно не нужны: основной текст берется из описания секции.",
   },
   {
     type: "stats",
     label: "Статистика",
     description: "Короткие факты и цифры. В карточках важны заголовок и описание.",
+    itemHint: "Заголовок карточки показывается как крупная цифра или факт, описание - подпись.",
   },
   {
     type: "cards_grid",
     label: "Карточки",
     description: "Универсальная сетка для преимуществ, направлений, услуг или тезисов.",
+    itemHint: "Карточка = заголовок, описание и опциональное изображение.",
   },
   {
     type: "cards_two_columns",
     label: "Карточки 2 колонки",
     description: "Более крупные карточки в две колонки, когда текста или смысла больше.",
+    itemHint: "Карточки крупнее обычных: лучше писать чуть подробнее, но без длинных простыней.",
   },
   {
     type: "services",
     label: "Услуги и цены",
     description: "Карточки программ с описанием и ценой. Поле “Цена” выводится заметно.",
+    itemHint: "Заголовок = услуга, описание = суть, цена выводится отдельным бейджем.",
   },
   {
     type: "locations_grid",
     label: "Локации",
     description: "Места полетов и туров. Хорошо работают карточки с изображениями.",
+    itemHint: "Заголовок = место, описание = чем локация полезна, изображение усиливает атмосферу.",
   },
   {
     type: "timeline",
     label: "Таймлайн",
     description: "Последовательность шагов: как проходит курс, выезд или подготовка.",
+    itemHint: "Карточки идут как шаги по порядку: первый пункт станет шагом 01.",
   },
   {
     type: "highlight",
     label: "Акцент",
     description: "Один выделенный смысловой блок: важная мысль, обещание или предупреждение.",
+    itemHint: "Лучше использовать 1-2 карточки с самым сильным смыслом.",
   },
   {
     type: "gallery",
     label: "Галерея",
     description: "Атмосферные фотографии. В карточках особенно важны изображения.",
+    itemHint: "Изображение главное, заголовок и описание работают как короткая подпись.",
   },
   {
     type: "faq",
     label: "FAQ",
     description: "Вопросы и ответы. Заголовок карточки — вопрос, описание — ответ.",
+    itemHint: "Заголовок карточки = вопрос, описание = короткий ответ.",
   },
   {
     type: "contacts",
     label: "Контакты",
     description: "Финальный блок связи. Контакты берутся из отдельного раздела админки.",
+    itemHint: "Контакты редактируются в отдельном разделе, карточки здесь обычно не нужны.",
   },
 ];
 
@@ -246,6 +258,19 @@ function App() {
 
     void bootstrapSession(token);
   }, [token]);
+
+  useEffect(() => {
+    if (sections.length === 0 || !window.location.hash.startsWith("#cms-section-")) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      document.querySelector(window.location.hash)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, [sections.length]);
 
   async function request<T>(path: string, options?: RequestInit): Promise<T> {
     const headers = new Headers(options?.headers);
@@ -1266,6 +1291,7 @@ function App() {
                 <span>{item.type}</span>
                 <strong>{item.label}</strong>
                 <p>{item.description}</p>
+                <small>{item.itemHint}</small>
               </article>
             ))}
           </div>
@@ -1278,7 +1304,11 @@ function App() {
               <p className="empty-state">Секции пока не добавлены.</p>
             )}
             {[...sections].sort(sortByOrder).map((section, sectionIndex) => (
-              <article className="section-editor" key={section.id}>
+              <article
+                className="section-editor"
+                id={`cms-section-${section.id}`}
+                key={section.id}
+              >
                 <div className="section-editor-title">
                   <span>{String(sectionIndex + 1).padStart(2, "0")}</span>
                   <div className="section-editor-summary">
@@ -1370,6 +1400,7 @@ function App() {
                     placeholder="Порядок"
                   />
                 </div>
+                <SectionTypeNote type={section.type} />
                 <div className="form-grid">
                   <Field label="Заголовок">
                     <input
@@ -1431,7 +1462,10 @@ function App() {
                   </Field>
                 </div>
                 <div className="items-block">
-                  <h3>Карточки секции</h3>
+                  <div className="items-block-heading">
+                    <h3>Карточки секции</h3>
+                    <small>{sectionTypeDoc(section.type).itemHint}</small>
+                  </div>
                   <div className="section-item-list">
                     {[...section.items].sort(sortByOrder).map((item, itemIndex, orderedItems) => (
                       <article className="section-item-row" key={item.id}>
@@ -1947,6 +1981,18 @@ function PanelHeader({
   );
 }
 
+function SectionTypeNote({ type }: { type: string }) {
+  const doc = sectionTypeDoc(type);
+
+  return (
+    <div className="section-type-note">
+      <strong>{doc.label}</strong>
+      <span>{doc.description}</span>
+      <small>{doc.itemHint}</small>
+    </div>
+  );
+}
+
 function sortByOrder<T extends { id: number; sort_order: number }>(a: T, b: T) {
   return a.sort_order - b.sort_order || a.id - b.id;
 }
@@ -2024,22 +2070,18 @@ function updateMetaJson(metaJson: string | null, patch: Record<string, string>) 
 }
 
 function sectionTypeLabel(type: string) {
-  const labels: Record<string, string> = {
-    hero: "Hero",
-    rich_text: "Текст",
-    stats: "Статистика",
-    cards_grid: "Карточки",
-    cards_two_columns: "Карточки 2 колонки",
-    services: "Услуги и цены",
-    locations_grid: "Локации",
-    timeline: "Таймлайн",
-    highlight: "Акцент",
-    gallery: "Галерея",
-    faq: "FAQ",
-    contacts: "Контакты",
-  };
+  return sectionTypeDoc(type).label;
+}
 
-  return labels[type] ?? type;
+function sectionTypeDoc(type: string) {
+  return (
+    sectionTypeDocs.find((item) => item.type === type) ?? {
+      type,
+      label: type,
+      description: "Пользовательский тип секции.",
+      itemHint: "Карточки отображаются по универсальному шаблону.",
+    }
+  );
 }
 
 function Field({

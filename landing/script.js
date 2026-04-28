@@ -2,6 +2,13 @@ const parallaxItems = Array.from(document.querySelectorAll("[data-depth]"));
 const API_BASE =
   window.PARAKOT_API_BASE ||
   (window.location.protocol === "file:" ? "http://admin.parakot.ru/api" : "/api");
+const ADMIN_BASE =
+  window.PARAKOT_ADMIN_BASE ||
+  (window.location.hostname.includes("konekon")
+    ? "http://admin.konekon.ru"
+    : "https://admin.parakot.ru");
+const TOKEN_STORAGE_KEY = "parakot_admin_token";
+const EDITOR_MODE_STORAGE_KEY = "parakot_editor_mode";
 let formStatusTimer = null;
 
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -56,6 +63,57 @@ const sectionClassByType = {
   gallery: "mood-card",
   rich_text: "info-card",
   highlight: "highlight-box",
+};
+
+const sectionTypeMeta = {
+  hero: {
+    label: "Hero",
+    hint: "Первый экран: заголовок, вводный текст и фон.",
+  },
+  rich_text: {
+    label: "Текст",
+    hint: "Основной текст берется из описания секции.",
+  },
+  stats: {
+    label: "Статистика",
+    hint: "Карточки показываются как цифры и короткие факты.",
+  },
+  cards_grid: {
+    label: "Карточки",
+    hint: "Универсальная сетка карточек.",
+  },
+  cards_two_columns: {
+    label: "Карточки 2 колонки",
+    hint: "Крупные карточки для более плотных смыслов.",
+  },
+  services: {
+    label: "Услуги и цены",
+    hint: "Цена выводится отдельным бейджем.",
+  },
+  locations_grid: {
+    label: "Локации",
+    hint: "Места полетов: хорошо работают фото.",
+  },
+  timeline: {
+    label: "Таймлайн",
+    hint: "Карточки идут как последовательные шаги.",
+  },
+  highlight: {
+    label: "Акцент",
+    hint: "Выделенный смысловой блок.",
+  },
+  gallery: {
+    label: "Галерея",
+    hint: "Изображение главное, текст вторичен.",
+  },
+  faq: {
+    label: "FAQ",
+    hint: "Заголовок карточки = вопрос, описание = ответ.",
+  },
+  contacts: {
+    label: "Контакты",
+    hint: "Контакты берутся из отдельного раздела админки.",
+  },
 };
 
 loadDynamicContent();
@@ -186,6 +244,7 @@ function applySections(sections) {
   }
 
   updateNavigation(sections);
+  setupEditorMode(sections);
 }
 
 function applyHeroSection(section) {
@@ -196,6 +255,8 @@ function applyHeroSection(section) {
   }
 
   hero.hidden = false;
+  hero.dataset.editorSectionId = section.id;
+  hero.dataset.editorType = section.type;
 
   const eyebrow = hero.querySelector(".hero-content .eyebrow");
   const title = hero.querySelector(".hero-content h1");
@@ -291,15 +352,19 @@ function renderSection(section) {
   const element = document.createElement("section");
   element.className = sectionClassName(section.type);
   element.id = `section-${section.id}`;
+  element.dataset.editorSectionId = section.id;
+  element.dataset.editorType = section.type;
 
   const heading = document.createElement("div");
   heading.className = "section-heading";
 
   const eyebrow = document.createElement("p");
   eyebrow.className = "eyebrow";
+  eyebrow.dataset.editorField = "label";
   eyebrow.textContent = section.label;
 
   const title = document.createElement("h2");
+  title.dataset.editorField = "title";
   title.textContent = section.title;
 
   heading.append(eyebrow, title);
@@ -307,6 +372,7 @@ function renderSection(section) {
   if (section.description && section.type !== "rich_text") {
     const description = document.createElement("p");
     description.className = "section-description";
+    description.dataset.editorField = "description";
     description.textContent = section.description;
     heading.appendChild(description);
   }
@@ -356,6 +422,8 @@ function renderItems(section) {
   section.items.forEach((item) => {
     const card = document.createElement(isTimeline ? "li" : "article");
     card.className = sectionClassByType[section.type] || "info-card";
+    card.dataset.editorSectionId = section.id;
+    card.dataset.editorItemId = item.id;
     const placement = readMetaValue(item.meta_json, "placement");
     const price = readMetaValue(item.meta_json, "price");
 
@@ -457,6 +525,126 @@ function containerClassName(type) {
   }
 
   return "cards three-columns";
+}
+
+async function setupEditorMode(sections) {
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("editor") === "0") {
+    window.localStorage.removeItem(EDITOR_MODE_STORAGE_KEY);
+  }
+
+  if (params.get("editor") === "1") {
+    window.localStorage.setItem(EDITOR_MODE_STORAGE_KEY, "1");
+  }
+
+  const isEnabled = window.localStorage.getItem(EDITOR_MODE_STORAGE_KEY) === "1";
+
+  if (!isEnabled) {
+    return;
+  }
+
+  const isAuthenticated = await checkEditorAuth();
+
+  document.body.classList.add("editor-mode");
+  renderEditorToolbar(isAuthenticated);
+  annotateEditableSections(sections);
+}
+
+async function checkEditorAuth() {
+  const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+
+  if (!token) {
+    return false;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const payload = await response.json();
+
+    return response.ok && payload.ok;
+  } catch {
+    return false;
+  }
+}
+
+function renderEditorToolbar(isAuthenticated) {
+  if (document.querySelector("[data-editor-toolbar]")) {
+    return;
+  }
+
+  const toolbar = document.createElement("aside");
+  toolbar.className = "editor-toolbar";
+  toolbar.dataset.editorToolbar = "true";
+
+  const title = document.createElement("strong");
+  title.textContent = "Режим редактора";
+
+  const status = document.createElement("span");
+  status.textContent = isAuthenticated
+    ? "API-сессия найдена"
+    : "Предпросмотр: правки через админку";
+
+  const adminLink = document.createElement("a");
+  adminLink.href = `${ADMIN_BASE}/#sections`;
+  adminLink.textContent = "Открыть админку";
+
+  const close = document.createElement("button");
+  close.type = "button";
+  close.textContent = "Выключить";
+  close.addEventListener("click", () => {
+    window.localStorage.removeItem(EDITOR_MODE_STORAGE_KEY);
+    window.location.href = window.location.pathname + window.location.hash;
+  });
+
+  toolbar.append(title, status, adminLink, close);
+  document.body.appendChild(toolbar);
+}
+
+function annotateEditableSections(sections) {
+  sections.forEach((section) => {
+    const element = document.querySelector(`[data-editor-section-id="${section.id}"]`);
+
+    if (!element || element.querySelector(":scope > .editor-section-tools")) {
+      return;
+    }
+
+    const meta = sectionTypeMeta[section.type] || {
+      label: section.type,
+      hint: "Универсальная секция.",
+    };
+    const tools = document.createElement("div");
+    tools.className = "editor-section-tools";
+
+    const badge = document.createElement("span");
+    badge.className = "editor-type-badge";
+    badge.textContent = meta.label;
+    badge.title = meta.hint;
+
+    const editLink = document.createElement("a");
+    editLink.href = `${ADMIN_BASE}/#cms-section-${section.id}`;
+    editLink.textContent = "Редактировать секцию";
+
+    tools.append(badge, editLink);
+    element.prepend(tools);
+  });
+
+  document.querySelectorAll("[data-editor-item-id]").forEach((card) => {
+    if (card.querySelector(":scope > .editor-card-tools")) {
+      return;
+    }
+
+    const sectionId = card.dataset.editorSectionId;
+    const tools = document.createElement("a");
+    tools.className = "editor-card-tools";
+    tools.href = `${ADMIN_BASE}/#cms-section-${sectionId}`;
+    tools.textContent = "Карточка";
+    card.appendChild(tools);
+  });
 }
 
 function hrefFromContact(contact) {

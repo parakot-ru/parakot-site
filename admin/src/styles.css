@@ -424,6 +424,36 @@ textarea:focus {
   grid-template-columns: 150px minmax(160px, 1fr) 110px;
 }
 
+.section-type-note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid #d6e7ee;
+  border-radius: 14px;
+  color: #536879;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(235, 247, 252, 0.78));
+}
+
+.section-type-note strong {
+  color: #1f7fae;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.section-type-note span,
+.section-type-note small {
+  line-height: 1.45;
+}
+
+.section-type-note small {
+  grid-column: 2;
+  color: #7a8b98;
+}
+
 .logo-settings {
   display: grid;
   grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
@@ -633,6 +663,16 @@ textarea:focus {
   font-size: 16px;
 }
 
+.items-block-heading {
+  display: grid;
+  gap: 5px;
+}
+
+.items-block-heading small {
+  color: #61717f;
+  line-height: 1.45;
+}
+
 .section-item-row {
   grid-template-columns: minmax(140px, 1fr) minmax(160px, 1.1fr) minmax(230px, 1.35fr) minmax(110px, 0.6fr) minmax(150px, 0.75fr) 92px 42px 42px;
   align-items: start;
@@ -811,6 +851,12 @@ textarea:focus {
   line-height: 1.45;
 }
 
+.type-help-card small {
+  color: #7a8b98;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .empty-state {
   margin: 0;
   color: #667684;
@@ -871,6 +917,7 @@ textarea:focus {
   .contact-row,
   .new-contact,
   .section-editor-head,
+  .section-type-note,
   .section-item-row,
   .logo-settings,
   .menu-field,
@@ -911,6 +958,10 @@ textarea:focus {
   .section-editor-actions {
     justify-self: start;
     justify-content: flex-start;
+  }
+
+  .section-type-note small {
+    grid-column: auto;
   }
 
   .publish-toggle {

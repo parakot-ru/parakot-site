@@ -1,6 +1,7 @@
 const parallaxItems = Array.from(document.querySelectorAll("[data-depth]"));
 const API_BASE =
-  window.PARAKOT_API_BASE || "http://admin.konekon.ru/api";
+  window.PARAKOT_API_BASE ||
+  (window.location.protocol === "file:" ? "http://admin.parakot.ru/api" : "/api");
 let formStatusTimer = null;
 
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");

@@ -18,7 +18,7 @@ import {
 import "./styles.css";
 
 const API_BASE =
-  import.meta.env.VITE_API_BASE_URL ?? "http://admin.konekon.ru/api";
+  import.meta.env.VITE_API_BASE_URL ?? "https://parakot.ru/api";
 const TOKEN_STORAGE_KEY = "parakot_admin_token";
 
 type ApiResponse<T> = {

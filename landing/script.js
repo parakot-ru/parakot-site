@@ -566,6 +566,7 @@ function consumeEditorTokenFromUrl() {
   }
 
   window.localStorage.setItem(TOKEN_STORAGE_KEY, editorToken);
+  writeSharedTokenCookie(editorToken);
   window.localStorage.setItem(EDITOR_MODE_STORAGE_KEY, "1");
   params.delete("editor_token");
 
@@ -575,7 +576,7 @@ function consumeEditorTokenFromUrl() {
 }
 
 async function checkEditorAuth() {
-  const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+  const token = getEditorToken();
 
   if (!token) {
     return false;
@@ -589,10 +590,60 @@ async function checkEditorAuth() {
     });
     const payload = await response.json();
 
+    if (response.ok && payload.ok) {
+      window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
+    }
+
     return response.ok && payload.ok;
   } catch {
     return false;
   }
+}
+
+function getEditorToken() {
+  return window.localStorage.getItem(TOKEN_STORAGE_KEY) || readCookie(TOKEN_STORAGE_KEY);
+}
+
+function readCookie(name) {
+  const cookie = document.cookie
+    .split("; ")
+    .find((item) => item.startsWith(`${name}=`));
+
+  if (!cookie) {
+    return "";
+  }
+
+  return decodeURIComponent(cookie.slice(name.length + 1));
+}
+
+function writeSharedTokenCookie(token) {
+  const domain = getSharedCookieDomain();
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+
+  document.cookie =
+    [
+      `${TOKEN_STORAGE_KEY}=${encodeURIComponent(token)}`,
+      "Max-Age=604800",
+      "Path=/",
+      "SameSite=Lax",
+      domain ? `Domain=${domain}` : "",
+    ]
+      .filter(Boolean)
+      .join("; ") + secure;
+}
+
+function getSharedCookieDomain() {
+  const host = window.location.hostname;
+
+  if (host.endsWith("konekon.ru")) {
+    return ".konekon.ru";
+  }
+
+  if (host.endsWith("parakot.ru")) {
+    return ".parakot.ru";
+  }
+
+  return "";
 }
 
 function renderEditorEntryButton(sections) {

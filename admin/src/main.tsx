@@ -23,6 +23,7 @@ const SITE_BASE =
   import.meta.env.VITE_SITE_BASE_URL ??
   (API_BASE.includes("konekon") ? "http://parakot.konekon.ru" : "https://parakot.ru");
 const TOKEN_STORAGE_KEY = "parakot_admin_token";
+const TOKEN_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 
 type ApiResponse<T> = {
   ok: boolean;
@@ -325,6 +326,7 @@ function App() {
         throw new Error(payload.error ?? "Session expired");
       }
 
+      writeSharedTokenCookie(currentToken);
       setUser(payload.data);
       await loadDashboard();
     } catch {
@@ -355,6 +357,7 @@ function App() {
       }
 
       window.localStorage.setItem(TOKEN_STORAGE_KEY, payload.data.token);
+      writeSharedTokenCookie(payload.data.token);
       setToken(payload.data.token);
       setUser(payload.data.user);
       setLoginPassword("");
@@ -389,6 +392,7 @@ function App() {
 
   function resetSession() {
     window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+    clearSharedTokenCookie();
     setToken(null);
     setUser(null);
     setSettings(null);
@@ -1915,6 +1919,52 @@ function App() {
       </section>
     </main>
   );
+}
+
+function writeSharedTokenCookie(token: string) {
+  const domain = getSharedCookieDomain();
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+
+  document.cookie =
+    [
+      `${TOKEN_STORAGE_KEY}=${encodeURIComponent(token)}`,
+      `Max-Age=${TOKEN_COOKIE_MAX_AGE}`,
+      "Path=/",
+      "SameSite=Lax",
+      domain ? `Domain=${domain}` : "",
+    ]
+      .filter(Boolean)
+      .join("; ") + secure;
+}
+
+function clearSharedTokenCookie() {
+  const domain = getSharedCookieDomain();
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+
+  document.cookie =
+    [
+      `${TOKEN_STORAGE_KEY}=`,
+      "Max-Age=0",
+      "Path=/",
+      "SameSite=Lax",
+      domain ? `Domain=${domain}` : "",
+    ]
+      .filter(Boolean)
+      .join("; ") + secure;
+}
+
+function getSharedCookieDomain() {
+  const host = window.location.hostname;
+
+  if (host.endsWith("konekon.ru")) {
+    return ".konekon.ru";
+  }
+
+  if (host.endsWith("parakot.ru")) {
+    return ".parakot.ru";
+  }
+
+  return "";
 }
 
 function ManagedImageField({

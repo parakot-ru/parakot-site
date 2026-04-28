@@ -950,6 +950,11 @@ h3 {
   box-shadow: 0 0 0 0.28rem rgba(57, 178, 124, 0.14);
 }
 
+.editor-entry-button-muted::before {
+  background: #ffb85c;
+  box-shadow: 0 0 0 0.28rem rgba(255, 184, 92, 0.16);
+}
+
 .editor-toolbar strong {
   font-size: 0.95rem;
 }

@@ -541,10 +541,16 @@ async function setupEditorMode(sections) {
   }
 
   const isEnabled = window.localStorage.getItem(EDITOR_MODE_STORAGE_KEY) === "1";
+  const hadTokenCandidate = hasEditorTokenCandidate();
   const isAuthenticated = await checkEditorAuth();
 
   if (!isEnabled && isAuthenticated) {
     renderEditorEntryButton(sections);
+    return;
+  }
+
+  if (!isEnabled && hadTokenCandidate) {
+    renderEditorLoginButton();
     return;
   }
 
@@ -576,32 +582,44 @@ function consumeEditorTokenFromUrl() {
 }
 
 async function checkEditorAuth() {
-  const token = getEditorToken();
+  const tokens = getEditorTokenCandidates();
 
-  if (!token) {
+  if (tokens.length === 0) {
     return false;
   }
 
-  try {
-    const response = await fetch(`${API_BASE}/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const payload = await response.json();
+  for (const token of tokens) {
+    try {
+      const response = await fetch(`${API_BASE}/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const payload = await response.json();
 
-    if (response.ok && payload.ok) {
-      window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      if (response.ok && payload.ok) {
+        window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
+        writeSharedTokenCookie(token);
+        return true;
+      }
+    } catch {
+      // Try the next token source: localStorage and shared cookie can drift apart.
     }
-
-    return response.ok && payload.ok;
-  } catch {
-    return false;
   }
+
+  clearEditorToken();
+  return false;
 }
 
-function getEditorToken() {
-  return window.localStorage.getItem(TOKEN_STORAGE_KEY) || readCookie(TOKEN_STORAGE_KEY);
+function hasEditorTokenCandidate() {
+  return getEditorTokenCandidates().length > 0;
+}
+
+function getEditorTokenCandidates() {
+  return [
+    readCookie(TOKEN_STORAGE_KEY),
+    window.localStorage.getItem(TOKEN_STORAGE_KEY),
+  ].filter((token, index, tokens) => token && tokens.indexOf(token) === index);
 }
 
 function readCookie(name) {
@@ -624,6 +642,27 @@ function writeSharedTokenCookie(token) {
     [
       `${TOKEN_STORAGE_KEY}=${encodeURIComponent(token)}`,
       "Max-Age=604800",
+      "Path=/",
+      "SameSite=Lax",
+      domain ? `Domain=${domain}` : "",
+    ]
+      .filter(Boolean)
+      .join("; ") + secure;
+}
+
+function clearEditorToken() {
+  window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+  clearSharedTokenCookie();
+}
+
+function clearSharedTokenCookie() {
+  const domain = getSharedCookieDomain();
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+
+  document.cookie =
+    [
+      `${TOKEN_STORAGE_KEY}=`,
+      "Max-Age=0",
       "Path=/",
       "SameSite=Lax",
       domain ? `Domain=${domain}` : "",
@@ -666,6 +705,27 @@ function renderEditorEntryButton(sections) {
     document.body.classList.add("editor-mode");
     renderEditorToolbar(true);
     annotateEditableSections(sections);
+  });
+
+  document.body.appendChild(button);
+}
+
+function renderEditorLoginButton() {
+  if (
+    document.querySelector("[data-editor-entry]") ||
+    document.querySelector("[data-editor-toolbar]")
+  ) {
+    return;
+  }
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "editor-entry-button editor-entry-button-muted";
+  button.dataset.editorEntry = "true";
+  button.textContent = "Войти в админку";
+
+  button.addEventListener("click", () => {
+    window.location.href = ADMIN_BASE;
   });
 
   document.body.appendChild(button);

@@ -1,0 +1,13 @@
+{
+  "name": "parakot-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "smoke:editor": "playwright test tests/e2e/editor-mode.spec.ts",
+    "smoke:editor:headed": "playwright test tests/e2e/editor-mode.spec.ts --headed",
+    "test:admin:build": "npm --prefix admin run build"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
+  }
+}

@@ -19,6 +19,9 @@ import "./styles.css";
 
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL ?? "https://parakot.ru/api";
+const SITE_BASE =
+  import.meta.env.VITE_SITE_BASE_URL ??
+  (API_BASE.includes("konekon") ? "http://parakot.konekon.ru" : "https://parakot.ru");
 const TOKEN_STORAGE_KEY = "parakot_admin_token";
 
 type ApiResponse<T> = {
@@ -371,6 +374,17 @@ function App() {
     } finally {
       resetSession();
     }
+  }
+
+  function openLandingEditor() {
+    const url = new URL(SITE_BASE);
+    url.searchParams.set("editor", "1");
+
+    if (token) {
+      url.searchParams.set("editor_token", token);
+    }
+
+    window.open(url.toString(), "_blank", "noopener,noreferrer");
   }
 
   function resetSession() {
@@ -1105,6 +1119,10 @@ function App() {
         <button className="ghost-button" type="button" onClick={loadDashboard}>
           <RefreshCw size={18} />
           Обновить
+        </button>
+        <button className="ghost-button" type="button" onClick={openLandingEditor}>
+          <Eye size={18} />
+          Редактор сайта
         </button>
         <button className="ghost-button" type="button" onClick={logout}>
           <LogOut size={18} />

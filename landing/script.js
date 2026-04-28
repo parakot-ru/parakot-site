@@ -11,6 +11,8 @@ const TOKEN_STORAGE_KEY = "parakot_admin_token";
 const EDITOR_MODE_STORAGE_KEY = "parakot_editor_mode";
 let formStatusTimer = null;
 
+consumeEditorTokenFromUrl();
+
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 if (parallaxItems.length > 0 && !prefersReducedMotion.matches) {
@@ -539,16 +541,37 @@ async function setupEditorMode(sections) {
   }
 
   const isEnabled = window.localStorage.getItem(EDITOR_MODE_STORAGE_KEY) === "1";
+  const isAuthenticated = await checkEditorAuth();
+
+  if (!isEnabled && isAuthenticated) {
+    renderEditorEntryButton(sections);
+    return;
+  }
 
   if (!isEnabled) {
     return;
   }
 
-  const isAuthenticated = await checkEditorAuth();
-
   document.body.classList.add("editor-mode");
   renderEditorToolbar(isAuthenticated);
   annotateEditableSections(sections);
+}
+
+function consumeEditorTokenFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const editorToken = params.get("editor_token");
+
+  if (!editorToken) {
+    return;
+  }
+
+  window.localStorage.setItem(TOKEN_STORAGE_KEY, editorToken);
+  window.localStorage.setItem(EDITOR_MODE_STORAGE_KEY, "1");
+  params.delete("editor_token");
+
+  const search = params.toString();
+  const cleanUrl = `${window.location.pathname}${search ? `?${search}` : ""}${window.location.hash}`;
+  window.history.replaceState(null, "", cleanUrl);
 }
 
 async function checkEditorAuth() {
@@ -570,6 +593,31 @@ async function checkEditorAuth() {
   } catch {
     return false;
   }
+}
+
+function renderEditorEntryButton(sections) {
+  if (
+    document.querySelector("[data-editor-entry]") ||
+    document.querySelector("[data-editor-toolbar]")
+  ) {
+    return;
+  }
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "editor-entry-button";
+  button.dataset.editorEntry = "true";
+  button.textContent = "Включить редактор";
+
+  button.addEventListener("click", () => {
+    window.localStorage.setItem(EDITOR_MODE_STORAGE_KEY, "1");
+    button.remove();
+    document.body.classList.add("editor-mode");
+    renderEditorToolbar(true);
+    annotateEditableSections(sections);
+  });
+
+  document.body.appendChild(button);
 }
 
 function renderEditorToolbar(isAuthenticated) {

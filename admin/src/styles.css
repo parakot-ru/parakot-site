@@ -119,7 +119,7 @@ button {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.ghost-button {
+.sidebar .ghost-button:first-of-type {
   margin-top: auto;
 }
 

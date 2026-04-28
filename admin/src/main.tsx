@@ -1281,38 +1281,56 @@ function App() {
               <article className="section-editor" key={section.id}>
                 <div className="section-editor-title">
                   <span>{String(sectionIndex + 1).padStart(2, "0")}</span>
-                  <div>
+                  <div className="section-editor-summary">
                     <strong>{section.label || "Без метки"}</strong>
                     <small>{sectionTypeLabel(section.type)}</small>
                   </div>
-                  <label className="publish-toggle">
-                    <input
-                      type="checkbox"
-                      checked={Number(section.is_published) === 1}
-                      disabled={publishingSectionId === section.id}
-                      onChange={(event) =>
-                        void autosaveSectionPatch(
-                          section.id,
-                          {
-                            is_published: event.target.checked ? 1 : 0,
-                          },
-                          event.target.checked
-                            ? "Секция опубликована"
-                            : "Секция переведена в черновик",
-                        )
-                      }
-                    />
-                    {publishingSectionId === section.id ? (
-                      <>
-                        <Loader2 size={14} className="spin" />
-                        Сохраняется…
-                      </>
-                    ) : Number(section.is_published) === 1 ? (
-                      "На сайте"
-                    ) : (
-                      "Черновик"
-                    )}
-                  </label>
+                  <div className="section-editor-actions">
+                    <label className="publish-toggle">
+                      <input
+                        type="checkbox"
+                        checked={Number(section.is_published) === 1}
+                        disabled={publishingSectionId === section.id}
+                        onChange={(event) =>
+                          void autosaveSectionPatch(
+                            section.id,
+                            {
+                              is_published: event.target.checked ? 1 : 0,
+                            },
+                            event.target.checked
+                              ? "Секция опубликована"
+                              : "Секция переведена в черновик",
+                          )
+                        }
+                      />
+                      {publishingSectionId === section.id ? (
+                        <>
+                          <Loader2 size={14} className="spin" />
+                          Сохраняется…
+                        </>
+                      ) : Number(section.is_published) === 1 ? (
+                        "На сайте"
+                      ) : (
+                        "Черновик"
+                      )}
+                    </label>
+                    <button
+                      className="primary-button section-action-button"
+                      type="button"
+                      onClick={() => saveSection(section)}
+                    >
+                      <Save size={17} />
+                      Сохранить
+                    </button>
+                    <button
+                      className="danger-text-button section-action-button"
+                      type="button"
+                      onClick={() => deleteSection(section.id)}
+                    >
+                      <Trash2 size={16} />
+                      Удалить
+                    </button>
+                  </div>
                 </div>
                 <div className="section-editor-head">
                   <select
@@ -1411,24 +1429,6 @@ function App() {
                       }
                     />
                   </Field>
-                </div>
-                <div className="row-actions">
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={() => saveSection(section)}
-                  >
-                    <Save size={18} />
-                    Сохранить секцию
-                  </button>
-                  <button
-                    className="danger-text-button"
-                    type="button"
-                    onClick={() => deleteSection(section.id)}
-                  >
-                    <Trash2 size={17} />
-                    Удалить секцию
-                  </button>
                 </div>
                 <div className="items-block">
                   <h3>Карточки секции</h3>

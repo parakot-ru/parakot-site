@@ -3,8 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "smoke": "playwright test",
+    "smoke:api": "playwright test tests/e2e/api.spec.ts",
+    "smoke:admin": "playwright test tests/e2e/admin-dashboard.spec.ts",
     "smoke:editor": "playwright test tests/e2e/editor-mode.spec.ts",
     "smoke:editor:headed": "playwright test tests/e2e/editor-mode.spec.ts --headed",
+    "smoke:landing": "playwright test tests/e2e/landing.spec.ts",
     "test:admin:build": "npm --prefix admin run build"
   },
   "devDependencies": {

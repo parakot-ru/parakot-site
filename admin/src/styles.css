@@ -466,6 +466,56 @@ textarea:focus {
   color: #7a8b98;
 }
 
+.hero-background-settings {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #d6e7ee;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(121, 198, 230, 0.2), transparent 35%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(239, 249, 253, 0.82));
+}
+
+.hero-settings-heading {
+  display: grid;
+  gap: 4px;
+}
+
+.hero-settings-heading strong {
+  font-size: 16px;
+}
+
+.hero-settings-heading span {
+  color: #61717f;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.hero-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.range-field {
+  display: grid;
+  align-content: end;
+  gap: 10px;
+  min-height: 68px;
+}
+
+.range-field span {
+  color: #61717f;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.range-field input {
+  min-height: 28px;
+  padding: 0;
+}
+
 .logo-settings {
   display: grid;
   grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
@@ -930,6 +980,7 @@ textarea:focus {
   .new-contact,
   .section-editor-head,
   .section-type-note,
+  .hero-settings-grid,
   .section-item-row,
   .logo-settings,
   .menu-field,

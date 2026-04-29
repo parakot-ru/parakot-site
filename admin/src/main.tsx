@@ -72,6 +72,7 @@ type Section = {
   title: string;
   description: string | null;
   image_path: string | null;
+  meta_json: string | null;
   sort_order: number;
   is_published: number;
   items: SectionItem[];
@@ -126,6 +127,7 @@ const emptySection: Omit<Section, "id" | "items"> = {
   title: "",
   description: "",
   image_path: "",
+  meta_json: "",
   sort_order: 0,
   is_published: 1,
 };
@@ -150,12 +152,25 @@ const placementOptions = [
   { value: "bottom-right", label: "Снизу справа" },
 ];
 
+const heroBackgroundTypes = [
+  { value: "image", label: "Изображение" },
+  { value: "video", label: "Видео" },
+];
+
+const heroOverlayPresets = [
+  { value: "air", label: "Воздушная дымка" },
+  { value: "clear", label: "Чистое небо" },
+  { value: "contrast", label: "Контрастный текст" },
+  { value: "blue", label: "Синяя вуаль" },
+  { value: "sunset", label: "Теплый закат" },
+];
+
 const sectionTypeDocs = [
   {
     type: "hero",
     label: "Hero",
-    description: "Первый экран: крупный заголовок, вводный текст, фон и основные кнопки.",
-    itemHint: "Карточки пока не используются: важны заголовок, описание и фон секции.",
+    description: "Первый экран: крупный заголовок, вводный текст, фото или видео на фоне.",
+    itemHint: "Карточки пока не используются: важны заголовок, описание и настройки фона.",
   },
   {
     type: "rich_text",
@@ -998,6 +1013,18 @@ function App() {
     );
   }
 
+  function updateSectionMeta(sectionId: number, patch: Record<string, string>) {
+    const section = sections.find((currentSection) => currentSection.id === sectionId);
+
+    if (!section) {
+      return;
+    }
+
+    updateSection(sectionId, {
+      meta_json: updateMetaJson(section.meta_json, patch),
+    });
+  }
+
   function updateSectionItem(
     sectionId: number,
     itemId: number,
@@ -1433,6 +1460,12 @@ function App() {
                   </label>
                 </div>
                 <SectionTypeNote type={section.type} />
+                {section.type === "hero" && (
+                  <HeroBackgroundSettings
+                    section={section}
+                    onChange={(patch) => updateSectionMeta(section.id, patch)}
+                  />
+                )}
                 <div className="form-grid">
                   <Field label="Заголовок">
                     <input
@@ -2067,6 +2100,102 @@ function SectionTypeNote({ type }: { type: string }) {
       <strong>Как выглядит</strong>
       <span>{doc.description}</span>
       <small>{doc.itemHint}</small>
+    </div>
+  );
+}
+
+function HeroBackgroundSettings({
+  section,
+  onChange,
+}: {
+  section: Section;
+  onChange: (patch: Record<string, string>) => void;
+}) {
+  const backgroundType = readMetaValue(section.meta_json, "heroBackgroundType") || "image";
+  const overlayPreset = readMetaValue(section.meta_json, "heroOverlayPreset") || "air";
+  const overlayStrength = readMetaValue(section.meta_json, "heroOverlayStrength") || "18";
+  const mediaBlur = readMetaValue(section.meta_json, "heroMediaBlur") || "0";
+
+  return (
+    <div className="hero-background-settings">
+      <div className="hero-settings-heading">
+        <strong>Фон первого экрана</strong>
+        <span>
+          Видео включается только если выбран тип “Видео” и указана прямая ссылка на
+          MP4 или WEBM. Изображение секции остается poster-заглушкой.
+        </span>
+      </div>
+      <div className="hero-settings-grid">
+        <label className="compact-field">
+          <span>Тип фона</span>
+          <select
+            value={backgroundType}
+            onChange={(event) =>
+              onChange({ heroBackgroundType: event.target.value })
+            }
+          >
+            {heroBackgroundTypes.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="compact-field">
+          <span>Видео URL</span>
+          <input
+            value={readMetaValue(section.meta_json, "heroVideoUrl")}
+            onChange={(event) => onChange({ heroVideoUrl: event.target.value })}
+            placeholder="https://.../hero.mp4"
+            disabled={backgroundType !== "video"}
+          />
+        </label>
+        <label className="compact-field">
+          <span>Poster URL</span>
+          <input
+            value={readMetaValue(section.meta_json, "heroVideoPoster")}
+            onChange={(event) => onChange({ heroVideoPoster: event.target.value })}
+            placeholder="Можно оставить пустым"
+          />
+        </label>
+        <label className="compact-field">
+          <span>Оверлей</span>
+          <select
+            value={overlayPreset}
+            onChange={(event) =>
+              onChange({ heroOverlayPreset: event.target.value })
+            }
+          >
+            {heroOverlayPresets.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="range-field">
+          <span>Затемнение: {overlayStrength}%</span>
+          <input
+            type="range"
+            min="0"
+            max="70"
+            value={overlayStrength}
+            onChange={(event) =>
+              onChange({ heroOverlayStrength: event.target.value })
+            }
+          />
+        </label>
+        <label className="range-field">
+          <span>Blur видео: {mediaBlur}px</span>
+          <input
+            type="range"
+            min="0"
+            max="20"
+            value={mediaBlur}
+            onChange={(event) => onChange({ heroMediaBlur: event.target.value })}
+          />
+        </label>
+      </div>
     </div>
   );
 }

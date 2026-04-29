@@ -30,3 +30,23 @@ Production нельзя обновлять автоматически или "з
 4. Production остается без изменений, пока не будет отдельного подтверждения.
 
 Если есть сомнение, staging можно трогать, production - не трогать.
+
+## Сборка админки
+
+Админку важно собирать с API и адресом лендинга нужного окружения.
+
+Staging:
+
+```bash
+VITE_API_BASE_URL="http://parakot.konekon.ru/api" \
+VITE_SITE_BASE_URL="http://parakot.konekon.ru" \
+npm --prefix admin run build
+```
+
+Production:
+
+```bash
+VITE_API_BASE_URL="https://parakot.ru/api" \
+VITE_SITE_BASE_URL="https://parakot.ru" \
+npm --prefix admin run build
+```

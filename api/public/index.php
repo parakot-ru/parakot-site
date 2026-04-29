@@ -325,9 +325,9 @@ try {
         $payload = requireJsonBody();
         $statement = $connection->prepare(
             'INSERT INTO sections
-             (type, label, menu_title, show_in_menu, title, description, image_path, sort_order, is_published)
+             (type, label, menu_title, show_in_menu, title, description, image_path, meta_json, sort_order, is_published)
              VALUES
-             (:type, :label, :menu_title, :show_in_menu, :title, :description, :image_path, :sort_order, :is_published)'
+             (:type, :label, :menu_title, :show_in_menu, :title, :description, :image_path, :meta_json, :sort_order, :is_published)'
         );
         $statement->execute([
             ':type' => requiredString($payload, 'type'),
@@ -337,6 +337,7 @@ try {
             ':title' => requiredString($payload, 'title'),
             ':description' => nullableString($payload, 'description'),
             ':image_path' => nullableString($payload, 'image_path'),
+            ':meta_json' => encodeMetaJson($payload),
             ':sort_order' => intValue($payload, 'sort_order', 0),
             ':is_published' => boolToInt($payload, 'is_published', true),
         ]);
@@ -363,6 +364,7 @@ try {
                  title = :title,
                  description = :description,
                  image_path = :image_path,
+                 meta_json = :meta_json,
                  sort_order = :sort_order,
                  is_published = :is_published
              WHERE id = :id'
@@ -376,6 +378,7 @@ try {
             ':title' => requiredString($payload, 'title'),
             ':description' => nullableString($payload, 'description'),
             ':image_path' => $nextImagePath,
+            ':meta_json' => encodeMetaJson($payload),
             ':sort_order' => intValue($payload, 'sort_order', 0),
             ':is_published' => boolToInt($payload, 'is_published', true),
         ]);
@@ -1008,9 +1011,10 @@ function isUploadStillReferenced(PDO $connection, string $url): bool
             ],
         ],
         [
-            'sql' => 'SELECT COUNT(*) FROM sections WHERE image_path = :url',
+            'sql' => 'SELECT COUNT(*) FROM sections WHERE image_path = :url OR meta_json LIKE :section_meta_json',
             'params' => [
                 ':url' => $url,
+                ':section_meta_json' => '%' . $url . '%',
             ],
         ],
         [

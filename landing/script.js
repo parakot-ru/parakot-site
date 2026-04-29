@@ -65,6 +65,30 @@ const sectionClassByType = {
   highlight: "highlight-box",
 };
 
+const heroOverlayPresets = {
+  air: [
+    "linear-gradient(180deg, rgba(235, 247, 255, 0.12), rgba(245, 249, 252, 0.58))",
+    "radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.62), transparent 28%)",
+    "linear-gradient(180deg, rgba(107, 176, 255, 0.08), rgba(255, 255, 255, 0.24))",
+  ],
+  clear: [
+    "linear-gradient(180deg, rgba(245, 252, 255, 0.04), rgba(250, 253, 255, 0.22))",
+    "radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.38), transparent 30%)",
+  ],
+  contrast: [
+    "linear-gradient(90deg, rgba(239, 248, 255, 0.78), rgba(239, 248, 255, 0.22) 58%, rgba(13, 39, 61, 0.18))",
+    "linear-gradient(180deg, rgba(9, 32, 50, 0.12), rgba(9, 32, 50, 0.26))",
+  ],
+  blue: [
+    "linear-gradient(180deg, rgba(149, 213, 247, 0.18), rgba(22, 77, 115, 0.34))",
+    "radial-gradient(circle at 12% 16%, rgba(255, 255, 255, 0.48), transparent 32%)",
+  ],
+  sunset: [
+    "linear-gradient(180deg, rgba(255, 221, 166, 0.2), rgba(78, 116, 143, 0.28))",
+    "radial-gradient(circle at 72% 22%, rgba(255, 184, 92, 0.32), transparent 30%)",
+  ],
+};
+
 const sectionTypeMeta = {
   hero: {
     label: "Hero",
@@ -177,7 +201,7 @@ function applySettings(settings) {
   const hero = document.querySelector(".hero");
 
   if (hero && settings.hero_background) {
-    hero.style.backgroundImage = `linear-gradient(180deg, rgba(250, 253, 255, 0.02), rgba(236, 244, 250, 0.2)), url("${settings.hero_background}")`;
+    setHeroBackgroundImage(hero, settings.hero_background);
   }
 }
 
@@ -274,9 +298,96 @@ function applyHeroSection(section) {
     text.textContent = section.description;
   }
 
-  if (section.image_path) {
-    hero.style.backgroundImage = `linear-gradient(180deg, rgba(250, 253, 255, 0.02), rgba(236, 244, 250, 0.2)), url("${section.image_path}")`;
+  applyHeroBackground(hero, section);
+}
+
+function applyHeroBackground(hero, section) {
+  const media = hero.querySelector("[data-hero-media]");
+  const overlay = hero.querySelector(".hero-overlay");
+  const videoUrl = readMetaValue(section.meta_json, "heroVideoUrl");
+  const backgroundType =
+    readMetaValue(section.meta_json, "heroBackgroundType") || (videoUrl ? "video" : "image");
+  const posterUrl = readMetaValue(section.meta_json, "heroVideoPoster") || section.image_path;
+  const blur = clampNumber(readMetaValue(section.meta_json, "heroMediaBlur"), 0, 20);
+  const overlayPreset = readMetaValue(section.meta_json, "heroOverlayPreset") || "air";
+  const overlayStrength = clampNumber(
+    readMetaValue(section.meta_json, "heroOverlayStrength"),
+    0,
+    70,
+  );
+
+  if (posterUrl) {
+    setHeroBackgroundImage(hero, posterUrl);
   }
+
+  if (media) {
+    media.style.setProperty("--hero-media-blur", `${blur}px`);
+    media.style.setProperty("--hero-media-scale", blur > 0 ? "1.05" : "1");
+
+    if (backgroundType === "video" && videoUrl && !prefersReducedMotion.matches) {
+      renderHeroVideo(media, videoUrl, posterUrl);
+      hero.classList.add("hero-has-video");
+    } else {
+      media.replaceChildren();
+      hero.classList.remove("hero-has-video");
+    }
+  }
+
+  if (overlay) {
+    overlay.style.background = buildHeroOverlay(overlayPreset, overlayStrength);
+  }
+}
+
+function renderHeroVideo(container, videoUrl, posterUrl) {
+  const currentVideo = container.querySelector("video");
+
+  if (currentVideo && currentVideo.getAttribute("src") === videoUrl) {
+    return;
+  }
+
+  const video = document.createElement("video");
+  video.className = "hero-video";
+  video.src = videoUrl;
+  video.autoplay = true;
+  video.loop = true;
+  video.muted = true;
+  video.playsInline = true;
+  video.preload = "metadata";
+  video.setAttribute("muted", "");
+  video.setAttribute("playsinline", "");
+
+  if (posterUrl) {
+    video.poster = posterUrl;
+  }
+
+  container.replaceChildren(video);
+  video.play().catch(() => {
+    // Poster stays visible through the hero background when autoplay is blocked.
+  });
+}
+
+function setHeroBackgroundImage(hero, imageUrl) {
+  hero.style.backgroundImage = `linear-gradient(180deg, rgba(250, 253, 255, 0.02), rgba(236, 244, 250, 0.2)), url("${imageUrl}")`;
+}
+
+function buildHeroOverlay(preset, strength) {
+  const darkness = strength / 100;
+  const presetLayers = heroOverlayPresets[preset] || heroOverlayPresets.air;
+  const darknessLayer = `linear-gradient(180deg, rgba(5, 28, 45, ${(
+    darkness * 0.28
+  ).toFixed(3)}), rgba(5, 28, 45, ${(darkness * 0.48).toFixed(3)}))`;
+
+  return [darknessLayer, ...presetLayers].join(", ");
+}
+
+function clampNumber(value, min, max) {
+  const number = Number.parseFloat(value);
+
+  if (!Number.isFinite(number)) {
+    return min;
+  }
+
+  return Math.min(Math.max(number, min), max);
 }
 
 function hideHeroSection() {

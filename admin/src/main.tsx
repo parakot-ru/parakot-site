@@ -1426,23 +1426,10 @@ function App() {
                   </div>
                 </div>
                 <div className="section-editor-head">
-                  <label className="compact-field">
+                  <div className="section-kind-badge">
                     <span>Тип секции</span>
-                    <select
-                      value={sectionKindFromType(section.type)}
-                      onChange={(event) =>
-                        updateSection(section.id, {
-                          type: sectionTypeFromKind(event.target.value, section.type),
-                        })
-                      }
-                    >
-                      {sectionKindOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                    <strong>{sectionKindLabel(section.type)}</strong>
+                  </div>
                   {isContentSectionType(section.type) && (
                     <label className="compact-field">
                       <span>Стиль блока</span>
@@ -2352,6 +2339,20 @@ function sectionKindFromType(type: string) {
   }
 
   return "content";
+}
+
+function sectionKindLabel(type: string) {
+  const kind = sectionKindFromType(type);
+
+  if (kind === "hero") {
+    return "Первый экран";
+  }
+
+  if (kind === "contacts") {
+    return "Обратная связь";
+  }
+
+  return "Обычная секция";
 }
 
 function sectionTypeFromKind(kind: string, currentType: string) {

@@ -792,13 +792,22 @@ function renderEditorToolbar(isAuthenticated, resolvedAdminBase) {
   toolbar.className = "editor-toolbar";
   toolbar.dataset.editorToolbar = "true";
 
+  const header = document.createElement("div");
+  header.className = "editor-toolbar-head";
+
   const title = document.createElement("strong");
   title.textContent = "Режим редактора";
 
   const status = document.createElement("span");
-  status.textContent = isAuthenticated
-    ? "API-сессия найдена"
+  status.className = `editor-status ${
+    isAuthenticated ? "editor-status-online" : "editor-status-preview"
+  }`;
+  status.title = isAuthenticated
+    ? "Админ-сессия активна"
     : "Предпросмотр: правки через админку";
+  status.setAttribute("aria-label", status.title);
+
+  header.append(title, status);
 
   const adminLink = document.createElement("a");
   adminLink.href = `${resolvedAdminBase}/#sections`;
@@ -812,7 +821,7 @@ function renderEditorToolbar(isAuthenticated, resolvedAdminBase) {
     window.location.href = window.location.pathname + window.location.hash;
   });
 
-  toolbar.append(title, status, adminLink, close);
+  toolbar.append(header, adminLink, close);
   document.body.appendChild(toolbar);
 }
 

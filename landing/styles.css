@@ -955,13 +955,37 @@ h3 {
   box-shadow: 0 0 0 0.28rem rgba(255, 184, 92, 0.16);
 }
 
+.editor-toolbar-head {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .editor-toolbar strong {
   font-size: 0.95rem;
 }
 
-.editor-toolbar span {
-  color: var(--muted);
-  font-size: 0.82rem;
+.editor-status {
+  display: inline-flex;
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.editor-status-online {
+  background: #39b27c;
+  box-shadow:
+    0 0 0 0.28rem rgba(57, 178, 124, 0.13),
+    0 0 22px rgba(57, 178, 124, 0.34);
+}
+
+.editor-status-preview {
+  background: #ffb85c;
+  box-shadow:
+    0 0 0 0.28rem rgba(255, 184, 92, 0.15),
+    0 0 22px rgba(255, 184, 92, 0.28);
 }
 
 .editor-toolbar a,

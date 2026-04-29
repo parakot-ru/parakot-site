@@ -11,6 +11,9 @@ test("admin session enables the landing editor mode", async ({ page }) => {
   await editorEntry.click();
 
   await expect(page.getByText("Режим редактора")).toBeVisible();
+  await expect(page.getByText("API-сессия найдена")).toHaveCount(0);
+  await expect(page.locator(".editor-status-online")).toBeVisible();
+
   const adminLink = page.getByRole("link", { name: "Открыть админку" });
   await expect(adminLink).toBeVisible();
   await expect(adminLink).toHaveAttribute("href", `${expectedEditorAdminUrl}/#sections`);

@@ -26,10 +26,13 @@ npm run smoke
 ```bash
 PARAKOT_ADMIN_URL="http://admin.konekon.ru" \
 PARAKOT_LANDING_URL="http://parakot.konekon.ru" \
+PARAKOT_EXPECTED_EDITOR_ADMIN_URL="http://admin.konekon.ru" \
 PARAKOT_ADMIN_EMAIL="..." \
 PARAKOT_ADMIN_PASSWORD="..." \
 npm run smoke:editor
 ```
+
+`PARAKOT_EXPECTED_EDITOR_ADMIN_URL` нужен для проверки ссылок из режима редактора. На production лендинг умеет сам выбрать `https://admin.parakot.ru`, если SSL доступен, или откатиться на `http://admin.parakot.ru`.
 
 Для визуальной отладки можно запускать браузер не в headless-режиме:
 

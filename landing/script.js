@@ -2,11 +2,9 @@ const parallaxItems = Array.from(document.querySelectorAll("[data-depth]"));
 const API_BASE =
   window.PARAKOT_API_BASE ||
   (window.location.protocol === "file:" ? "http://admin.parakot.ru/api" : "/api");
-const ADMIN_BASE =
-  window.PARAKOT_ADMIN_BASE ||
-  (window.location.hostname.includes("konekon")
-    ? "http://admin.konekon.ru"
-    : "http://admin.parakot.ru");
+const ADMIN_BASE_CANDIDATES = getAdminBaseCandidates();
+let adminBase = ADMIN_BASE_CANDIDATES[0];
+const adminBaseReady = resolveAdminBase();
 const TOKEN_STORAGE_KEY = "parakot_admin_token";
 const EDITOR_MODE_STORAGE_KEY = "parakot_editor_mode";
 let formStatusTimer = null;
@@ -542,15 +540,18 @@ async function setupEditorMode(sections) {
 
   const isEnabled = window.localStorage.getItem(EDITOR_MODE_STORAGE_KEY) === "1";
   const hadTokenCandidate = hasEditorTokenCandidate();
-  const isAuthenticated = await checkEditorAuth();
+  const [isAuthenticated, resolvedAdminBase] = await Promise.all([
+    checkEditorAuth(),
+    adminBaseReady,
+  ]);
 
   if (!isEnabled && isAuthenticated) {
-    renderEditorEntryButton(sections);
+    renderEditorEntryButton(sections, resolvedAdminBase);
     return;
   }
 
   if (!isEnabled && hadTokenCandidate) {
-    renderEditorLoginButton();
+    renderEditorLoginButton(resolvedAdminBase);
     return;
   }
 
@@ -559,8 +560,59 @@ async function setupEditorMode(sections) {
   }
 
   document.body.classList.add("editor-mode");
-  renderEditorToolbar(isAuthenticated);
-  annotateEditableSections(sections);
+  renderEditorToolbar(isAuthenticated, resolvedAdminBase);
+  annotateEditableSections(sections, resolvedAdminBase);
+}
+
+function getAdminBaseCandidates() {
+  if (window.PARAKOT_ADMIN_BASE) {
+    return [normalizeBaseUrl(window.PARAKOT_ADMIN_BASE)];
+  }
+
+  if (window.location.hostname.includes("konekon")) {
+    return ["http://admin.konekon.ru"];
+  }
+
+  return ["https://admin.parakot.ru", "http://admin.parakot.ru"];
+}
+
+async function resolveAdminBase() {
+  for (const candidate of ADMIN_BASE_CANDIDATES) {
+    if (await canUseAdminBase(candidate)) {
+      adminBase = candidate;
+      return candidate;
+    }
+  }
+
+  adminBase = ADMIN_BASE_CANDIDATES[ADMIN_BASE_CANDIDATES.length - 1];
+  return adminBase;
+}
+
+async function canUseAdminBase(candidate) {
+  if (!candidate.startsWith("https://")) {
+    return true;
+  }
+
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 2200);
+
+  try {
+    await fetch(candidate, {
+      method: "HEAD",
+      mode: "no-cors",
+      cache: "no-store",
+      signal: controller.signal,
+    });
+    return true;
+  } catch {
+    return false;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+function normalizeBaseUrl(url) {
+  return url.replace(/\/+$/, "");
 }
 
 function consumeEditorTokenFromUrl() {
@@ -685,7 +737,7 @@ function getSharedCookieDomain() {
   return "";
 }
 
-function renderEditorEntryButton(sections) {
+function renderEditorEntryButton(sections, resolvedAdminBase) {
   if (
     document.querySelector("[data-editor-entry]") ||
     document.querySelector("[data-editor-toolbar]")
@@ -703,14 +755,14 @@ function renderEditorEntryButton(sections) {
     window.localStorage.setItem(EDITOR_MODE_STORAGE_KEY, "1");
     button.remove();
     document.body.classList.add("editor-mode");
-    renderEditorToolbar(true);
-    annotateEditableSections(sections);
+    renderEditorToolbar(true, resolvedAdminBase);
+    annotateEditableSections(sections, resolvedAdminBase);
   });
 
   document.body.appendChild(button);
 }
 
-function renderEditorLoginButton() {
+function renderEditorLoginButton(resolvedAdminBase) {
   if (
     document.querySelector("[data-editor-entry]") ||
     document.querySelector("[data-editor-toolbar]")
@@ -725,13 +777,13 @@ function renderEditorLoginButton() {
   button.textContent = "Войти в админку";
 
   button.addEventListener("click", () => {
-    window.location.href = ADMIN_BASE;
+    window.location.href = resolvedAdminBase;
   });
 
   document.body.appendChild(button);
 }
 
-function renderEditorToolbar(isAuthenticated) {
+function renderEditorToolbar(isAuthenticated, resolvedAdminBase) {
   if (document.querySelector("[data-editor-toolbar]")) {
     return;
   }
@@ -749,7 +801,7 @@ function renderEditorToolbar(isAuthenticated) {
     : "Предпросмотр: правки через админку";
 
   const adminLink = document.createElement("a");
-  adminLink.href = `${ADMIN_BASE}/#sections`;
+  adminLink.href = `${resolvedAdminBase}/#sections`;
   adminLink.textContent = "Открыть админку";
 
   const close = document.createElement("button");
@@ -764,7 +816,7 @@ function renderEditorToolbar(isAuthenticated) {
   document.body.appendChild(toolbar);
 }
 
-function annotateEditableSections(sections) {
+function annotateEditableSections(sections, resolvedAdminBase) {
   sections.forEach((section) => {
     const element = document.querySelector(`[data-editor-section-id="${section.id}"]`);
 
@@ -785,7 +837,7 @@ function annotateEditableSections(sections) {
     badge.title = meta.hint;
 
     const editLink = document.createElement("a");
-    editLink.href = `${ADMIN_BASE}/#cms-section-${section.id}`;
+    editLink.href = `${resolvedAdminBase}/#cms-section-${section.id}`;
     editLink.textContent = "Редактировать секцию";
 
     tools.append(badge, editLink);
@@ -800,7 +852,7 @@ function annotateEditableSections(sections) {
     const sectionId = card.dataset.editorSectionId;
     const tools = document.createElement("a");
     tools.className = "editor-card-tools";
-    tools.href = `${ADMIN_BASE}/#cms-section-${sectionId}`;
+    tools.href = `${resolvedAdminBase}/#cms-section-${sectionId}`;
     tools.textContent = "Карточка";
     card.appendChild(tools);
   });

@@ -2,6 +2,8 @@ import type { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 export const adminUrl = process.env.PARAKOT_ADMIN_URL ?? "http://admin.konekon.ru";
+export const expectedEditorAdminUrl =
+  process.env.PARAKOT_EXPECTED_EDITOR_ADMIN_URL ?? adminUrl;
 export const landingUrl = process.env.PARAKOT_LANDING_URL ?? "http://parakot.konekon.ru";
 export const apiUrl =
   process.env.PARAKOT_API_URL ?? `${landingUrl.replace(/\/$/, "")}/api`;

@@ -6,7 +6,7 @@ const ADMIN_BASE =
   window.PARAKOT_ADMIN_BASE ||
   (window.location.hostname.includes("konekon")
     ? "http://admin.konekon.ru"
-    : "https://admin.parakot.ru");
+    : "http://admin.parakot.ru");
 const TOKEN_STORAGE_KEY = "parakot_admin_token";
 const EDITOR_MODE_STORAGE_KEY = "parakot_editor_mode";
 let formStatusTimer = null;

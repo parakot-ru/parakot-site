@@ -240,6 +240,16 @@ const sectionTypeDocs = [
   },
 ];
 
+const contentDisplayStyles = sectionTypeDocs.filter(
+  (item) => item.type !== "hero" && item.type !== "contacts",
+);
+
+const sectionKindOptions = [
+  { value: "hero", label: "Hero" },
+  { value: "content", label: "Обычная секция" },
+  { value: "contacts", label: "Обратная связь" },
+];
+
 function App() {
   const [token, setToken] = useState<string | null>(() =>
     window.localStorage.getItem(TOKEN_STORAGE_KEY),
@@ -1333,15 +1343,15 @@ function App() {
           <PanelHeader icon={<BookOpen size={19} />} title="Справка по отображению секций" />
           <div className="help-intro">
             <p>
-              Сейчас это визуальные шаблоны, а не разные сущности контента. Поля у
-              секций похожи специально: отличается то, как лендинг рисует эти данные
-              на сайте.
+              В админке есть три роли секций: первый экран, обычная секция и
+              обратная связь. Для обычной секции можно выбрать стиль блока: это
+              влияет только на внешний вид карточек на лендинге.
             </p>
           </div>
           <div className="type-help-grid">
-            {sectionTypeDocs.map((item) => (
+            {contentDisplayStyles.map((item) => (
               <article className="type-help-card" key={item.type}>
-                <span>Шаблон</span>
+                <span>Стиль блока</span>
                 <strong>{item.label}</strong>
                 <p>{item.description}</p>
                 <small>{item.itemHint}</small>
@@ -1417,27 +1427,39 @@ function App() {
                 </div>
                 <div className="section-editor-head">
                   <label className="compact-field">
-                    <span>Шаблон отображения</span>
+                    <span>Тип секции</span>
                     <select
-                      value={section.type}
+                      value={sectionKindFromType(section.type)}
                       onChange={(event) =>
-                        updateSection(section.id, { type: event.target.value })
+                        updateSection(section.id, {
+                          type: sectionTypeFromKind(event.target.value, section.type),
+                        })
                       }
                     >
-                      <option value="hero">Hero</option>
-                      <option value="rich_text">Текст</option>
-                      <option value="stats">Статистика</option>
-                      <option value="cards_grid">Карточки</option>
-                      <option value="cards_two_columns">Карточки 2 колонки</option>
-                      <option value="services">Услуги и цены</option>
-                      <option value="locations_grid">Локации</option>
-                      <option value="timeline">Таймлайн</option>
-                      <option value="highlight">Акцент</option>
-                      <option value="gallery">Галерея</option>
-                      <option value="faq">FAQ</option>
-                      <option value="contacts">Контакты</option>
+                      {sectionKindOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
                   </label>
+                  {isContentSectionType(section.type) && (
+                    <label className="compact-field">
+                      <span>Стиль блока</span>
+                      <select
+                        value={section.type}
+                        onChange={(event) =>
+                          updateSection(section.id, { type: event.target.value })
+                        }
+                      >
+                        {contentDisplayStyles.map((option) => (
+                          <option key={option.type} value={option.type}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                   <label className="compact-field">
                     <span>Название в админке</span>
                     <input
@@ -1766,39 +1788,61 @@ function App() {
             ))}
           </div>
           <div className="new-section">
-            <select
-              value={draftSection.type}
-              onChange={(event) =>
-                setDraftSection({ ...draftSection, type: event.target.value })
-              }
-            >
-              <option value="hero">Hero</option>
-              <option value="rich_text">Текст</option>
-              <option value="stats">Статистика</option>
-              <option value="cards_grid">Карточки</option>
-              <option value="cards_two_columns">Карточки 2 колонки</option>
-              <option value="services">Услуги и цены</option>
-              <option value="locations_grid">Локации</option>
-              <option value="timeline">Таймлайн</option>
-              <option value="highlight">Акцент</option>
-              <option value="gallery">Галерея</option>
-              <option value="faq">FAQ</option>
-              <option value="contacts">Контакты</option>
-            </select>
-            <input
-              value={draftSection.label}
-              onChange={(event) =>
-                setDraftSection({ ...draftSection, label: event.target.value })
-              }
-              placeholder="Метка"
-            />
-            <input
-              value={draftSection.title}
-              onChange={(event) =>
-                setDraftSection({ ...draftSection, title: event.target.value })
-              }
-              placeholder="Заголовок"
-            />
+            <label className="compact-field">
+              <span>Тип секции</span>
+              <select
+                value={sectionKindFromType(draftSection.type)}
+                onChange={(event) =>
+                  setDraftSection({
+                    ...draftSection,
+                    type: sectionTypeFromKind(event.target.value, draftSection.type),
+                  })
+                }
+              >
+                {sectionKindOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {isContentSectionType(draftSection.type) && (
+              <label className="compact-field">
+                <span>Стиль блока</span>
+                <select
+                  value={draftSection.type}
+                  onChange={(event) =>
+                    setDraftSection({ ...draftSection, type: event.target.value })
+                  }
+                >
+                  {contentDisplayStyles.map((option) => (
+                    <option key={option.type} value={option.type}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            <label className="compact-field">
+              <span>Название в админке</span>
+              <input
+                value={draftSection.label}
+                onChange={(event) =>
+                  setDraftSection({ ...draftSection, label: event.target.value })
+                }
+                placeholder="Например: Услуги"
+              />
+            </label>
+            <label className="compact-field">
+              <span>Заголовок</span>
+              <input
+                value={draftSection.title}
+                onChange={(event) =>
+                  setDraftSection({ ...draftSection, title: event.target.value })
+                }
+                placeholder="Заголовок на сайте"
+              />
+            </label>
             <button className="primary-button" type="button" onClick={createSection}>
               <Plus size={18} />
               Добавить секцию
@@ -2287,10 +2331,6 @@ function updateMetaJson(metaJson: string | null, patch: Record<string, string>) 
   return Object.keys(parsed).length > 0 ? JSON.stringify(parsed) : "";
 }
 
-function sectionTypeLabel(type: string) {
-  return sectionTypeDoc(type).label;
-}
-
 function sectionTypeDoc(type: string) {
   return (
     sectionTypeDocs.find((item) => item.type === type) ?? {
@@ -2300,6 +2340,26 @@ function sectionTypeDoc(type: string) {
       itemHint: "Карточки отображаются по универсальному шаблону.",
     }
   );
+}
+
+function isContentSectionType(type: string) {
+  return type !== "hero" && type !== "contacts";
+}
+
+function sectionKindFromType(type: string) {
+  if (type === "hero" || type === "contacts") {
+    return type;
+  }
+
+  return "content";
+}
+
+function sectionTypeFromKind(kind: string, currentType: string) {
+  if (kind === "hero" || kind === "contacts") {
+    return kind;
+  }
+
+  return isContentSectionType(currentType) ? currentType : "cards_grid";
 }
 
 function Field({

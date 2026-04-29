@@ -421,7 +421,7 @@ textarea:focus {
 }
 
 .section-editor-head {
-  grid-template-columns: 150px minmax(160px, 1fr) 110px;
+  grid-template-columns: minmax(150px, 0.65fr) minmax(170px, 0.8fr) minmax(220px, 1.4fr) 110px;
   align-items: end;
 }
 
@@ -758,7 +758,8 @@ textarea:focus {
 }
 
 .new-section {
-  grid-template-columns: 150px minmax(160px, 1fr) minmax(180px, 1.4fr) 160px;
+  grid-template-columns: minmax(150px, 0.65fr) minmax(170px, 0.75fr) minmax(180px, 1fr) minmax(220px, 1.4fr) 160px;
+  align-items: end;
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid #dbe4e8;

@@ -1219,7 +1219,10 @@ function App() {
               <div className="logo-settings field-wide">
                 <div className="logo-preview">
                   {settings.logo_url ? (
-                    <img src={settings.logo_url} alt="Текущий логотип" />
+                    <img
+                      src={resolveSiteMediaUrl(settings.logo_url)}
+                      alt="Текущий логотип"
+                    />
                   ) : (
                     <span>Лого не задан</span>
                   )}
@@ -2008,6 +2011,14 @@ function getSharedCookieDomain() {
   }
 
   return "";
+}
+
+function resolveSiteMediaUrl(value: string | null) {
+  if (!value) {
+    return "";
+  }
+
+  return new URL(value, `${SITE_BASE.replace(/\/+$/, "")}/`).toString();
 }
 
 function ManagedImageField({

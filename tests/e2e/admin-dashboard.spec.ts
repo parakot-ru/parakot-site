@@ -20,4 +20,17 @@ test("admin dashboard loads main management sections", async ({ page }) => {
 
   await expect(page.getByText("Контактов на сайте")).toBeVisible();
   await expect(page.getByText("Всего заявок")).toBeVisible();
+
+  const logoPreview = page.getByAltText("Текущий логотип");
+
+  if ((await logoPreview.count()) > 0) {
+    await expect
+      .poll(() =>
+        logoPreview.evaluate(
+          (image) =>
+            image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0,
+        ),
+      )
+      .toBe(true);
+  }
 });

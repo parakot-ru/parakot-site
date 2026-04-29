@@ -422,6 +422,18 @@ textarea:focus {
 
 .section-editor-head {
   grid-template-columns: 150px minmax(160px, 1fr) 110px;
+  align-items: end;
+}
+
+.compact-field {
+  display: grid;
+  gap: 6px;
+}
+
+.compact-field span {
+  color: #61717f;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .section-type-note {

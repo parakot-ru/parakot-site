@@ -1300,17 +1300,18 @@ function App() {
         </section>
 
         <section className="panel" id="help">
-          <PanelHeader icon={<BookOpen size={19} />} title="Справка по типам секций" />
+          <PanelHeader icon={<BookOpen size={19} />} title="Справка по отображению секций" />
           <div className="help-intro">
             <p>
-              Поля у секций похожи специально: так проще управлять контентом.
-              Отличается не админка, а то, как лендинг рисует эти данные на сайте.
+              Сейчас это визуальные шаблоны, а не разные сущности контента. Поля у
+              секций похожи специально: отличается то, как лендинг рисует эти данные
+              на сайте.
             </p>
           </div>
           <div className="type-help-grid">
             {sectionTypeDocs.map((item) => (
               <article className="type-help-card" key={item.type}>
-                <span>{item.type}</span>
+                <span>Шаблон</span>
                 <strong>{item.label}</strong>
                 <p>{item.description}</p>
                 <small>{item.itemHint}</small>
@@ -1335,7 +1336,7 @@ function App() {
                   <span>{String(sectionIndex + 1).padStart(2, "0")}</span>
                   <div className="section-editor-summary">
                     <strong>{section.label || "Без метки"}</strong>
-                    <small>{sectionTypeLabel(section.type)}</small>
+                    <small>{section.title || "Без заголовка"}</small>
                   </div>
                   <div className="section-editor-actions">
                     <label className="publish-toggle">
@@ -1385,42 +1386,51 @@ function App() {
                   </div>
                 </div>
                 <div className="section-editor-head">
-                  <select
-                    value={section.type}
-                    onChange={(event) =>
-                      updateSection(section.id, { type: event.target.value })
-                    }
-                  >
-                    <option value="hero">Hero</option>
-                    <option value="rich_text">Текст</option>
-                    <option value="stats">Статистика</option>
-                    <option value="cards_grid">Карточки</option>
-                    <option value="cards_two_columns">Карточки 2 колонки</option>
-                    <option value="services">Услуги и цены</option>
-                    <option value="locations_grid">Локации</option>
-                    <option value="timeline">Таймлайн</option>
-                    <option value="highlight">Акцент</option>
-                    <option value="gallery">Галерея</option>
-                    <option value="faq">FAQ</option>
-                    <option value="contacts">Контакты</option>
-                  </select>
-                  <input
-                    value={section.label}
-                    onChange={(event) =>
-                      updateSection(section.id, { label: event.target.value })
-                    }
-                    placeholder="Метка в админке"
-                  />
-                  <input
-                    type="number"
-                    value={section.sort_order}
-                    onChange={(event) =>
-                      updateSection(section.id, {
-                        sort_order: Number(event.target.value),
-                      })
-                    }
-                    placeholder="Порядок"
-                  />
+                  <label className="compact-field">
+                    <span>Шаблон отображения</span>
+                    <select
+                      value={section.type}
+                      onChange={(event) =>
+                        updateSection(section.id, { type: event.target.value })
+                      }
+                    >
+                      <option value="hero">Hero</option>
+                      <option value="rich_text">Текст</option>
+                      <option value="stats">Статистика</option>
+                      <option value="cards_grid">Карточки</option>
+                      <option value="cards_two_columns">Карточки 2 колонки</option>
+                      <option value="services">Услуги и цены</option>
+                      <option value="locations_grid">Локации</option>
+                      <option value="timeline">Таймлайн</option>
+                      <option value="highlight">Акцент</option>
+                      <option value="gallery">Галерея</option>
+                      <option value="faq">FAQ</option>
+                      <option value="contacts">Контакты</option>
+                    </select>
+                  </label>
+                  <label className="compact-field">
+                    <span>Название в админке</span>
+                    <input
+                      value={section.label}
+                      onChange={(event) =>
+                        updateSection(section.id, { label: event.target.value })
+                      }
+                      placeholder="Например: Услуги"
+                    />
+                  </label>
+                  <label className="compact-field">
+                    <span>Порядок</span>
+                    <input
+                      type="number"
+                      value={section.sort_order}
+                      onChange={(event) =>
+                        updateSection(section.id, {
+                          sort_order: Number(event.target.value),
+                        })
+                      }
+                      placeholder="10"
+                    />
+                  </label>
                 </div>
                 <SectionTypeNote type={section.type} />
                 <div className="form-grid">
@@ -2054,7 +2064,7 @@ function SectionTypeNote({ type }: { type: string }) {
 
   return (
     <div className="section-type-note">
-      <strong>{doc.label}</strong>
+      <strong>Как выглядит</strong>
       <span>{doc.description}</span>
       <small>{doc.itemHint}</small>
     </div>

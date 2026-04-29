@@ -4,15 +4,16 @@
 
 Текущий стек:
 
-- PHP 7.2+ совместимый каркас
+- PHP 8.2 на Beget через CGI-обертку `index.cgi`
 - PDO + MySQL
 - JSON API
 - `.env` для локального конфига
 
 ## Текущий каркас
 
-- `public/index.php` - единая точка входа
-- `public/.htaccess` - роутинг для Apache
+- `index.php` - единая точка входа для веб-API
+- `index.cgi` - Beget-обертка, которая запускает API на PHP 8.2
+- `.htaccess` - роутинг для Apache и проброс `Authorization`
 - `src/` - базовые классы окружения, БД и JSON-ответов
 - `schema.sql` - стартовая схема БД
 - `bin/check-db.php` - простой CLI-пинг до БД

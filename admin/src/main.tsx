@@ -271,8 +271,10 @@ function App() {
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [imageBusyKey, setImageBusyKey] = useState<string | null>(null);
   const [publishingSectionId, setPublishingSectionId] = useState<number | null>(null);
+  const [isNewSectionHighlighted, setIsNewSectionHighlighted] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
   const logoInputRef = useRef<HTMLInputElement | null>(null);
+  const newSectionRef = useRef<HTMLDivElement | null>(null);
 
   const visibleContactsCount = useMemo(
     () => contacts.filter((contact) => Number(contact.is_visible) === 1).length,
@@ -413,6 +415,20 @@ function App() {
     }
 
     window.open(url.toString(), "_blank", "noopener,noreferrer");
+  }
+
+  function showNewSectionForm() {
+    setIsNewSectionHighlighted(true);
+    newSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    window.setTimeout(() => {
+      newSectionRef.current?.querySelector<HTMLInputElement>("input")?.focus();
+    }, 350);
+
+    window.setTimeout(() => setIsNewSectionHighlighted(false), 1800);
   }
 
   function resetSession() {
@@ -1361,7 +1377,16 @@ function App() {
         </section>
 
         <section className="panel" id="sections">
-          <PanelHeader icon={<PanelsTopLeft size={19} />} title="Секции лендинга" />
+          <PanelHeader
+            icon={<PanelsTopLeft size={19} />}
+            title="Секции лендинга"
+            action={
+              <button className="primary-button" type="button" onClick={showNewSectionForm}>
+                <Plus size={18} />
+                Добавить секцию
+              </button>
+            }
+          />
           <div className="section-list">
             {sections.length === 0 && (
               <p className="empty-state">Секции пока не добавлены.</p>
@@ -1774,7 +1799,15 @@ function App() {
               </article>
             ))}
           </div>
-          <div className="new-section">
+          <div
+            className={`new-section${isNewSectionHighlighted ? " is-highlighted" : ""}`}
+            id="new-section-form"
+            ref={newSectionRef}
+          >
+            <div className="new-section-heading">
+              <strong>Новая секция</strong>
+              <span>Выберите тип, стиль блока и задайте название с заголовком.</span>
+            </div>
             <label className="compact-field">
               <span>Тип секции</span>
               <select

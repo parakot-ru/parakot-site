@@ -787,8 +787,39 @@ textarea:focus {
   grid-template-columns: minmax(150px, 0.65fr) minmax(170px, 0.75fr) minmax(180px, 1fr) minmax(220px, 1.4fr) 160px;
   align-items: end;
   margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #dbe4e8;
+  padding: 14px;
+  border: 1px solid #dbe4e8;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(245, 251, 253, 0.88));
+  scroll-margin-top: 18px;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.new-section.is-highlighted {
+  border-color: #73c4e6;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(121, 198, 230, 0.2), transparent 34%),
+    #f2fbff;
+  box-shadow: 0 0 0 4px rgba(55, 151, 197, 0.14);
+}
+
+.new-section-heading {
+  display: grid;
+  gap: 4px;
+  grid-column: 1 / -1;
+}
+
+.new-section-heading strong {
+  font-size: 16px;
+}
+
+.new-section-heading span {
+  color: #61717f;
+  font-size: 13px;
 }
 
 .contact-row,

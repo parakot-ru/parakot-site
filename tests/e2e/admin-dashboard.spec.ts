@@ -15,8 +15,10 @@ test("admin dashboard loads main management sections", async ({ page }) => {
     page.getByRole("heading", { name: "Справка по отображению секций" }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Секции лендинга" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Добавить секцию" }).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "Контакты" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Заявки" })).toBeVisible();
+  await expect(page.getByText("Новая секция")).toBeVisible();
   await expect(page.getByText("Тип секции").first()).toBeVisible();
   await expect(page.getByText("Стиль блока").first()).toBeVisible();
   await expect(page.getByText("Первый экран").first()).toBeVisible();

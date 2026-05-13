@@ -413,7 +413,7 @@ function renderHeroTitle(container, value) {
 
   if (parts[1]) {
     const accent = document.createElement("span");
-    accent.textContent = parts.slice(1).join(" ");
+    accent.textContent = protectShortHeroPreposition(parts.slice(1).join(" "));
     container.appendChild(accent);
   }
 }
@@ -427,6 +427,10 @@ function splitHeroTitle(title) {
   }
 
   return [title];
+}
+
+function protectShortHeroPreposition(text) {
+  return text.replace(/^С\s+/i, "С\u00a0");
 }
 
 function updateNavigation(sections) {

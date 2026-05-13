@@ -11,6 +11,7 @@
   --sky-strong: #68bfff;
   --line: rgba(24, 50, 72, 0.1);
   --shadow: 0 20px 60px rgba(62, 107, 148, 0.14);
+  --shadow-soft: 0 12px 34px rgba(62, 107, 148, 0.1);
 }
 
 * {
@@ -93,6 +94,7 @@ a {
   background: var(--accent);
   color: #5b3908;
   font-weight: 800;
+  box-shadow: 0 12px 28px rgba(183, 112, 20, 0.12);
   transition: transform 0.2s ease, background 0.2s ease;
 }
 
@@ -106,13 +108,15 @@ a {
   background: rgba(255, 255, 255, 0.45);
   color: var(--text);
   border-color: rgba(24, 50, 72, 0.14);
+  box-shadow: 0 12px 28px rgba(62, 107, 148, 0.08);
 }
 
 .hero {
   position: relative;
   min-height: 92vh;
   display: grid;
-  place-items: center;
+  align-items: center;
+  justify-items: center;
   padding: 7rem 5vw 5rem;
   overflow: hidden;
   background:
@@ -237,11 +241,16 @@ a {
 .hero-content {
   position: relative;
   z-index: 3;
-  max-width: 860px;
-  padding: clamp(1rem, 2vw, 1.8rem);
-  border-radius: 2rem;
-  background: linear-gradient(180deg, rgba(252, 254, 255, 0.18), rgba(252, 254, 255, 0.04));
-  backdrop-filter: blur(10px);
+  width: min(760px, 100%);
+  margin-right: min(18vw, 12rem);
+  padding: clamp(1.35rem, 3vw, 2.5rem);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: clamp(1.6rem, 3vw, 2.6rem);
+  background:
+    radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.68), transparent 28%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.44), rgba(226, 240, 251, 0.24));
+  box-shadow: 0 30px 90px rgba(51, 96, 132, 0.16);
+  backdrop-filter: blur(14px) saturate(1.08);
 }
 
 .eyebrow {
@@ -259,15 +268,19 @@ a {
   font-family: "Oranienbaum", serif;
   line-height: 0.95;
   font-weight: 400;
+  text-wrap: balance;
 }
 
 .hero h1 {
-  font-size: clamp(3.4rem, 8vw, 6.8rem);
-  max-width: 10ch;
+  font-size: clamp(3.3rem, 7.2vw, 6.4rem);
+  max-width: 11.5ch;
+  letter-spacing: -0.035em;
 }
 
 .hero h1 span {
   display: block;
+  width: max-content;
+  max-width: 100%;
   color: #20699e;
 }
 
@@ -308,7 +321,19 @@ a {
 
 .section {
   position: relative;
-  padding: 5.5rem 5vw;
+  padding: clamp(4.5rem, 7vw, 7rem) 5vw;
+}
+
+.section::before {
+  content: "";
+  position: absolute;
+  top: 2rem;
+  right: 7vw;
+  width: clamp(9rem, 18vw, 18rem);
+  height: clamp(9rem, 18vw, 18rem);
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(159, 214, 255, 0.18), transparent 68%);
+  pointer-events: none;
 }
 
 .section-soft {
@@ -339,7 +364,7 @@ a {
   display: grid;
   gap: 0.7rem;
   max-width: 760px;
-  margin-bottom: 2rem;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
 }
 
 .section-heading::after {
@@ -409,8 +434,48 @@ a {
 .service-card,
 .location-card,
 .mood-card {
+  position: relative;
   border-radius: 1.4rem;
   padding: 1.4rem;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.stat:hover,
+.info-card:hover,
+.feature-card:hover,
+.service-card:hover,
+.location-card:hover,
+.mood-card:hover,
+.faq-list article:hover {
+  transform: translateY(-3px);
+  border-color: rgba(93, 171, 219, 0.22);
+  box-shadow: 0 24px 62px rgba(62, 107, 148, 0.16);
+}
+
+.info-card::after,
+.feature-card::after,
+.location-card::after,
+.faq-list article::after {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.9), rgba(159, 214, 255, 0.16));
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.info-card:hover::after,
+.feature-card:hover::after,
+.location-card:hover::after,
+.faq-list article:hover::after {
+  opacity: 1;
 }
 
 h3 {
@@ -455,6 +520,7 @@ h3 {
 }
 
 .service-card {
+  position: relative;
   display: grid;
   align-content: end;
   min-height: 280px;
@@ -463,6 +529,20 @@ h3 {
   background-position: center;
   background-size: cover;
   overflow: hidden;
+}
+
+.service-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(245, 250, 254, 0.94) 72%),
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.36), transparent 34%);
+}
+
+.service-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .service-price {
@@ -498,11 +578,26 @@ h3 {
   border-radius: 1.4rem;
   border: 1px solid rgba(24, 50, 72, 0.08);
   background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 14px 40px rgba(62, 107, 148, 0.08);
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .steps li:nth-child(even) {
   transform: translateY(1rem);
+}
+
+.steps li:hover {
+  box-shadow: 0 22px 54px rgba(62, 107, 148, 0.14);
+}
+
+.steps li:nth-child(odd):hover {
+  transform: translateY(-3px);
+}
+
+.steps li:nth-child(even):hover {
+  transform: translateY(calc(1rem - 3px));
 }
 
 .steps li::before {
@@ -577,6 +672,7 @@ h3 {
 }
 
 .faq-list article {
+  position: relative;
   border-radius: 1.4rem;
   padding: 1.4rem;
 }
@@ -1110,6 +1206,10 @@ h3 {
     padding-top: 6rem;
   }
 
+  .hero-content {
+    margin-right: 0;
+  }
+
   .hero-cloud,
   .about-mountains,
   .mood-cloud {
@@ -1151,14 +1251,62 @@ h3 {
     padding-right: 1rem;
   }
 
+  .section {
+    padding-top: 4.2rem;
+    padding-bottom: 4.2rem;
+  }
+
+  .hero {
+    padding-top: 5.3rem;
+  }
+
+  .hero-content {
+    padding: 1.1rem;
+    border-radius: 1.35rem;
+  }
+
   .hero h1 {
-    max-width: none;
+    max-width: 8.8ch;
+    font-size: clamp(3rem, 13vw, 3.9rem);
+  }
+
+  .hero h1 span {
+    width: auto;
+    max-width: 8.8ch;
+  }
+
+  .hero-text {
+    margin-top: 1rem;
+    font-size: 0.96rem;
+    line-height: 1.62;
+  }
+
+  .hero-actions {
+    gap: 0.7rem;
+    margin-top: 1.4rem;
+  }
+
+  .section-heading h2 {
+    font-size: clamp(2rem, 11vw, 2.9rem);
   }
 
   .button,
   .button-secondary,
   .button-ghost {
     width: 100%;
+  }
+
+  .stat,
+  .info-card,
+  .feature-card,
+  .service-card,
+  .location-card,
+  .mood-card,
+  .faq-list article,
+  .about-card,
+  .contact-card,
+  .form {
+    border-radius: 1.1rem;
   }
 
   .hero-paraglider,

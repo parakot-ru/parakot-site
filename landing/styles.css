@@ -379,6 +379,48 @@ a {
   font-size: 0.95rem;
 }
 
+.flight-brief {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  max-width: 42rem;
+  margin-top: 1rem;
+}
+
+.flight-brief span {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(32, 105, 158, 0.11);
+  border-radius: 1rem;
+  padding: 0.72rem 0.8rem;
+  color: #315b78;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.9), transparent 38%),
+    rgba(255, 255, 255, 0.46);
+  box-shadow: 0 12px 28px rgba(62, 107, 148, 0.08);
+  font-size: 0.86rem;
+}
+
+.flight-brief span::after {
+  content: "";
+  position: absolute;
+  right: -1.2rem;
+  bottom: -1rem;
+  width: 4rem;
+  height: 4rem;
+  border: 1px dashed rgba(32, 105, 158, 0.12);
+  border-radius: 999px;
+}
+
+.flight-brief b {
+  display: block;
+  margin-bottom: 0.12rem;
+  color: #20699e;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .steps {
   padding: 0;
   list-style: none;
@@ -402,6 +444,39 @@ a {
 .section {
   position: relative;
   padding: clamp(4.5rem, 7vw, 7rem) 5vw;
+}
+
+.section-route {
+  position: absolute;
+  top: 1.7rem;
+  left: 5vw;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: rgba(32, 105, 158, 0.62);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.section-route::before {
+  content: "";
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: #ffb85c;
+  box-shadow:
+    0 0 0 0.34rem rgba(255, 184, 92, 0.14),
+    0 0 22px rgba(255, 184, 92, 0.26);
+}
+
+.section-route::after {
+  content: "";
+  width: min(20vw, 14rem);
+  border-top: 1px dashed rgba(32, 105, 158, 0.2);
 }
 
 [data-api-sections] > .section {
@@ -641,6 +716,42 @@ h3 {
   overflow: hidden;
 }
 
+.service-card {
+  border-radius: 1.35rem 1.35rem 1.35rem 0.55rem;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 1.2rem 100%, 0 calc(100% - 1.2rem));
+}
+
+.service-card h3::before {
+  content: "Билет на программу";
+  display: block;
+  width: fit-content;
+  margin-bottom: 0.72rem;
+  border-radius: 999px;
+  padding: 0.38rem 0.58rem;
+  color: #20699e;
+  background: rgba(255, 255, 255, 0.68);
+  font-size: 0.66rem;
+  font-family: "Manrope", sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.service-card h3::after {
+  content: "";
+  position: absolute;
+  top: 1.15rem;
+  right: 1.15rem;
+  width: 3.4rem;
+  height: 3.4rem;
+  border: 1px solid rgba(32, 105, 158, 0.14);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 184, 92, 0.72) 0 0.18rem, transparent 0.2rem),
+    repeating-conic-gradient(from 0deg, rgba(32, 105, 158, 0.12) 0 8deg, transparent 8deg 18deg);
+  opacity: 0.72;
+}
+
 .service-card::before {
   content: "";
   position: absolute;
@@ -675,11 +786,60 @@ h3 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.location-card {
+  min-height: 14rem;
+  display: grid;
+  align-content: space-between;
+}
+
+.location-card h3 {
+  padding-right: 5rem;
+}
+
+.location-card h3::after {
+  content: "летный спот";
+  position: absolute;
+  top: 1.15rem;
+  right: 1.15rem;
+  border-radius: 999px;
+  padding: 0.42rem 0.6rem;
+  color: #20699e;
+  background: rgba(232, 245, 255, 0.9);
+  font-size: 0.66rem;
+  font-family: "Manrope", sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.spot-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.38rem;
+  margin-top: 0.8rem;
+}
+
+.spot-meta span {
+  border: 1px solid rgba(32, 105, 158, 0.12);
+  border-radius: 999px;
+  padding: 0.32rem 0.5rem;
+  color: #567188;
+  background: rgba(255, 255, 255, 0.62);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
 .steps {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 1rem;
   counter-reset: step;
+}
+
+.timeline .section-heading {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 
 .steps li {
@@ -698,6 +858,10 @@ h3 {
   transform: translateY(1rem);
 }
 
+.steps li:nth-child(3n) {
+  transform: translateY(2rem);
+}
+
 .steps li:hover {
   box-shadow: 0 22px 54px rgba(62, 107, 148, 0.14);
 }
@@ -708,6 +872,10 @@ h3 {
 
 .steps li:nth-child(even):hover {
   transform: translateY(calc(1rem - 3px));
+}
+
+.steps li:nth-child(3n):hover {
+  transform: translateY(calc(2rem - 3px));
 }
 
 .steps li::before {
@@ -1554,6 +1722,80 @@ body::after {
   pointer-events: none;
 }
 
+.contacts .section-heading {
+  max-width: 900px;
+}
+
+.contacts .contact-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.contacts .contact-card::before {
+  content: "точка связи";
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  border-radius: 999px;
+  padding: 0.42rem 0.62rem;
+  color: rgba(244, 251, 255, 0.74);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.contacts .contact-card::after {
+  content: "";
+  position: absolute;
+  right: -3rem;
+  bottom: -5rem;
+  width: 18rem;
+  height: 18rem;
+  border: 1px dashed rgba(149, 213, 247, 0.12);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.contact-link {
+  position: relative;
+  z-index: 1;
+}
+
+.contact-link::before {
+  content: "";
+  position: absolute;
+  top: 1.05rem;
+  right: 1rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: rgba(255, 184, 92, 0.85);
+  box-shadow: 0 0 0 0.28rem rgba(255, 184, 92, 0.1);
+}
+
+@keyframes windDrift {
+  from {
+    background-position: 0 0, 0 0, 0 0;
+  }
+
+  to {
+    background-position: 80px 0, -120px 0, 0 0;
+  }
+}
+
+.hero-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(8deg, transparent 0 88px, rgba(255, 255, 255, 0.16) 89px 90px, transparent 91px 170px),
+    repeating-linear-gradient(-6deg, transparent 0 120px, rgba(149, 213, 247, 0.12) 121px 122px, transparent 123px 220px);
+  opacity: 0.38;
+  animation: windDrift 28s linear infinite;
+}
+
 @media (max-width: 980px) {
   .nav {
     display: none;
@@ -1601,6 +1843,11 @@ body::after {
   }
 
   .steps li:nth-child(even) {
+    transform: none;
+  }
+
+  .steps li:nth-child(3n),
+  .steps li:nth-child(3n):hover {
     transform: none;
   }
 
@@ -1656,6 +1903,25 @@ body::after {
   .hero h1 span {
     width: auto;
     max-width: 8.8ch;
+  }
+
+  .flight-brief {
+    grid-template-columns: 1fr;
+  }
+
+  .section-route {
+    display: none;
+  }
+
+  .location-card h3 {
+    padding-right: 0;
+  }
+
+  .location-card h3::after {
+    position: static;
+    display: block;
+    width: fit-content;
+    margin-top: 0.55rem;
   }
 
   .hero-text {

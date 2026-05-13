@@ -504,6 +504,7 @@ function renderSection(section) {
   element.id = `section-${section.id}`;
   element.dataset.editorSectionId = section.id;
   element.dataset.editorType = section.type;
+  element.appendChild(renderSectionRoute(section));
 
   const heading = document.createElement("div");
   heading.className = "section-heading";
@@ -540,6 +541,18 @@ function renderSection(section) {
   return element;
 }
 
+function renderSectionRoute(section) {
+  const route = document.createElement("div");
+  route.className = "section-route";
+  route.setAttribute("aria-hidden", "true");
+
+  const label = document.createElement("span");
+  label.textContent = section.menu_title || section.label || "точка маршрута";
+  route.appendChild(label);
+
+  return route;
+}
+
 function renderRichText(text) {
   const grid = document.createElement("div");
   grid.className = "about-grid about-grid-single";
@@ -569,11 +582,12 @@ function renderItems(section) {
   const container = document.createElement(isTimeline ? "ol" : "div");
   container.className = containerClassName(section.type);
 
-  section.items.forEach((item) => {
+  section.items.forEach((item, index) => {
     const card = document.createElement(isTimeline ? "li" : "article");
     card.className = sectionClassByType[section.type] || "info-card";
     card.dataset.editorSectionId = section.id;
     card.dataset.editorItemId = item.id;
+    card.style.setProperty("--item-index", index + 1);
     const placement = readMetaValue(item.meta_json, "placement");
     const price = readMetaValue(item.meta_json, "price");
 
@@ -590,6 +604,13 @@ function renderItems(section) {
       priceTag.className = "service-price";
       priceTag.textContent = price;
       card.appendChild(priceTag);
+    }
+
+    if (section.type === "locations_grid") {
+      const spotMeta = document.createElement("div");
+      spotMeta.className = "spot-meta";
+      spotMeta.innerHTML = "<span>склон</span><span>погода</span><span>группа</span>";
+      card.appendChild(spotMeta);
     }
 
     if (item.description) {

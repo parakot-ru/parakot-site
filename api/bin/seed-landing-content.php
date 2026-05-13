@@ -68,7 +68,11 @@ try {
         false,
         'Небо. Горы. Свобода полета. С Константином "Котом"',
         'Паракот - мой позывной, а для друзей и учеников я просто Кот. Здесь - обучение, туры и выезды для пилотов в лучших локациях Кавказа: с настоящими горами, воздушным настроением и спокойным, надежным подходом к полетам.',
-        0
+        0,
+        [
+            'heroBadgeLabel' => 'Летные места',
+            'heroBadgeText' => 'Юца • Чегем • Даргавс • Джилы-Су'
+        ]
     );
 
     $aboutId = insertSection(
@@ -265,7 +269,8 @@ function insertSection(
     bool $showInMenu,
     string $title,
     ?string $description,
-    int $sortOrder
+    int $sortOrder,
+    array $meta = []
 ): int {
     $statement = $connection->prepare(
         'INSERT INTO sections (
@@ -275,6 +280,7 @@ function insertSection(
             show_in_menu,
             title,
             description,
+            meta_json,
             sort_order,
             is_published
          )
@@ -285,6 +291,7 @@ function insertSection(
             :show_in_menu,
             :title,
             :description,
+            :meta_json,
             :sort_order,
             1
          )'
@@ -296,6 +303,7 @@ function insertSection(
         ':show_in_menu' => $showInMenu ? 1 : 0,
         ':title' => $title,
         ':description' => $description,
+        ':meta_json' => empty($meta) ? null : json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
         ':sort_order' => $sortOrder
     ]);
 

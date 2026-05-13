@@ -299,6 +299,7 @@ function applyHeroSection(section) {
   }
 
   applyHeroBackground(hero, section);
+  applyHeroBadge(hero, section);
 }
 
 function applyHeroBackground(hero, section) {
@@ -378,6 +379,35 @@ function buildHeroOverlay(preset, strength) {
   ).toFixed(3)}), rgba(5, 28, 45, ${(darkness * 0.48).toFixed(3)}))`;
 
   return [darknessLayer, ...presetLayers].join(", ");
+}
+
+function applyHeroBadge(hero, section) {
+  const badge = hero.querySelector("[data-hero-flight-note]");
+
+  if (!badge) {
+    return;
+  }
+
+  const label = readMetaValue(section.meta_json, "heroBadgeLabel") || "Летные места";
+  const text = readMetaValue(section.meta_json, "heroBadgeText") || "Юца • Чегем • Даргавс • Джилы-Су";
+  const labelElement = badge.querySelector("[data-hero-badge-label]");
+  const textElement = badge.querySelector("[data-hero-badge-text]");
+
+  if (!text.trim()) {
+    badge.hidden = true;
+    return;
+  }
+
+  badge.hidden = false;
+  badge.setAttribute("aria-label", `${label}: ${text}`);
+
+  if (labelElement) {
+    labelElement.textContent = label;
+  }
+
+  if (textElement) {
+    textElement.textContent = text;
+  }
 }
 
 function clampNumber(value, min, max) {

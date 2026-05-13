@@ -170,7 +170,7 @@ const sectionTypeDocs = [
     type: "hero",
     label: "Hero",
     description: "Первый экран: крупный заголовок, вводный текст, фото или видео на фоне.",
-    itemHint: "Карточки пока не используются: важны заголовок, описание и настройки фона.",
+    itemHint: "Карточки пока не используются: важны заголовок, описание, бейдж и настройки фона.",
   },
   {
     type: "rich_text",
@@ -2190,14 +2190,18 @@ function HeroBackgroundSettings({
   const overlayPreset = readMetaValue(section.meta_json, "heroOverlayPreset") || "air";
   const overlayStrength = readMetaValue(section.meta_json, "heroOverlayStrength") || "18";
   const mediaBlur = readMetaValue(section.meta_json, "heroMediaBlur") || "0";
+  const badgeLabel = readMetaValue(section.meta_json, "heroBadgeLabel");
+  const badgeText = readMetaValue(section.meta_json, "heroBadgeText");
+  const previewBadgeLabel = badgeLabel || "Летные места";
+  const previewBadgeText = badgeText || "Юца • Чегем • Даргавс • Джилы-Су";
 
   return (
     <div className="hero-background-settings">
       <div className="hero-settings-heading">
-        <strong>Фон первого экрана</strong>
+        <strong>Первый экран</strong>
         <span>
-          Видео включается только если выбран тип “Видео” и указана прямая ссылка на
-          MP4 или WEBM. Изображение секции остается poster-заглушкой.
+          Настройки фона, видео и небольшого бейджа в Hero. Изображение секции
+          остается poster-заглушкой, если видео не загрузится.
         </span>
       </div>
       <div className="hero-settings-grid">
@@ -2270,6 +2274,40 @@ function HeroBackgroundSettings({
             onChange={(event) => onChange({ heroMediaBlur: event.target.value })}
           />
         </label>
+      </div>
+      <div className="hero-badge-settings">
+        <div className="hero-settings-heading">
+          <strong>Бейдж первого экрана</strong>
+          <span>
+            Короткая строка под кнопками: хорошо работает для летных мест, сезона
+            или главного маршрута.
+          </span>
+        </div>
+        <div className="hero-badge-fields">
+          <label className="compact-field">
+            <span>Подпись</span>
+            <input
+              value={badgeLabel}
+              onChange={(event) => onChange({ heroBadgeLabel: event.target.value })}
+              placeholder="Летные места"
+            />
+          </label>
+          <label className="compact-field">
+            <span>Текст бейджа</span>
+            <input
+              value={badgeText}
+              onChange={(event) => onChange({ heroBadgeText: event.target.value })}
+              placeholder="Юца • Чегем • Даргавс • Джилы-Су"
+            />
+          </label>
+          <div
+            className="hero-badge-preview"
+            aria-label={`${previewBadgeLabel}: ${previewBadgeText}`}
+          >
+            <span>{previewBadgeLabel}</span>
+            <strong>{previewBadgeText}</strong>
+          </div>
+        </div>
       </div>
     </div>
   );

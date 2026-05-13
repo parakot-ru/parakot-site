@@ -419,10 +419,13 @@ function renderHeroTitle(container, value) {
 }
 
 function splitHeroTitle(title) {
-  const marker = " С Константином";
-  const markerIndex = title.indexOf(marker);
+  const markers = [" С Константином", " Со школой", " С инструктором"];
+  const markerIndex = markers
+    .map((marker) => title.indexOf(marker))
+    .filter((index) => index > 0)
+    .sort((left, right) => left - right)[0];
 
-  if (markerIndex > 0) {
+  if (Number.isInteger(markerIndex)) {
     return [title.slice(0, markerIndex).trim(), title.slice(markerIndex + 1).trim()];
   }
 
@@ -430,7 +433,9 @@ function splitHeroTitle(title) {
 }
 
 function protectShortHeroPreposition(text) {
-  return text.replace(/^С\s+/i, "С\u00a0");
+  return text
+    .replace(/^(С|Со)\s+/i, "$1\u00a0")
+    .replace(/\s([викосу])\s+/gi, " $1\u00a0");
 }
 
 function updateNavigation(sections) {

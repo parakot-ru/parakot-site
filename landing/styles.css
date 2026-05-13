@@ -2021,3 +2021,47 @@ body::after {
     animation: none;
   }
 }
+
+/* Cleanup pass: keep the airy mood, remove noisy labels and overbuilt cards. */
+.contacts .contact-card::before,
+.contact-link::before,
+.location-card h3::after,
+.section-route,
+.spot-meta {
+  display: none !important;
+}
+
+.timeline .section-heading {
+  margin-right: 0;
+  margin-left: 0;
+  text-align: left;
+}
+
+.timeline .section-heading .section-description {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+.steps li:nth-child(3n),
+.steps li:nth-child(3n):hover,
+.stats .stat:nth-child(2n),
+.stats .stat:nth-child(2n):hover {
+  transform: none;
+}
+
+.location-card {
+  min-height: auto;
+  align-content: start;
+}
+
+.location-card h3 {
+  padding-right: 0;
+}
+
+.location-grid {
+  gap: 1rem;
+}
+
+.location-card p {
+  margin-top: 1.5rem;
+}

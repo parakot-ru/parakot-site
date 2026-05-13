@@ -504,7 +504,6 @@ function renderSection(section) {
   element.id = `section-${section.id}`;
   element.dataset.editorSectionId = section.id;
   element.dataset.editorType = section.type;
-  element.appendChild(renderSectionRoute(section));
 
   const heading = document.createElement("div");
   heading.className = "section-heading";
@@ -539,18 +538,6 @@ function renderSection(section) {
   }
 
   return element;
-}
-
-function renderSectionRoute(section) {
-  const route = document.createElement("div");
-  route.className = "section-route";
-  route.setAttribute("aria-hidden", "true");
-
-  const label = document.createElement("span");
-  label.textContent = section.menu_title || section.label || "точка маршрута";
-  route.appendChild(label);
-
-  return route;
 }
 
 function renderRichText(text) {
@@ -604,13 +591,6 @@ function renderItems(section) {
       priceTag.className = "service-price";
       priceTag.textContent = price;
       card.appendChild(priceTag);
-    }
-
-    if (section.type === "locations_grid") {
-      const spotMeta = document.createElement("div");
-      spotMeta.className = "spot-meta";
-      spotMeta.innerHTML = "<span>склон</span><span>погода</span><span>группа</span>";
-      card.appendChild(spotMeta);
     }
 
     if (item.description) {

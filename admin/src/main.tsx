@@ -1883,6 +1883,7 @@ function App() {
                 >
                   <option value="phone">Телефон</option>
                   <option value="telegram">Telegram</option>
+                  <option value="instagram">Instagram</option>
                   <option value="vk">VK</option>
                   <option value="whatsapp">WhatsApp</option>
                   <option value="email">Email</option>
@@ -1969,6 +1970,7 @@ function App() {
             >
               <option value="phone">Телефон</option>
               <option value="telegram">Telegram</option>
+              <option value="instagram">Instagram</option>
               <option value="vk">VK</option>
               <option value="whatsapp">WhatsApp</option>
               <option value="email">Email</option>

@@ -59,6 +59,7 @@ try {
     insertContact($connection, 'phone', 'Телефон', '+7 (919) 755-14-43', 'tel:+79197551443', 10);
     insertContact($connection, 'phone', 'Телефон', '+7 (928) 358-06-03', 'tel:+79283580603', 20);
     insertContact($connection, 'telegram', 'Telegram', '@parakot_obuchenie', 'https://t.me/parakot_obuchenie', 30);
+    insertContact($connection, 'instagram', 'Instagram', '@parakot_official', 'https://www.instagram.com/parakot_official/', 40);
 
     insertSection(
         $connection,

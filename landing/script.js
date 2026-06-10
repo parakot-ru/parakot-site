@@ -220,11 +220,18 @@ function applyContacts(contacts) {
 
   contacts.forEach((contact) => {
     const link = document.createElement("a");
-    link.className = "contact-link";
+    const contactType = contact.type || "other";
+    link.className = `contact-link contact-link-${contactType}`;
     link.href = contact.url || hrefFromContact(contact);
+    link.dataset.contactType = contactType;
+
+    if (/^https?:\/\//.test(link.href)) {
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    }
 
     const label = document.createElement("span");
-    label.textContent = contact.label || contact.type || "Контакт";
+    label.textContent = contact.label || contactType || "Контакт";
 
     const value = document.createElement("strong");
     value.textContent = contact.value || contact.url || contact.label;
@@ -1030,9 +1037,23 @@ function hrefFromContact(contact) {
   }
 
   if (contact.type === "telegram") {
+    if (/^https?:\/\//.test(value)) {
+      return value;
+    }
+
     return value.startsWith("@")
       ? `https://t.me/${value.slice(1)}`
       : `https://t.me/${value}`;
+  }
+
+  if (contact.type === "instagram") {
+    if (/^https?:\/\//.test(value)) {
+      return value;
+    }
+
+    return value.startsWith("@")
+      ? `https://www.instagram.com/${value.slice(1)}/`
+      : `https://www.instagram.com/${value}/`;
   }
 
   return value || "#contacts";

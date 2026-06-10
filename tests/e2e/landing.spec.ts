@@ -17,6 +17,10 @@ test("public landing loads managed content and contact form", async ({ page }) =
   await page.getByRole("link", { name: "Оставить заявку" }).first().click();
 
   await expect(page.getByRole("heading", { name: /откликается/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Instagram @parakot_official" })).toHaveAttribute(
+    "href",
+    "https://www.instagram.com/parakot_official/",
+  );
   await expect(page.getByLabel("Имя")).toBeVisible();
   await expect(page.getByLabel("Телефон или Telegram")).toBeVisible();
   await expect(page.getByRole("button", { name: "Отправить заявку" })).toBeVisible();

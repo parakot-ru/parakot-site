@@ -421,34 +421,8 @@ textarea:focus {
 }
 
 .section-editor-head {
-  grid-template-columns: minmax(150px, 0.65fr) minmax(220px, 1.4fr) 110px;
+  grid-template-columns: minmax(220px, 1.4fr) 110px;
   align-items: end;
-}
-
-.section-kind-badge {
-  display: grid;
-  align-content: end;
-  gap: 6px;
-  min-height: 68px;
-}
-
-.section-kind-badge span {
-  color: #61717f;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.section-kind-badge strong {
-  display: inline-flex;
-  align-items: center;
-  min-height: 42px;
-  width: fit-content;
-  border: 1px solid #cde9f4;
-  border-radius: 999px;
-  padding: 0 14px;
-  color: #1f7fae;
-  background: #e8f6fc;
-  font-size: 14px;
 }
 
 .compact-field {
@@ -1235,7 +1209,6 @@ textarea:focus {
   .new-contact,
   .section-editor-head,
   .section-type-note,
-  .section-kind-badge,
   .hero-settings-grid,
   .hero-badge-fields,
   .section-item-row,

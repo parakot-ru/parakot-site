@@ -1502,10 +1502,6 @@ function App() {
                   </div>
                 </div>
                 <div className="section-editor-head">
-                  <div className="section-kind-badge">
-                    <span>Тип секции</span>
-                    <strong>{sectionKindLabel(section.type)}</strong>
-                  </div>
                   <label className="compact-field">
                     <span>Название в админке</span>
                     <input
@@ -2421,10 +2417,6 @@ function sectionTypeDoc(type: string) {
   );
 }
 
-function isContentSectionType(type: string) {
-  return type !== "hero" && type !== "contacts";
-}
-
 function normalizeSelectableSectionType(type: string) {
   return type === "cards_two_columns" ? "cards_grid" : type;
 }
@@ -2439,36 +2431,6 @@ function sectionUsesCardColumns(type: string) {
 
 function sectionSupportsItems(type: string) {
   return !["hero", "contacts", "rich_text"].includes(type);
-}
-
-function sectionKindFromType(type: string) {
-  if (type === "hero" || type === "contacts") {
-    return type;
-  }
-
-  return "content";
-}
-
-function sectionKindLabel(type: string) {
-  const kind = sectionKindFromType(type);
-
-  if (kind === "hero") {
-    return "Первый экран";
-  }
-
-  if (kind === "contacts") {
-    return "Обратная связь";
-  }
-
-  return "Обычная секция";
-}
-
-function sectionTypeFromKind(kind: string, currentType: string) {
-  if (kind === "hero" || kind === "contacts") {
-    return kind;
-  }
-
-  return isContentSectionType(currentType) ? currentType : "cards_grid";
 }
 
 function Field({

@@ -686,13 +686,17 @@ textarea:focus {
 
 .hero-settings-grid {
   display: grid;
-  grid-template-columns: minmax(180px, 0.45fr) minmax(280px, 1fr);
-  gap: 12px;
-  align-items: end;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  max-width: 980px;
 }
 
 .hero-image-field {
   min-width: 0;
+}
+
+.hero-settings-grid > .compact-field:first-child {
+  max-width: 420px;
 }
 
 .hero-badge-settings {

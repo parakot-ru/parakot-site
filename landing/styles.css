@@ -2374,13 +2374,10 @@ body::after {
   position: relative;
   z-index: 2;
   display: grid;
-  grid-auto-columns: minmax(280px, 31vw);
-  grid-auto-flow: column;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
-  overflow-x: auto;
-  padding: 0.25rem 5vw 1rem 0;
-  scroll-snap-type: x proximity;
-  scrollbar-width: thin;
+  overflow: visible;
+  padding: 0.25rem 0 0;
 }
 
 .mood-card {
@@ -2487,10 +2484,9 @@ body::after {
 
   .flight-journal {
     display: grid;
-    grid-auto-flow: row;
-    grid-auto-columns: auto;
+    grid-template-columns: 1fr;
     overflow: visible;
-    padding-right: 0;
+    padding: 0;
   }
 }
 

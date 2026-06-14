@@ -58,7 +58,7 @@ const sectionClassByType = {
   services: "service-card",
   locations_grid: "location-card",
   timeline: "step-card",
-  stats: "stat",
+  stats: "feature-card",
   faq: "info-card",
   gallery: "mood-card",
   rich_text: "info-card",
@@ -99,8 +99,8 @@ const sectionTypeMeta = {
     hint: "Основной текст берется из описания секции.",
   },
   stats: {
-    label: "Статистика",
-    hint: "Карточки показываются как цифры и короткие факты.",
+    label: "Карточки",
+    hint: "Архивный вариант числовых карточек.",
   },
   cards_grid: {
     label: "Карточки",
@@ -578,15 +578,27 @@ function renderItems(section) {
   container.className = containerClassName(section.type);
   const cardColumns =
     readMetaValue(section.meta_json, "columns") ||
-    (section.type === "cards_two_columns" ? "2" : section.type === "highlight" ? "1" : "");
+    (section.type === "cards_two_columns"
+      ? "2"
+      : section.type === "highlight"
+        ? "1"
+        : section.type === "stats"
+          ? "4"
+          : "");
+  const cardStyle = readMetaValue(section.meta_json, "cardStyle") ||
+    (section.type === "stats" ? "number" : "");
 
   if (container.classList.contains("cards") && cardColumns) {
     container.dataset.columns = cardColumns;
   }
 
+  if (container.classList.contains("cards") && cardStyle) {
+    container.dataset.cardStyle = cardStyle;
+  }
+
   section.items.forEach((item, index) => {
     const card = document.createElement(isTimeline ? "li" : "article");
-    card.className = sectionClassByType[section.type] || "info-card";
+    card.className = cardClassName(section, cardStyle);
     card.dataset.editorSectionId = section.id;
     card.dataset.editorItemId = item.id;
     card.style.setProperty("--item-index", index + 1);
@@ -663,7 +675,7 @@ function containerClassName(type) {
   }
 
   if (type === "stats") {
-    return "stats";
+    return "cards";
   }
 
   if (type === "cards_two_columns") {
@@ -683,6 +695,18 @@ function containerClassName(type) {
   }
 
   return "cards three-columns";
+}
+
+function cardClassName(section, cardStyle) {
+  if (cardStyle === "number") {
+    return "stat";
+  }
+
+  if (cardStyle === "photo") {
+    return "feature-card card-style-photo";
+  }
+
+  return sectionClassByType[section.type] || "info-card";
 }
 
 async function setupEditorMode(sections) {

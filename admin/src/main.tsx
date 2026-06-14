@@ -184,6 +184,12 @@ const cardColumnOptions = [
   { value: "4", label: "4" },
 ];
 
+const cardStyleOptions = [
+  { value: "", label: "Обычные" },
+  { value: "number", label: "Числа" },
+  { value: "photo", label: "Фото" },
+];
+
 const heroBackgroundTypes = [
   { value: "image", label: "Изображение" },
   { value: "video", label: "Видео" },
@@ -277,13 +283,13 @@ const lockedSectionTypes = ["hero", "contacts", "services"];
 const contentDisplayStyles = sectionTypeDocs.filter(
   (item) =>
     !lockedSectionTypes.includes(item.type) &&
+    item.type !== "stats" &&
     item.type !== "cards_two_columns" &&
     item.type !== "highlight",
 );
 
 const sectionStylePreviews: Record<string, string> = {
   rich_text: "Ab",
-  stats: "01",
   cards_grid: "4",
   locations_grid: "Img",
   timeline: "1-3",
@@ -1643,17 +1649,24 @@ function App() {
                     onChange={(type) => updateSection(section.id, { type })}
                   />
                 )}
-                {sectionUsesCardColumns(section.type) && (
-                  <CardColumnsControl
+                {sectionUsesCardControls(section.type) && (
+                  <CardLayoutControl
                     value={
                       readMetaValue(section.meta_json, "columns") ||
                       (section.type === "cards_two_columns"
                         ? "2"
                         : section.type === "highlight"
                           ? "1"
+                          : section.type === "stats"
+                            ? "4"
                           : "")
                     }
-                    onChange={(columns) => updateSectionMeta(section.id, { columns })}
+                    cardStyle={
+                      readMetaValue(section.meta_json, "cardStyle") ||
+                      (section.type === "stats" ? "number" : "")
+                    }
+                    onColumnsChange={(columns) => updateSectionMeta(section.id, { columns })}
+                    onCardStyleChange={(cardStyle) => updateSectionMeta(section.id, { cardStyle })}
                   />
                 )}
                 <SectionTypeNote type={section.type} />
@@ -2331,12 +2344,16 @@ function SectionStylePicker({
   );
 }
 
-function CardColumnsControl({
+function CardLayoutControl({
   value,
-  onChange,
+  cardStyle,
+  onColumnsChange,
+  onCardStyleChange,
 }: {
   value: string;
-  onChange: (columns: string) => void;
+  cardStyle: string;
+  onColumnsChange: (columns: string) => void;
+  onCardStyleChange: (cardStyle: string) => void;
 }) {
   return (
     <div className="columns-control">
@@ -2347,7 +2364,20 @@ function CardColumnsControl({
             className={`columns-option${option.value === value ? " is-active" : ""}`}
             key={option.value || "auto"}
             type="button"
-            onClick={() => onChange(option.value)}
+            onClick={() => onColumnsChange(option.value)}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+      <span>Вид карточек</span>
+      <div className="columns-option-list">
+        {cardStyleOptions.map((option) => (
+          <button
+            className={`columns-option${option.value === cardStyle ? " is-active" : ""}`}
+            key={option.value || "default"}
+            type="button"
+            onClick={() => onCardStyleChange(option.value)}
           >
             {option.label}
           </button>
@@ -2579,15 +2609,22 @@ function sectionTypeDoc(type: string) {
 }
 
 function normalizeSelectableSectionType(type: string) {
-  return type === "cards_two_columns" || type === "highlight" ? "cards_grid" : type;
+  return type === "cards_two_columns" || type === "highlight" || type === "stats"
+    ? "cards_grid"
+    : type;
 }
 
 function isSelectableContentSectionType(type: string) {
   return contentDisplayStyles.some((item) => item.type === normalizeSelectableSectionType(type));
 }
 
-function sectionUsesCardColumns(type: string) {
-  return type === "cards_grid" || type === "cards_two_columns" || type === "highlight";
+function sectionUsesCardControls(type: string) {
+  return (
+    type === "cards_grid" ||
+    type === "cards_two_columns" ||
+    type === "highlight" ||
+    type === "stats"
+  );
 }
 
 function sectionSupportsItems(type: string) {

@@ -631,7 +631,7 @@ function sectionClassName(type) {
   }
 
   if (type === "gallery") {
-    return "section section-sky mood";
+    return "section section-sky mood flight-journal-section";
   }
 
   if (type === "services") {
@@ -651,7 +651,7 @@ function containerClassName(type) {
   }
 
   if (type === "gallery") {
-    return "mood-grid";
+    return "flight-journal";
   }
 
   if (type === "stats") {

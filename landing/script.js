@@ -368,7 +368,7 @@ function renderHeroVideo(container, videoUrl, posterUrl) {
 }
 
 function setHeroBackgroundImage(hero, imageUrl) {
-  hero.style.backgroundImage = `linear-gradient(180deg, rgba(250, 253, 255, 0.02), rgba(236, 244, 250, 0.2)), url("${imageUrl}")`;
+  hero.style.backgroundImage = `url("${imageUrl}")`;
 }
 
 function buildHeroOverlay(preset, strength) {

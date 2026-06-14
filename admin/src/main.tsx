@@ -1078,10 +1078,6 @@ function App() {
     updateSectionItemMeta(sectionId, itemId, { placement });
   }
 
-  function updateSectionItemPrice(sectionId: number, itemId: number, price: string) {
-    updateSectionItemMeta(sectionId, itemId, { price });
-  }
-
   function updateSectionItemMeta(
     sectionId: number,
     itemId: number,
@@ -1604,17 +1600,6 @@ function App() {
                           }
                           onDelete={() => deleteSectionItemImage(section.id, item.id)}
                         />
-                        <input
-                          value={readMetaValue(item.meta_json, "price")}
-                          onChange={(event) =>
-                            updateSectionItemPrice(
-                              section.id,
-                              item.id,
-                              event.target.value,
-                            )
-                          }
-                          placeholder="Цена"
-                        />
                         <select
                           value={readMetaValue(item.meta_json, "placement")}
                           onChange={(event) =>
@@ -1756,18 +1741,6 @@ function App() {
                           },
                         }));
                       }}
-                    />
-                    <input
-                      value={readMetaValue(
-                        (draftItems[section.id] ?? emptySectionItem).meta_json,
-                        "price",
-                      )}
-                      onChange={(event) =>
-                        updateDraftItemMeta(section.id, {
-                          price: event.target.value,
-                        })
-                      }
-                      placeholder="Цена"
                     />
                     <select
                       value={readMetaValue(

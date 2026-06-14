@@ -583,7 +583,6 @@ function renderItems(section) {
     card.dataset.editorItemId = item.id;
     card.style.setProperty("--item-index", index + 1);
     const placement = readMetaValue(item.meta_json, "placement");
-    const price = readMetaValue(item.meta_json, "price");
 
     if (placement) {
       card.classList.add(`placement-${placement}`);
@@ -592,13 +591,6 @@ function renderItems(section) {
     const title = document.createElement(isTimeline ? "strong" : "h3");
     title.textContent = item.title;
     card.appendChild(title);
-
-    if (price) {
-      const priceTag = document.createElement("strong");
-      priceTag.className = "service-price";
-      priceTag.textContent = price;
-      card.appendChild(priceTag);
-    }
 
     if (item.description) {
       const description = document.createElement(isTimeline ? "span" : "p");

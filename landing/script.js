@@ -316,21 +316,14 @@ function applyHeroBackground(hero, section) {
   const backgroundType =
     readMetaValue(section.meta_json, "heroBackgroundType") || (videoUrl ? "video" : "image");
   const posterUrl = readMetaValue(section.meta_json, "heroVideoPoster") || section.image_path;
-  const blur = clampNumber(readMetaValue(section.meta_json, "heroMediaBlur"), 0, 20);
-  const overlayPreset = readMetaValue(section.meta_json, "heroOverlayPreset") || "air";
-  const overlayStrength = clampNumber(
-    readMetaValue(section.meta_json, "heroOverlayStrength"),
-    0,
-    70,
-  );
 
   if (posterUrl) {
     setHeroBackgroundImage(hero, posterUrl);
   }
 
   if (media) {
-    media.style.setProperty("--hero-media-blur", `${blur}px`);
-    media.style.setProperty("--hero-media-scale", blur > 0 ? "1.05" : "1");
+    media.style.setProperty("--hero-media-blur", "0px");
+    media.style.setProperty("--hero-media-scale", "1");
 
     if (backgroundType === "video" && videoUrl && !prefersReducedMotion.matches) {
       renderHeroVideo(media, videoUrl, posterUrl);
@@ -342,7 +335,7 @@ function applyHeroBackground(hero, section) {
   }
 
   if (overlay) {
-    overlay.style.background = buildHeroOverlay(overlayPreset, overlayStrength);
+    overlay.style.background = "";
   }
 }
 
@@ -512,6 +505,14 @@ function renderSection(section) {
   element.id = `section-${section.id}`;
   element.dataset.editorSectionId = section.id;
   element.dataset.editorType = section.type;
+
+  if (section.image_path) {
+    element.classList.add("section-has-background");
+    element.style.setProperty(
+      "--section-background-image",
+      `url("${section.image_path}")`,
+    );
+  }
 
   const heading = document.createElement("div");
   heading.className = "section-heading";

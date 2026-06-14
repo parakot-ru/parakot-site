@@ -425,10 +425,11 @@ textarea:focus {
   font-size: 13px;
 }
 
-.ghost-small-button {
+.section-toggle-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 7px;
   min-height: 34px;
   border: 1px solid #cfe0e8;
   border-radius: 999px;
@@ -439,7 +440,15 @@ textarea:focus {
   font-weight: 600;
 }
 
-.ghost-small-button:hover {
+.section-toggle-button svg {
+  transition: transform 160ms ease;
+}
+
+.section-toggle-button.is-open svg {
+  transform: rotate(180deg);
+}
+
+.section-toggle-button:hover {
   border-color: #9ed3e9;
   background: #fff;
 }
@@ -1017,12 +1026,13 @@ textarea:focus {
 .new-section {
   grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.35fr) 160px;
   align-items: end;
-  margin: 12px 0;
-  padding: 14px;
-  border: 1px solid #dbe4e8;
+  margin: 22px 0 0;
+  padding: 18px;
+  border: 1px dashed #a9d7ea;
   border-radius: 16px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(245, 251, 253, 0.88));
+    radial-gradient(circle at 8% 0%, rgba(121, 198, 230, 0.2), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(239, 249, 253, 0.9));
   scroll-margin-top: 96px;
   transition:
     border-color 180ms ease,

@@ -2245,6 +2245,22 @@ body::after {
   padding-bottom: clamp(5.4rem, 8vw, 8.5rem);
 }
 
+.section.section-has-background {
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(248, 252, 255, 0.88), rgba(238, 247, 252, 0.84)),
+    var(--section-background-image) center/cover no-repeat !important;
+}
+
+.section.section-has-background .section-heading,
+.section.section-has-background .about-card,
+.section.section-has-background .cards,
+.section.section-has-background .steps,
+.section.section-has-background .faq-list {
+  position: relative;
+  z-index: 2;
+}
+
 .section-heading {
   max-width: 900px;
 }
@@ -2512,9 +2528,9 @@ body::after {
 
 /* Hero correction: stable, lighter first screen. */
 .hero {
-  min-height: clamp(520px, 74svh, 680px);
-  padding: clamp(5rem, 7vw, 6.4rem) 5vw clamp(2.8rem, 4.8vw, 4rem);
-  align-items: center;
+  min-height: clamp(580px, 78svh, 720px);
+  padding: clamp(5.4rem, 7.4vw, 6.8rem) 5vw clamp(3rem, 5vw, 4.4rem);
+  align-items: end;
 }
 
 .doodles-hero,
@@ -2526,14 +2542,14 @@ body::after {
 }
 
 .hero-content {
-  width: min(760px, 100%);
+  width: min(840px, 100%);
   transform: none;
 }
 
 .hero h1 {
-  max-width: 16.5ch;
-  font-size: clamp(3rem, 4.7vw, 4.85rem);
-  line-height: 1;
+  max-width: 17.5ch;
+  font-size: clamp(3.15rem, 5.1vw, 5.25rem);
+  line-height: 0.98;
 }
 
 .hero h1 span {
@@ -2544,9 +2560,9 @@ body::after {
 }
 
 .hero-text {
-  max-width: 43rem;
-  margin-top: 1.15rem;
-  font-size: clamp(0.98rem, 1.05vw, 1.08rem);
+  max-width: 45rem;
+  margin-top: 1.25rem;
+  font-size: clamp(1rem, 1.08vw, 1.12rem);
 }
 
 .hero-actions {
@@ -2556,6 +2572,12 @@ body::after {
 .hero-flight-note {
   max-width: min(40rem, 100%);
   margin-top: 1rem;
+}
+
+.hero-overlay {
+  background:
+    linear-gradient(90deg, rgba(6, 24, 36, 0.72) 0%, rgba(13, 45, 64, 0.38) 48%, rgba(255, 255, 255, 0.08) 100%),
+    linear-gradient(180deg, rgba(6, 22, 34, 0.08), rgba(7, 26, 39, 0.5));
 }
 
 @media (max-width: 640px) {

@@ -2,6 +2,7 @@ import { StrictMode, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   BookOpen,
+  ChevronDown,
   Check,
   CircleAlert,
   Eye,
@@ -110,7 +111,7 @@ type LoginPayload = {
   user: AdminUser;
 };
 
-type AdminPage = "general" | "hero" | "sections" | "contacts" | "seo" | "help";
+type AdminPage = "general" | "hero" | "sections" | "contacts" | "leads" | "seo" | "help";
 
 function pageFromHash(hash: string): AdminPage {
   const value = hash.replace(/^#/, "");
@@ -123,11 +124,7 @@ function pageFromHash(hash: string): AdminPage {
     return "general";
   }
 
-  if (value === "leads") {
-    return "contacts";
-  }
-
-  if (["general", "hero", "sections", "contacts", "seo", "help"].includes(value)) {
+  if (["general", "hero", "sections", "contacts", "leads", "seo", "help"].includes(value)) {
     return value as AdminPage;
   }
 
@@ -193,14 +190,6 @@ const cardStyleOptions = [
 const heroBackgroundTypes = [
   { value: "image", label: "Изображение" },
   { value: "video", label: "Видео" },
-];
-
-const heroOverlayPresets = [
-  { value: "air", label: "Воздушная дымка" },
-  { value: "clear", label: "Чистое небо" },
-  { value: "contrast", label: "Контрастный текст" },
-  { value: "blue", label: "Синяя вуаль" },
-  { value: "sunset", label: "Теплый закат" },
 ];
 
 const sectionTypeDocs = [
@@ -1291,7 +1280,15 @@ function App() {
             onClick={() => openAdminPage("contacts")}
           >
             <MessageCircle size={17} />
-            Контакты и заявки
+            Контакты
+          </button>
+          <button
+            className={activePage === "leads" ? "is-active" : ""}
+            type="button"
+            onClick={() => openAdminPage("leads")}
+          >
+            <Mail size={17} />
+            Заявки
           </button>
           <span className="nav-group-label">Настройки</span>
           <button
@@ -1530,49 +1527,6 @@ function App() {
               </button>
             ) : undefined}
           />
-          {activePage === "sections" && (
-          <div
-            className={`new-section${isNewSectionHighlighted ? " is-highlighted" : ""}`}
-            id="new-section-form"
-            ref={newSectionRef}
-          >
-            <div className="new-section-heading">
-              <strong>Новая секция</strong>
-              <span>Выберите стиль блока и задайте название с заголовком.</span>
-            </div>
-            <SectionStylePicker
-              label="Стиль секции"
-              value={draftSection.type}
-              onChange={(type) => setDraftSection({ ...draftSection, type })}
-              compact
-            />
-            <label className="compact-field">
-              <span>Название в админке</span>
-              <input
-                data-new-section-title
-                value={draftSection.label}
-                onChange={(event) =>
-                  setDraftSection({ ...draftSection, label: event.target.value })
-                }
-                placeholder="Например: Направления"
-              />
-            </label>
-            <label className="compact-field">
-              <span>Заголовок</span>
-              <input
-                value={draftSection.title}
-                onChange={(event) =>
-                  setDraftSection({ ...draftSection, title: event.target.value })
-                }
-                placeholder="Заголовок на сайте"
-              />
-            </label>
-            <button className="primary-button" type="button" onClick={createSection}>
-              <Plus size={18} />
-              Добавить секцию
-            </button>
-          </div>
-          )}
           <div className="section-list">
             {(activePage === "hero" ? heroSections : contentSections).length === 0 && (
               <p className="empty-state">
@@ -1594,11 +1548,13 @@ function App() {
                   <div className="section-editor-actions">
                     {activePage === "sections" && (
                       <button
-                        className="ghost-small-button"
+                        className={`section-toggle-button${expandedSectionIds.has(section.id) ? " is-open" : ""}`}
                         type="button"
                         onClick={() => toggleSectionExpanded(section.id)}
+                        aria-expanded={expandedSectionIds.has(section.id)}
                       >
-                        {expandedSectionIds.has(section.id) ? "Свернуть" : "Раскрыть"}
+                        <ChevronDown size={17} />
+                        {expandedSectionIds.has(section.id) ? "Скрыть настройки" : "Настроить"}
                       </button>
                     )}
                     <label className="publish-toggle">
@@ -1985,6 +1941,49 @@ function App() {
               </article>
             ))}
           </div>
+          {activePage === "sections" && (
+          <div
+            className={`new-section${isNewSectionHighlighted ? " is-highlighted" : ""}`}
+            id="new-section-form"
+            ref={newSectionRef}
+          >
+            <div className="new-section-heading">
+              <strong>Создать секцию</strong>
+              <span>Новый пользовательский блок появится в конце списка и сразу раскроется.</span>
+            </div>
+            <SectionStylePicker
+              label="Стиль секции"
+              value={draftSection.type}
+              onChange={(type) => setDraftSection({ ...draftSection, type })}
+              compact
+            />
+            <label className="compact-field">
+              <span>Название в админке</span>
+              <input
+                data-new-section-title
+                value={draftSection.label}
+                onChange={(event) =>
+                  setDraftSection({ ...draftSection, label: event.target.value })
+                }
+                placeholder="Например: Направления"
+              />
+            </label>
+            <label className="compact-field">
+              <span>Заголовок</span>
+              <input
+                value={draftSection.title}
+                onChange={(event) =>
+                  setDraftSection({ ...draftSection, title: event.target.value })
+                }
+                placeholder="Заголовок на сайте"
+              />
+            </label>
+            <button className="primary-button" type="button" onClick={createSection}>
+              <Plus size={18} />
+              Добавить секцию
+            </button>
+          </div>
+          )}
         </section>
         )}
 
@@ -2165,7 +2164,10 @@ function App() {
             </button>
           </div>
         </section>
+        </>
+        )}
 
+        {activePage === "leads" && (
         <section className="panel" id="leads">
           <PanelHeader icon={<Mail size={19} />} title="Заявки" />
           <div className="lead-list">
@@ -2190,7 +2192,6 @@ function App() {
             ))}
           </div>
         </section>
-        </>
         )}
       </section>
     </main>
@@ -2429,9 +2430,6 @@ function HeroBackgroundSettings({
   onChange: (patch: Record<string, string>) => void;
 }) {
   const backgroundType = readMetaValue(section.meta_json, "heroBackgroundType") || "image";
-  const overlayPreset = readMetaValue(section.meta_json, "heroOverlayPreset") || "air";
-  const overlayStrength = readMetaValue(section.meta_json, "heroOverlayStrength") || "18";
-  const mediaBlur = readMetaValue(section.meta_json, "heroMediaBlur") || "0";
   const badgeLabel = readMetaValue(section.meta_json, "heroBadgeLabel");
   const badgeText = readMetaValue(section.meta_json, "heroBadgeText");
   const previewBadgeLabel = badgeLabel || "Летные места";
@@ -2442,8 +2440,8 @@ function HeroBackgroundSettings({
       <div className="hero-settings-heading">
         <strong>Первый экран</strong>
         <span>
-          Настройки фона, видео и небольшого бейджа в Hero. Изображение секции
-          остается poster-заглушкой, если видео не загрузится.
+          Фон, видео и короткий бейдж Hero. Изображение секции используется как
+          основной фон или poster-заглушка, если видео не загрузится.
         </span>
       </div>
       <div className="hero-settings-grid">
@@ -2477,43 +2475,6 @@ function HeroBackgroundSettings({
             value={readMetaValue(section.meta_json, "heroVideoPoster")}
             onChange={(event) => onChange({ heroVideoPoster: event.target.value })}
             placeholder="Можно оставить пустым"
-          />
-        </label>
-        <label className="compact-field">
-          <span>Оверлей</span>
-          <select
-            value={overlayPreset}
-            onChange={(event) =>
-              onChange({ heroOverlayPreset: event.target.value })
-            }
-          >
-            {heroOverlayPresets.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="range-field">
-          <span>Затемнение: {overlayStrength}%</span>
-          <input
-            type="range"
-            min="0"
-            max="70"
-            value={overlayStrength}
-            onChange={(event) =>
-              onChange({ heroOverlayStrength: event.target.value })
-            }
-          />
-        </label>
-        <label className="range-field">
-          <span>Blur видео: {mediaBlur}px</span>
-          <input
-            type="range"
-            min="0"
-            max="20"
-            value={mediaBlur}
-            onChange={(event) => onChange({ heroMediaBlur: event.target.value })}
           />
         </label>
       </div>

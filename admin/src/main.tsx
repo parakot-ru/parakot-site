@@ -198,9 +198,9 @@ const sectionTypeDocs = [
   },
   {
     type: "services",
-    label: "Услуги и цены",
-    description: "Карточки программ с описанием и ценой. Поле “Цена” выводится заметно.",
-    itemHint: "Заголовок = услуга, описание = суть, цена выводится отдельным бейджем.",
+    label: "Услуги",
+    description: "Архивный стиль для программ. Сейчас не предлагается при создании секций.",
+    itemHint: "Используется только для старого контента, если он уже есть в базе.",
   },
   {
     type: "locations_grid",
@@ -240,15 +240,23 @@ const sectionTypeDocs = [
   },
 ];
 
+const lockedSectionTypes = ["hero", "contacts", "services"];
+
 const contentDisplayStyles = sectionTypeDocs.filter(
-  (item) => item.type !== "hero" && item.type !== "contacts",
+  (item) => !lockedSectionTypes.includes(item.type),
 );
 
-const sectionKindOptions = [
-  { value: "hero", label: "Hero" },
-  { value: "content", label: "Обычная секция" },
-  { value: "contacts", label: "Обратная связь" },
-];
+const sectionStylePreviews: Record<string, string> = {
+  rich_text: "Ab",
+  stats: "01",
+  cards_grid: "4",
+  cards_two_columns: "2",
+  locations_grid: "Img",
+  timeline: "1-3",
+  highlight: "!",
+  gallery: "Pic",
+  faq: "?",
+};
 
 function App() {
   const [token, setToken] = useState<string | null>(() =>
@@ -421,11 +429,11 @@ function App() {
     setIsNewSectionHighlighted(true);
     newSectionRef.current?.scrollIntoView({
       behavior: "smooth",
-      block: "center",
+      block: "start",
     });
 
     window.setTimeout(() => {
-      newSectionRef.current?.querySelector<HTMLInputElement>("input")?.focus();
+      newSectionRef.current?.querySelector<HTMLInputElement>("[data-new-section-title]")?.focus();
     }, 350);
 
     window.setTimeout(() => setIsNewSectionHighlighted(false), 1800);
@@ -1355,9 +1363,9 @@ function App() {
           <PanelHeader icon={<BookOpen size={19} />} title="Справка по отображению секций" />
           <div className="help-intro">
             <p>
-              В админке есть три роли секций: первый экран, обычная секция и
-              обратная связь. Для обычной секции можно выбрать стиль блока: это
-              влияет только на внешний вид карточек на лендинге.
+              Вручную добавляются только обычные контентные секции. Первый экран
+              редактируется как отдельный блок, а контакты берутся из раздела ниже.
+              Стиль секции влияет на внешний вид блока на лендинге.
             </p>
           </div>
           <div className="type-help-grid">
@@ -1451,23 +1459,6 @@ function App() {
                     <span>Тип секции</span>
                     <strong>{sectionKindLabel(section.type)}</strong>
                   </div>
-                  {isContentSectionType(section.type) && (
-                    <label className="compact-field">
-                      <span>Стиль блока</span>
-                      <select
-                        value={section.type}
-                        onChange={(event) =>
-                          updateSection(section.id, { type: event.target.value })
-                        }
-                      >
-                        {contentDisplayStyles.map((option) => (
-                          <option key={option.type} value={option.type}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  )}
                   <label className="compact-field">
                     <span>Название в админке</span>
                     <input
@@ -1492,6 +1483,13 @@ function App() {
                     />
                   </label>
                 </div>
+                {isSelectableContentSectionType(section.type) && (
+                  <SectionStylePicker
+                    label="Стиль секции"
+                    value={section.type}
+                    onChange={(type) => updateSection(section.id, { type })}
+                  />
+                )}
                 <SectionTypeNote type={section.type} />
                 {section.type === "hero" && (
                   <HeroBackgroundSettings
@@ -1559,6 +1557,7 @@ function App() {
                     />
                   </Field>
                 </div>
+                {sectionSupportsItems(section.type) && (
                 <div className="items-block">
                   <div className="items-block-heading">
                     <h3>Карточки секции</h3>
@@ -1769,6 +1768,7 @@ function App() {
                     </button>
                   </div>
                 </div>
+                )}
               </article>
             ))}
           </div>
@@ -1779,46 +1779,18 @@ function App() {
           >
             <div className="new-section-heading">
               <strong>Новая секция</strong>
-              <span>Выберите тип, стиль блока и задайте название с заголовком.</span>
+              <span>Выберите стиль блока и задайте название с заголовком.</span>
             </div>
-            <label className="compact-field">
-              <span>Тип секции</span>
-              <select
-                value={sectionKindFromType(draftSection.type)}
-                onChange={(event) =>
-                  setDraftSection({
-                    ...draftSection,
-                    type: sectionTypeFromKind(event.target.value, draftSection.type),
-                  })
-                }
-              >
-                {sectionKindOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {isContentSectionType(draftSection.type) && (
-              <label className="compact-field">
-                <span>Стиль блока</span>
-                <select
-                  value={draftSection.type}
-                  onChange={(event) =>
-                    setDraftSection({ ...draftSection, type: event.target.value })
-                  }
-                >
-                  {contentDisplayStyles.map((option) => (
-                    <option key={option.type} value={option.type}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
+            <SectionStylePicker
+              label="Стиль секции"
+              value={draftSection.type}
+              onChange={(type) => setDraftSection({ ...draftSection, type })}
+              compact
+            />
             <label className="compact-field">
               <span>Название в админке</span>
               <input
+                data-new-section-title
                 value={draftSection.label}
                 onChange={(event) =>
                   setDraftSection({ ...draftSection, label: event.target.value })
@@ -2154,6 +2126,37 @@ function SectionTypeNote({ type }: { type: string }) {
   );
 }
 
+function SectionStylePicker({
+  label,
+  value,
+  onChange,
+  compact = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (type: string) => void;
+  compact?: boolean;
+}) {
+  return (
+    <div className={`style-picker${compact ? " style-picker-compact" : ""}`}>
+      <span>{label}</span>
+      <div className="style-option-list">
+        {contentDisplayStyles.map((option) => (
+          <button
+            className={`style-option${option.type === value ? " is-active" : ""}`}
+            key={option.type}
+            type="button"
+            onClick={() => onChange(option.type)}
+          >
+            <strong>{sectionStylePreviews[option.type] ?? "Sec"}</strong>
+            <span>{option.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function HeroBackgroundSettings({
   section,
   onChange,
@@ -2377,6 +2380,14 @@ function sectionTypeDoc(type: string) {
 
 function isContentSectionType(type: string) {
   return type !== "hero" && type !== "contacts";
+}
+
+function isSelectableContentSectionType(type: string) {
+  return contentDisplayStyles.some((item) => item.type === type);
+}
+
+function sectionSupportsItems(type: string) {
+  return !["hero", "contacts", "rich_text"].includes(type);
 }
 
 function sectionKindFromType(type: string) {

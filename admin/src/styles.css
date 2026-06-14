@@ -421,7 +421,7 @@ textarea:focus {
 }
 
 .section-editor-head {
-  grid-template-columns: minmax(150px, 0.65fr) minmax(170px, 0.8fr) minmax(220px, 1.4fr) 110px;
+  grid-template-columns: minmax(150px, 0.65fr) minmax(220px, 1.4fr) 110px;
   align-items: end;
 }
 
@@ -460,6 +460,76 @@ textarea:focus {
   color: #61717f;
   font-size: 12px;
   font-weight: 800;
+}
+
+.style-picker {
+  display: grid;
+  gap: 8px;
+}
+
+.style-picker > span {
+  color: #61717f;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.style-picker-compact {
+  grid-column: 1 / -1;
+}
+
+.style-option-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+  gap: 8px;
+}
+
+.style-option {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 10px;
+  align-items: center;
+  min-height: 56px;
+  border: 1px solid #d5e4eb;
+  border-radius: 12px;
+  padding: 8px 10px;
+  color: #223242;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.style-option strong {
+  display: grid;
+  place-items: center;
+  min-height: 36px;
+  border-radius: 10px;
+  color: #2a7198;
+  background:
+    linear-gradient(135deg, rgba(201, 234, 247, 0.95), rgba(245, 251, 253, 0.95));
+  font-size: 13px;
+  line-height: 1;
+}
+
+.style-option span {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.style-option:hover {
+  transform: translateY(-1px);
+  border-color: #9ed3e9;
+  box-shadow: 0 8px 20px rgba(44, 91, 116, 0.1);
+}
+
+.style-option.is-active {
+  border-color: #3f8db9;
+  background: #eef8fc;
+  box-shadow: 0 0 0 3px rgba(63, 141, 185, 0.14);
 }
 
 .section-type-note {
@@ -871,7 +941,7 @@ textarea:focus {
 }
 
 .new-section {
-  grid-template-columns: minmax(150px, 0.65fr) minmax(170px, 0.75fr) minmax(180px, 1fr) minmax(220px, 1.4fr) 160px;
+  grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.35fr) 160px;
   align-items: end;
   margin-top: 12px;
   padding: 14px;
@@ -879,7 +949,7 @@ textarea:focus {
   border-radius: 16px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(245, 251, 253, 0.88));
-  scroll-margin-top: 18px;
+  scroll-margin-top: 96px;
   transition:
     border-color 180ms ease,
     box-shadow 180ms ease,

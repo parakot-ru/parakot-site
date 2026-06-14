@@ -183,8 +183,8 @@ const cardColumnOptions = [
 
 const cardStyleOptions = [
   { value: "", label: "Обычные" },
-  { value: "number", label: "Числа" },
-  { value: "photo", label: "Фото" },
+  { value: "number", label: "Градиентный фон" },
+  { value: "photo", label: "Для фото" },
 ];
 
 const heroBackgroundTypes = [

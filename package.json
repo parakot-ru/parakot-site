@@ -9,7 +9,9 @@
     "smoke:editor": "playwright test tests/e2e/editor-mode.spec.ts",
     "smoke:editor:headed": "playwright test tests/e2e/editor-mode.spec.ts --headed",
     "smoke:landing": "playwright test tests/e2e/landing.spec.ts",
-    "test:admin:build": "npm --prefix admin run build"
+    "test:admin:build": "npm --prefix admin run build",
+    "deploy:staging": "./scripts/deploy-staging.sh",
+    "deploy:production": "./scripts/deploy-production.sh"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0"

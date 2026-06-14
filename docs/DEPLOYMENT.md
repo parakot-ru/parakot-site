@@ -31,6 +31,35 @@ Production нельзя обновлять автоматически или "з
 
 Если есть сомнение, staging можно трогать, production - не трогать.
 
+## Быстрый деплой
+
+Скрипты деплоят лендинг и админку. API не трогается. При деплое лендинга
+исключаются `/api/` и `/uploads/`.
+
+Staging:
+
+```bash
+npm run deploy:staging
+```
+
+Staging со smoke-тестом лендинга после деплоя:
+
+```bash
+RUN_SMOKE=1 npm run deploy:staging
+```
+
+Production защищен от случайного запуска:
+
+```bash
+npm run deploy:production -- --confirm-production
+```
+
+Production со smoke-тестом лендинга после деплоя:
+
+```bash
+RUN_SMOKE=1 npm run deploy:production -- --confirm-production
+```
+
 ## Сборка админки
 
 Админку важно собирать с API и адресом лендинга нужного окружения.

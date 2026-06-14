@@ -107,8 +107,8 @@ const sectionTypeMeta = {
     hint: "Универсальная сетка карточек.",
   },
   cards_two_columns: {
-    label: "Карточки 2 колонки",
-    hint: "Крупные карточки для более плотных смыслов.",
+    label: "Карточки",
+    hint: "Архивный вариант карточек. Новые секции используют обычный стиль карточек.",
   },
   services: {
     label: "Услуги и цены",
@@ -576,6 +576,13 @@ function renderItems(section) {
   const isTimeline = section.type === "timeline";
   const container = document.createElement(isTimeline ? "ol" : "div");
   container.className = containerClassName(section.type);
+  const cardColumns =
+    readMetaValue(section.meta_json, "columns") ||
+    (section.type === "cards_two_columns" ? "2" : "");
+
+  if (container.classList.contains("cards") && cardColumns) {
+    container.dataset.columns = cardColumns;
+  }
 
   section.items.forEach((item, index) => {
     const card = document.createElement(isTimeline ? "li" : "article");

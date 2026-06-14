@@ -152,6 +152,13 @@ const placementOptions = [
   { value: "bottom-right", label: "Снизу справа" },
 ];
 
+const cardColumnOptions = [
+  { value: "", label: "Авто" },
+  { value: "2", label: "2" },
+  { value: "3", label: "3" },
+  { value: "4", label: "4" },
+];
+
 const heroBackgroundTypes = [
   { value: "image", label: "Изображение" },
   { value: "video", label: "Видео" },
@@ -243,14 +250,13 @@ const sectionTypeDocs = [
 const lockedSectionTypes = ["hero", "contacts", "services"];
 
 const contentDisplayStyles = sectionTypeDocs.filter(
-  (item) => !lockedSectionTypes.includes(item.type),
+  (item) => !lockedSectionTypes.includes(item.type) && item.type !== "cards_two_columns",
 );
 
 const sectionStylePreviews: Record<string, string> = {
   rich_text: "Ab",
   stats: "01",
   cards_grid: "4",
-  cards_two_columns: "2",
   locations_grid: "Img",
   timeline: "1-3",
   highlight: "!",
@@ -1391,6 +1397,47 @@ function App() {
               </button>
             }
           />
+          <div
+            className={`new-section${isNewSectionHighlighted ? " is-highlighted" : ""}`}
+            id="new-section-form"
+            ref={newSectionRef}
+          >
+            <div className="new-section-heading">
+              <strong>Новая секция</strong>
+              <span>Выберите стиль блока и задайте название с заголовком.</span>
+            </div>
+            <SectionStylePicker
+              label="Стиль секции"
+              value={draftSection.type}
+              onChange={(type) => setDraftSection({ ...draftSection, type })}
+              compact
+            />
+            <label className="compact-field">
+              <span>Название в админке</span>
+              <input
+                data-new-section-title
+                value={draftSection.label}
+                onChange={(event) =>
+                  setDraftSection({ ...draftSection, label: event.target.value })
+                }
+                placeholder="Например: Направления"
+              />
+            </label>
+            <label className="compact-field">
+              <span>Заголовок</span>
+              <input
+                value={draftSection.title}
+                onChange={(event) =>
+                  setDraftSection({ ...draftSection, title: event.target.value })
+                }
+                placeholder="Заголовок на сайте"
+              />
+            </label>
+            <button className="primary-button" type="button" onClick={createSection}>
+              <Plus size={18} />
+              Добавить секцию
+            </button>
+          </div>
           <div className="section-list">
             {sections.length === 0 && (
               <p className="empty-state">Секции пока не добавлены.</p>
@@ -1488,6 +1535,15 @@ function App() {
                     label="Стиль секции"
                     value={section.type}
                     onChange={(type) => updateSection(section.id, { type })}
+                  />
+                )}
+                {sectionUsesCardColumns(section.type) && (
+                  <CardColumnsControl
+                    value={
+                      readMetaValue(section.meta_json, "columns") ||
+                      (section.type === "cards_two_columns" ? "2" : "")
+                    }
+                    onChange={(columns) => updateSectionMeta(section.id, { columns })}
                   />
                 )}
                 <SectionTypeNote type={section.type} />
@@ -1771,47 +1827,6 @@ function App() {
                 )}
               </article>
             ))}
-          </div>
-          <div
-            className={`new-section${isNewSectionHighlighted ? " is-highlighted" : ""}`}
-            id="new-section-form"
-            ref={newSectionRef}
-          >
-            <div className="new-section-heading">
-              <strong>Новая секция</strong>
-              <span>Выберите стиль блока и задайте название с заголовком.</span>
-            </div>
-            <SectionStylePicker
-              label="Стиль секции"
-              value={draftSection.type}
-              onChange={(type) => setDraftSection({ ...draftSection, type })}
-              compact
-            />
-            <label className="compact-field">
-              <span>Название в админке</span>
-              <input
-                data-new-section-title
-                value={draftSection.label}
-                onChange={(event) =>
-                  setDraftSection({ ...draftSection, label: event.target.value })
-                }
-                placeholder="Например: Услуги"
-              />
-            </label>
-            <label className="compact-field">
-              <span>Заголовок</span>
-              <input
-                value={draftSection.title}
-                onChange={(event) =>
-                  setDraftSection({ ...draftSection, title: event.target.value })
-                }
-                placeholder="Заголовок на сайте"
-              />
-            </label>
-            <button className="primary-button" type="button" onClick={createSection}>
-              <Plus size={18} />
-              Добавить секцию
-            </button>
           </div>
         </section>
 
@@ -2137,19 +2152,47 @@ function SectionStylePicker({
   onChange: (type: string) => void;
   compact?: boolean;
 }) {
+  const activeValue = normalizeSelectableSectionType(value);
+
   return (
     <div className={`style-picker${compact ? " style-picker-compact" : ""}`}>
       <span>{label}</span>
       <div className="style-option-list">
         {contentDisplayStyles.map((option) => (
           <button
-            className={`style-option${option.type === value ? " is-active" : ""}`}
+            className={`style-option${option.type === activeValue ? " is-active" : ""}`}
             key={option.type}
             type="button"
             onClick={() => onChange(option.type)}
           >
             <strong>{sectionStylePreviews[option.type] ?? "Sec"}</strong>
             <span>{option.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CardColumnsControl({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (columns: string) => void;
+}) {
+  return (
+    <div className="columns-control">
+      <span>Колонки карточек</span>
+      <div className="columns-option-list">
+        {cardColumnOptions.map((option) => (
+          <button
+            className={`columns-option${option.value === value ? " is-active" : ""}`}
+            key={option.value || "auto"}
+            type="button"
+            onClick={() => onChange(option.value)}
+          >
+            {option.label}
           </button>
         ))}
       </div>
@@ -2382,8 +2425,16 @@ function isContentSectionType(type: string) {
   return type !== "hero" && type !== "contacts";
 }
 
+function normalizeSelectableSectionType(type: string) {
+  return type === "cards_two_columns" ? "cards_grid" : type;
+}
+
 function isSelectableContentSectionType(type: string) {
-  return contentDisplayStyles.some((item) => item.type === type);
+  return contentDisplayStyles.some((item) => item.type === normalizeSelectableSectionType(type));
+}
+
+function sectionUsesCardColumns(type: string) {
+  return type === "cards_grid" || type === "cards_two_columns";
 }
 
 function sectionSupportsItems(type: string) {

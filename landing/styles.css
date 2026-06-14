@@ -786,6 +786,18 @@ h3 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.cards[data-columns="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cards[data-columns="3"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cards[data-columns="4"] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .location-card {
   min-height: 14rem;
   display: grid;
@@ -1826,6 +1838,7 @@ body::after {
   .contacts-grid,
   .three-columns,
   .two-columns,
+  .cards[data-columns],
   .location-grid,
   .mood-grid,
   .service-grid,

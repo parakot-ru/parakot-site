@@ -110,6 +110,30 @@ type LoginPayload = {
   user: AdminUser;
 };
 
+type AdminPage = "general" | "hero" | "sections" | "contacts" | "seo" | "help";
+
+function pageFromHash(hash: string): AdminPage {
+  const value = hash.replace(/^#/, "");
+
+  if (value.startsWith("cms-section-")) {
+    return "sections";
+  }
+
+  if (value === "settings") {
+    return "general";
+  }
+
+  if (value === "leads") {
+    return "contacts";
+  }
+
+  if (["general", "hero", "sections", "contacts", "seo", "help"].includes(value)) {
+    return value as AdminPage;
+  }
+
+  return "hero";
+}
+
 const emptyContact: Omit<Contact, "id"> = {
   type: "telegram",
   label: "",
@@ -291,12 +315,26 @@ function App() {
   const [publishingSectionId, setPublishingSectionId] = useState<number | null>(null);
   const [isNewSectionHighlighted, setIsNewSectionHighlighted] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
+  const [activePage, setActivePage] = useState<AdminPage>(() =>
+    pageFromHash(window.location.hash),
+  );
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   const newSectionRef = useRef<HTMLDivElement | null>(null);
 
   const visibleContactsCount = useMemo(
     () => contacts.filter((contact) => Number(contact.is_visible) === 1).length,
     [contacts],
+  );
+  const heroSections = useMemo(
+    () => sections.filter((section) => section.type === "hero").sort(sortByOrder),
+    [sections],
+  );
+  const contentSections = useMemo(
+    () =>
+      sections
+        .filter((section) => section.type !== "hero" && section.type !== "contacts")
+        .sort(sortByOrder),
+    [sections],
   );
 
   useEffect(() => {
@@ -307,6 +345,15 @@ function App() {
 
     void bootstrapSession(token);
   }, [token]);
+
+  useEffect(() => {
+    function syncPageFromHash() {
+      setActivePage(pageFromHash(window.location.hash));
+    }
+
+    window.addEventListener("hashchange", syncPageFromHash);
+    return () => window.removeEventListener("hashchange", syncPageFromHash);
+  }, []);
 
   useEffect(() => {
     if (sections.length === 0 || !window.location.hash.startsWith("#cms-section-")) {
@@ -435,12 +482,24 @@ function App() {
     window.open(url.toString(), "_blank", "noopener,noreferrer");
   }
 
+  function openAdminPage(page: AdminPage) {
+    setActivePage(page);
+    window.history.replaceState(null, "", `#${page}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   function showNewSectionForm() {
+    if (activePage !== "sections") {
+      openAdminPage("sections");
+    }
+
     setIsNewSectionHighlighted(true);
-    newSectionRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+    window.setTimeout(() => {
+      newSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 40);
 
     window.setTimeout(() => {
       newSectionRef.current?.querySelector<HTMLInputElement>("[data-new-section-title]")?.focus();
@@ -1181,11 +1240,57 @@ function App() {
           <h1>Админка</h1>
         </div>
         <nav>
-          <a href="#settings">Настройки</a>
-          <a href="#help">Справка</a>
-          <a href="#sections">Секции</a>
-          <a href="#contacts">Контакты</a>
-          <a href="#leads">Заявки</a>
+          <span className="nav-group-label">Контент</span>
+          <button
+            className={activePage === "hero" ? "is-active" : ""}
+            type="button"
+            onClick={() => openAdminPage("hero")}
+          >
+            <PanelsTopLeft size={17} />
+            Hero
+          </button>
+          <button
+            className={activePage === "sections" ? "is-active" : ""}
+            type="button"
+            onClick={() => openAdminPage("sections")}
+          >
+            <PanelsTopLeft size={17} />
+            Секции
+          </button>
+          <span className="nav-group-label">Связь</span>
+          <button
+            className={activePage === "contacts" ? "is-active" : ""}
+            type="button"
+            onClick={() => openAdminPage("contacts")}
+          >
+            <MessageCircle size={17} />
+            Контакты и заявки
+          </button>
+          <span className="nav-group-label">Настройки</span>
+          <button
+            className={activePage === "general" ? "is-active" : ""}
+            type="button"
+            onClick={() => openAdminPage("general")}
+          >
+            <Save size={17} />
+            Общие
+          </button>
+          <button
+            className={activePage === "seo" ? "is-active" : ""}
+            type="button"
+            onClick={() => openAdminPage("seo")}
+          >
+            <BookOpen size={17} />
+            SEO
+          </button>
+          <button
+            className={activePage === "help" ? "is-active" : ""}
+            type="button"
+            onClick={() => openAdminPage("help")}
+          >
+            <BookOpen size={17} />
+            Справка
+          </button>
         </nav>
         <button className="ghost-button" type="button" onClick={loadDashboard}>
           <RefreshCw size={18} />
@@ -1230,10 +1335,11 @@ function App() {
           <Metric label="Всего заявок" value={String(leads.length)} />
         </section>
 
-        <section className="panel" id="settings">
+        {activePage === "general" && (
+        <section className="panel" id="general">
           <PanelHeader
             icon={<Save size={19} />}
-            title="Настройки сайта"
+            title="Общие настройки"
             action={
               <button
                 className="primary-button"
@@ -1313,62 +1419,56 @@ function App() {
                   </div>
                 </div>
               </div>
-              <Field label="Email для заявок">
+            </div>
+          )}
+        </section>
+        )}
+
+        {activePage === "seo" && (
+        <section className="panel" id="seo">
+          <PanelHeader
+            icon={<BookOpen size={19} />}
+            title="SEO"
+            action={
+              <button
+                className="primary-button"
+                type="button"
+                onClick={saveSettings}
+                disabled={!settings || isSavingSettings}
+              >
+                {isSavingSettings ? <Loader2 size={18} className="spin" /> : <Save size={18} />}
+                Сохранить
+              </button>
+            }
+          />
+          {settings && (
+            <div className="seo-grid">
+              <Field label="SEO title">
                 <input
-                  value={settings.recipient_email ?? ""}
+                  value={settings.seo_title ?? ""}
                   onChange={(event) =>
-                    setSettings({ ...settings, recipient_email: event.target.value })
+                    setSettings({ ...settings, seo_title: event.target.value })
                   }
-                  placeholder="name@example.com"
                 />
               </Field>
-              <Field label="Email копии">
-                <input
-                  value={settings.recipient_email_cc ?? ""}
+              <Field label="SEO description" wide>
+                <textarea
+                  rows={4}
+                  value={settings.seo_description ?? ""}
                   onChange={(event) =>
                     setSettings({
                       ...settings,
-                      recipient_email_cc: event.target.value,
+                      seo_description: event.target.value,
                     })
                   }
                 />
               </Field>
-              <div className="settings-subpanel field-wide">
-                <div className="subpanel-heading">
-                  <div>
-                    <strong>SEO для поисковиков</strong>
-                    <small>
-                      Эти поля видны во вкладке браузера и в сниппете поисковой выдачи.
-                    </small>
-                  </div>
-                </div>
-                <div className="seo-grid">
-                  <Field label="SEO title">
-                    <input
-                      value={settings.seo_title ?? ""}
-                      onChange={(event) =>
-                        setSettings({ ...settings, seo_title: event.target.value })
-                      }
-                    />
-                  </Field>
-                  <Field label="SEO description" wide>
-                    <textarea
-                      rows={4}
-                      value={settings.seo_description ?? ""}
-                      onChange={(event) =>
-                        setSettings({
-                          ...settings,
-                          seo_description: event.target.value,
-                        })
-                      }
-                    />
-                  </Field>
-                </div>
-              </div>
             </div>
           )}
         </section>
+        )}
 
+        {activePage === "help" && (
         <section className="panel" id="help">
           <PanelHeader icon={<BookOpen size={19} />} title="Справка по отображению секций" />
           <div className="help-intro">
@@ -1389,18 +1489,21 @@ function App() {
             ))}
           </div>
         </section>
+        )}
 
-        <section className="panel" id="sections">
+        {(activePage === "hero" || activePage === "sections") && (
+        <section className="panel" id={activePage}>
           <PanelHeader
             icon={<PanelsTopLeft size={19} />}
-            title="Секции лендинга"
-            action={
+            title={activePage === "hero" ? "Hero" : "Пользовательские секции"}
+            action={activePage === "sections" ? (
               <button className="primary-button" type="button" onClick={showNewSectionForm}>
                 <Plus size={18} />
                 Добавить секцию
               </button>
-            }
+            ) : undefined}
           />
+          {activePage === "sections" && (
           <div
             className={`new-section${isNewSectionHighlighted ? " is-highlighted" : ""}`}
             id="new-section-form"
@@ -1442,11 +1545,14 @@ function App() {
               Добавить секцию
             </button>
           </div>
+          )}
           <div className="section-list">
-            {sections.length === 0 && (
-              <p className="empty-state">Секции пока не добавлены.</p>
+            {(activePage === "hero" ? heroSections : contentSections).length === 0 && (
+              <p className="empty-state">
+                {activePage === "hero" ? "Hero-секция не найдена." : "Секции пока не добавлены."}
+              </p>
             )}
-            {[...sections].sort(sortByOrder).map((section, sectionIndex) => (
+            {(activePage === "hero" ? heroSections : contentSections).map((section, sectionIndex) => (
               <article
                 className="section-editor"
                 id={`cms-section-${section.id}`}
@@ -1833,6 +1939,51 @@ function App() {
             ))}
           </div>
         </section>
+        )}
+
+        {activePage === "contacts" && (
+        <>
+        <section className="panel" id="form-settings">
+          <PanelHeader
+            icon={<Mail size={19} />}
+            title="Настройка обратной связи"
+            action={
+              <button
+                className="primary-button"
+                type="button"
+                onClick={saveSettings}
+                disabled={!settings || isSavingSettings}
+              >
+                {isSavingSettings ? <Loader2 size={18} className="spin" /> : <Save size={18} />}
+                Сохранить
+              </button>
+            }
+          />
+          {settings && (
+            <div className="form-grid">
+              <Field label="Email для заявок">
+                <input
+                  value={settings.recipient_email ?? ""}
+                  onChange={(event) =>
+                    setSettings({ ...settings, recipient_email: event.target.value })
+                  }
+                  placeholder="name@example.com"
+                />
+              </Field>
+              <Field label="Email копии">
+                <input
+                  value={settings.recipient_email_cc ?? ""}
+                  onChange={(event) =>
+                    setSettings({
+                      ...settings,
+                      recipient_email_cc: event.target.value,
+                    })
+                  }
+                />
+              </Field>
+            </div>
+          )}
+        </section>
 
         <section className="panel" id="contacts">
           <PanelHeader icon={<MessageCircle size={19} />} title="Контакты" />
@@ -1992,6 +2143,8 @@ function App() {
             ))}
           </div>
         </section>
+        </>
+        )}
       </section>
     </main>
   );

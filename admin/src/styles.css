@@ -90,7 +90,7 @@ button {
   margin: 0;
   color: #79c6e6;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 650;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -135,7 +135,7 @@ button {
   margin: 12px 0 2px;
   color: #8fcbe4;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 650;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -280,7 +280,7 @@ button {
 .field span {
   color: #61717f;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 input,
@@ -458,7 +458,7 @@ textarea:focus {
 .compact-field span {
   color: #61717f;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .style-picker {
@@ -469,7 +469,7 @@ textarea:focus {
 .style-picker > span {
   color: #61717f;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .style-picker-compact {
@@ -511,12 +511,13 @@ textarea:focus {
   background:
     linear-gradient(135deg, rgba(201, 234, 247, 0.95), rgba(245, 251, 253, 0.95));
   font-size: 13px;
+  font-weight: 650;
   line-height: 1;
 }
 
 .style-option span {
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .style-option:hover {
@@ -545,7 +546,7 @@ textarea:focus {
 .columns-control > span {
   color: #61717f;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .columns-option-list {
@@ -561,7 +562,7 @@ textarea:focus {
   padding: 0 12px;
   color: #2b4354;
   background: #fff;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
 }
 

@@ -324,6 +324,7 @@ function App() {
   const [activePage, setActivePage] = useState<AdminPage>(() =>
     pageFromHash(window.location.hash),
   );
+  const [expandedSectionIds, setExpandedSectionIds] = useState<Set<number>>(() => new Set());
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   const newSectionRef = useRef<HTMLDivElement | null>(null);
 
@@ -364,6 +365,11 @@ function App() {
   useEffect(() => {
     if (sections.length === 0 || !window.location.hash.startsWith("#cms-section-")) {
       return;
+    }
+
+    const sectionId = Number(window.location.hash.replace("#cms-section-", ""));
+    if (Number.isFinite(sectionId)) {
+      setExpandedSectionIds((current) => new Set([...current, sectionId]));
     }
 
     window.requestAnimationFrame(() => {
@@ -492,6 +498,20 @@ function App() {
     setActivePage(page);
     window.history.replaceState(null, "", `#${page}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function toggleSectionExpanded(sectionId: number) {
+    setExpandedSectionIds((current) => {
+      const next = new Set(current);
+
+      if (next.has(sectionId)) {
+        next.delete(sectionId);
+      } else {
+        next.add(sectionId);
+      }
+
+      return next;
+    });
   }
 
   function showNewSectionForm() {
@@ -656,6 +676,7 @@ function App() {
       });
 
       setSections((current) => [...current, created]);
+      setExpandedSectionIds((current) => new Set([...current, created.id]));
       setDraftSection(emptySection);
       showToast("success", "Секция добавлена");
     } catch (error) {
@@ -1560,7 +1581,7 @@ function App() {
             )}
             {(activePage === "hero" ? heroSections : contentSections).map((section, sectionIndex) => (
               <article
-                className="section-editor"
+                className={`section-editor${activePage === "sections" && !expandedSectionIds.has(section.id) ? " is-collapsed" : ""}`}
                 id={`cms-section-${section.id}`}
                 key={section.id}
               >
@@ -1571,6 +1592,15 @@ function App() {
                     <small>{section.title || "Без заголовка"}</small>
                   </div>
                   <div className="section-editor-actions">
+                    {activePage === "sections" && (
+                      <button
+                        className="ghost-small-button"
+                        type="button"
+                        onClick={() => toggleSectionExpanded(section.id)}
+                      >
+                        {expandedSectionIds.has(section.id) ? "Свернуть" : "Раскрыть"}
+                      </button>
+                    )}
                     <label className="publish-toggle">
                       <input
                         type="checkbox"
@@ -1617,6 +1647,8 @@ function App() {
                     </button>
                   </div>
                 </div>
+                {(activePage === "hero" || expandedSectionIds.has(section.id)) && (
+                <div className="section-editor-body">
                 <div className="section-editor-head">
                   <label className="compact-field">
                     <span>Название в админке</span>
@@ -1946,6 +1978,8 @@ function App() {
                       Добавить
                     </button>
                   </div>
+                </div>
+                )}
                 </div>
                 )}
               </article>

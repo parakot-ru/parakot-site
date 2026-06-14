@@ -451,6 +451,7 @@ function renderHeroTitle(container, value) {
   if (parts[1]) {
     const accent = document.createElement("span");
     accent.textContent = protectShortHeroPreposition(parts.slice(1).join(" "));
+    container.appendChild(document.createTextNode(" "));
     container.appendChild(accent);
   }
 }

@@ -1661,7 +1661,15 @@ function App() {
                 {section.type === "hero" && (
                   <HeroBackgroundSettings
                     section={section}
+                    isImageBusy={imageBusyKey === `section-${section.id}`}
                     onChange={(patch) => updateSectionMeta(section.id, patch)}
+                    onImageTextChange={(value) =>
+                      updateSection(section.id, {
+                        image_path: value,
+                      })
+                    }
+                    onImageFileSelect={(event) => uploadSectionImage(section.id, event)}
+                    onImageDelete={() => deleteSectionImage(section.id)}
                   />
                 )}
                 <div className="form-grid">
@@ -1698,7 +1706,8 @@ function App() {
                       </label>
                     </div>
                   </Field>
-                  <Field label="Изображение">
+                  {section.type !== "hero" && (
+                  <Field label="Фоновое изображение">
                     <ManagedImageField
                       value={section.image_path ?? ""}
                       placeholder="/uploads/image.jpg"
@@ -1712,6 +1721,7 @@ function App() {
                       onDelete={() => deleteSectionImage(section.id)}
                     />
                   </Field>
+                  )}
                   <Field label="Описание" wide>
                     <textarea
                       rows={3}
@@ -2424,10 +2434,18 @@ function CardLayoutControl({
 
 function HeroBackgroundSettings({
   section,
+  isImageBusy,
   onChange,
+  onImageTextChange,
+  onImageFileSelect,
+  onImageDelete,
 }: {
   section: Section;
+  isImageBusy: boolean;
   onChange: (patch: Record<string, string>) => void;
+  onImageTextChange: (value: string) => void;
+  onImageFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onImageDelete: () => void;
 }) {
   const backgroundType = readMetaValue(section.meta_json, "heroBackgroundType") || "image";
   const badgeLabel = readMetaValue(section.meta_json, "heroBadgeLabel");
@@ -2446,7 +2464,7 @@ function HeroBackgroundSettings({
       </div>
       <div className="hero-settings-grid">
         <label className="compact-field">
-          <span>Тип фона</span>
+          <span>Формат фона</span>
           <select
             value={backgroundType}
             onChange={(event) =>
@@ -2460,6 +2478,20 @@ function HeroBackgroundSettings({
             ))}
           </select>
         </label>
+        {backgroundType === "image" && (
+          <div className="compact-field hero-image-field">
+            <span>Фоновое изображение</span>
+            <ManagedImageField
+              value={section.image_path ?? ""}
+              placeholder="/uploads/hero.jpg"
+              isBusy={isImageBusy}
+              onTextChange={onImageTextChange}
+              onFileSelect={onImageFileSelect}
+              onDelete={onImageDelete}
+            />
+          </div>
+        )}
+        {backgroundType === "video" && (
         <label className="compact-field">
           <span>Видео URL</span>
           <input
@@ -2469,14 +2501,20 @@ function HeroBackgroundSettings({
             disabled={backgroundType !== "video"}
           />
         </label>
+        )}
+        {backgroundType === "video" && (
         <label className="compact-field">
-          <span>Poster URL</span>
-          <input
-            value={readMetaValue(section.meta_json, "heroVideoPoster")}
-            onChange={(event) => onChange({ heroVideoPoster: event.target.value })}
-            placeholder="Можно оставить пустым"
+          <span>Poster / fallback изображение</span>
+          <ManagedImageField
+            value={section.image_path ?? ""}
+            placeholder="/uploads/hero-poster.jpg"
+            isBusy={isImageBusy}
+            onTextChange={onImageTextChange}
+            onFileSelect={onImageFileSelect}
+            onDelete={onImageDelete}
           />
         </label>
+        )}
       </div>
       <div className="hero-badge-settings">
         <div className="hero-settings-heading">

@@ -2248,7 +2248,7 @@ body::after {
 .section.section-has-background {
   overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(248, 252, 255, 0.88), rgba(238, 247, 252, 0.84)),
+    linear-gradient(180deg, rgba(248, 252, 255, 0.48), rgba(238, 247, 252, 0.42)),
     var(--section-background-image) center/cover no-repeat !important;
 }
 

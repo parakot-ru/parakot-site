@@ -154,6 +154,7 @@ const placementOptions = [
 
 const cardColumnOptions = [
   { value: "", label: "Авто" },
+  { value: "1", label: "1" },
   { value: "2", label: "2" },
   { value: "3", label: "3" },
   { value: "4", label: "4" },
@@ -250,7 +251,10 @@ const sectionTypeDocs = [
 const lockedSectionTypes = ["hero", "contacts", "services"];
 
 const contentDisplayStyles = sectionTypeDocs.filter(
-  (item) => !lockedSectionTypes.includes(item.type) && item.type !== "cards_two_columns",
+  (item) =>
+    !lockedSectionTypes.includes(item.type) &&
+    item.type !== "cards_two_columns" &&
+    item.type !== "highlight",
 );
 
 const sectionStylePreviews: Record<string, string> = {
@@ -1537,7 +1541,11 @@ function App() {
                   <CardColumnsControl
                     value={
                       readMetaValue(section.meta_json, "columns") ||
-                      (section.type === "cards_two_columns" ? "2" : "")
+                      (section.type === "cards_two_columns"
+                        ? "2"
+                        : section.type === "highlight"
+                          ? "1"
+                          : "")
                     }
                     onChange={(columns) => updateSectionMeta(section.id, { columns })}
                   />
@@ -2418,7 +2426,7 @@ function sectionTypeDoc(type: string) {
 }
 
 function normalizeSelectableSectionType(type: string) {
-  return type === "cards_two_columns" ? "cards_grid" : type;
+  return type === "cards_two_columns" || type === "highlight" ? "cards_grid" : type;
 }
 
 function isSelectableContentSectionType(type: string) {
@@ -2426,7 +2434,7 @@ function isSelectableContentSectionType(type: string) {
 }
 
 function sectionUsesCardColumns(type: string) {
-  return type === "cards_grid" || type === "cards_two_columns";
+  return type === "cards_grid" || type === "cards_two_columns" || type === "highlight";
 }
 
 function sectionSupportsItems(type: string) {

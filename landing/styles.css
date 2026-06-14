@@ -430,7 +430,6 @@ a {
 .feature-card,
 .service-card,
 .location-card,
-.highlight-box,
 .mood-card,
 .faq-list article,
 .contact-card,
@@ -512,7 +511,6 @@ a {
 .about-grid,
 .cards,
 .steps,
-.highlight-box,
 .faq-list,
 .contacts-grid {
   position: relative;
@@ -688,7 +686,6 @@ h3 {
 .service-card p,
 .location-card p,
 .steps span,
-.highlight-box p,
 .faq-list p {
   color: var(--muted);
   line-height: 1.7;
@@ -903,18 +900,6 @@ h3 {
   background: rgba(32, 105, 158, 0.1);
   color: #20699e;
   font-weight: 800;
-}
-
-.highlight-box {
-  border-radius: 1.8rem;
-  padding: 1.7rem;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(232, 245, 255, 0.8));
-}
-
-.highlight-list {
-  display: grid;
-  gap: 1rem;
 }
 
 .mood-grid {
@@ -2369,14 +2354,6 @@ body::after {
 .steps li::before {
   color: #fff;
   background: var(--pine);
-}
-
-.highlight-box {
-  padding: clamp(1.5rem, 3vw, 2.6rem);
-  border-color: rgba(242, 166, 79, 0.2);
-  background:
-    radial-gradient(circle at 88% 14%, rgba(242, 166, 79, 0.2), transparent 26%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(232, 245, 255, 0.8));
 }
 
 .flight-journal-section {

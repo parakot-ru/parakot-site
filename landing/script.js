@@ -62,7 +62,7 @@ const sectionClassByType = {
   faq: "info-card",
   gallery: "mood-card",
   rich_text: "info-card",
-  highlight: "highlight-box",
+  highlight: "feature-card",
 };
 
 const heroOverlayPresets = {
@@ -123,8 +123,8 @@ const sectionTypeMeta = {
     hint: "Карточки идут как последовательные шаги.",
   },
   highlight: {
-    label: "Акцент",
-    hint: "Выделенный смысловой блок.",
+    label: "Карточки",
+    hint: "Архивный вариант карточек в одну колонку.",
   },
   gallery: {
     label: "Галерея",
@@ -578,7 +578,7 @@ function renderItems(section) {
   container.className = containerClassName(section.type);
   const cardColumns =
     readMetaValue(section.meta_json, "columns") ||
-    (section.type === "cards_two_columns" ? "2" : "");
+    (section.type === "cards_two_columns" ? "2" : section.type === "highlight" ? "1" : "");
 
   if (container.classList.contains("cards") && cardColumns) {
     container.dataset.columns = cardColumns;
@@ -679,7 +679,7 @@ function containerClassName(type) {
   }
 
   if (type === "highlight") {
-    return "highlight-list";
+    return "cards";
   }
 
   return "cards three-columns";

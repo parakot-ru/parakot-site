@@ -1557,6 +1557,10 @@ function App() {
                         {expandedSectionIds.has(section.id) ? "Скрыть настройки" : "Настроить"}
                       </button>
                     )}
+                    {isSystemSection(section.type) && (
+                      <span className="locked-section-pill">Обязательный блок</span>
+                    )}
+                    {!isSystemSection(section.type) && (
                     <label className="publish-toggle">
                       <input
                         type="checkbox"
@@ -1585,6 +1589,7 @@ function App() {
                         "Черновик"
                       )}
                     </label>
+                    )}
                     <button
                       className="primary-button section-action-button"
                       type="button"
@@ -1593,6 +1598,7 @@ function App() {
                       <Save size={17} />
                       Сохранить
                     </button>
+                    {!isSystemSection(section.type) && (
                     <button
                       className="danger-text-button section-action-button"
                       type="button"
@@ -1601,6 +1607,7 @@ function App() {
                       <Trash2 size={16} />
                       Удалить
                     </button>
+                    )}
                   </div>
                 </div>
                 {(activePage === "hero" || expandedSectionIds.has(section.id)) && (
@@ -2662,6 +2669,10 @@ function sectionUsesCardControls(type: string) {
 
 function sectionSupportsItems(type: string) {
   return !["hero", "contacts", "rich_text"].includes(type);
+}
+
+function isSystemSection(type: string) {
+  return type === "hero" || type === "contacts";
 }
 
 function Field({

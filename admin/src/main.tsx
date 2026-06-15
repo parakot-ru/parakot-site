@@ -207,6 +207,12 @@ const sectionBackgroundTintOptions = [
   { value: "warm", label: "Теплый" },
 ];
 
+const sectionBackgroundFeatherOptions = [
+  { value: "normal", label: "Обычный край" },
+  { value: "soft", label: "Плавный край" },
+  { value: "mist", label: "Очень мягкий" },
+];
+
 const sectionTypeDocs = [
   {
     type: "hero",
@@ -1767,6 +1773,7 @@ function App() {
                     <SectionBackgroundControls
                       mask={readMetaValue(section.meta_json, "backgroundMask") || "veil"}
                       tint={readMetaValue(section.meta_json, "backgroundTint") || "default"}
+                      feather={readMetaValue(section.meta_json, "backgroundFeather") || "soft"}
                       decor={readMetaValue(section.meta_json, "backgroundDecor") || "on"}
                       onChange={(patch) => updateSectionMeta(section.id, patch)}
                     />
@@ -2492,11 +2499,13 @@ function CardLayoutControl({
 function SectionBackgroundControls({
   mask,
   tint,
+  feather,
   decor,
   onChange,
 }: {
   mask: string;
   tint: string;
+  feather: string;
   decor: string;
   onChange: (patch: Record<string, string>) => void;
 }) {
@@ -2522,6 +2531,19 @@ function SectionBackgroundControls({
           onChange={(event) => onChange({ backgroundTint: event.target.value })}
         >
           {sectionBackgroundTintOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="compact-field">
+        <span>Край пятна</span>
+        <select
+          value={feather}
+          onChange={(event) => onChange({ backgroundFeather: event.target.value })}
+        >
+          {sectionBackgroundFeatherOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>

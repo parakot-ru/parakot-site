@@ -2307,32 +2307,58 @@ body::after {
   background: #fff7ea !important;
 }
 
-.section-background-mask-spot-left-bottom .section-background-media {
-  opacity: 0.86;
-  mask-image: radial-gradient(circle at 18% 72%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
-  -webkit-mask-image: radial-gradient(circle at 18% 72%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
-}
-
-.section-background-mask-spot-right-bottom .section-background-media {
-  opacity: 0.86;
-  mask-image: radial-gradient(circle at 82% 72%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
-  -webkit-mask-image: radial-gradient(circle at 82% 72%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
-}
-
-.section-background-mask-spot-left-top .section-background-media {
-  opacity: 0.86;
-  mask-image: radial-gradient(circle at 18% 28%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
-  -webkit-mask-image: radial-gradient(circle at 18% 28%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
-}
-
-.section-background-mask-spot-right-top .section-background-media {
-  opacity: 0.86;
-  mask-image: radial-gradient(circle at 82% 28%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
-  -webkit-mask-image: radial-gradient(circle at 82% 28%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
-}
-
 .section-background-mask-veil .section-background-media {
   opacity: 0.54;
+}
+
+.section-background-mask-spot-left-bottom {
+  --section-spot-x: 2%;
+  --section-spot-y: 82%;
+}
+
+.section-background-mask-spot-right-bottom {
+  --section-spot-x: 98%;
+  --section-spot-y: 82%;
+}
+
+.section-background-mask-spot-left-top {
+  --section-spot-x: 2%;
+  --section-spot-y: 18%;
+}
+
+.section-background-mask-spot-right-top {
+  --section-spot-x: 98%;
+  --section-spot-y: 18%;
+}
+
+.section-background-mask-spot-left-bottom .section-background-media,
+.section-background-mask-spot-right-bottom .section-background-media,
+.section-background-mask-spot-left-top .section-background-media,
+.section-background-mask-spot-right-top .section-background-media {
+  opacity: 0.9;
+  transform: scale(1.04);
+  mask-image: radial-gradient(ellipse 78% 62% at var(--section-spot-x) var(--section-spot-y), #000 0 38%, rgba(0, 0, 0, 0.76) 58%, transparent 88%);
+  -webkit-mask-image: radial-gradient(ellipse 78% 62% at var(--section-spot-x) var(--section-spot-y), #000 0 38%, rgba(0, 0, 0, 0.76) 58%, transparent 88%);
+}
+
+.section-background-feather-soft.section-background-mask-spot-left-bottom .section-background-media,
+.section-background-feather-soft.section-background-mask-spot-right-bottom .section-background-media,
+.section-background-feather-soft.section-background-mask-spot-left-top .section-background-media,
+.section-background-feather-soft.section-background-mask-spot-right-top .section-background-media {
+  filter: blur(8px);
+  transform: scale(1.08);
+  mask-image: radial-gradient(ellipse 88% 70% at var(--section-spot-x) var(--section-spot-y), #000 0 34%, rgba(0, 0, 0, 0.7) 60%, transparent 98%);
+  -webkit-mask-image: radial-gradient(ellipse 88% 70% at var(--section-spot-x) var(--section-spot-y), #000 0 34%, rgba(0, 0, 0, 0.7) 60%, transparent 98%);
+}
+
+.section-background-feather-mist.section-background-mask-spot-left-bottom .section-background-media,
+.section-background-feather-mist.section-background-mask-spot-right-bottom .section-background-media,
+.section-background-feather-mist.section-background-mask-spot-left-top .section-background-media,
+.section-background-feather-mist.section-background-mask-spot-right-top .section-background-media {
+  filter: blur(14px);
+  transform: scale(1.12);
+  mask-image: radial-gradient(ellipse 96% 78% at var(--section-spot-x) var(--section-spot-y), #000 0 28%, rgba(0, 0, 0, 0.58) 58%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 96% 78% at var(--section-spot-x) var(--section-spot-y), #000 0 28%, rgba(0, 0, 0, 0.58) 58%, transparent 100%);
 }
 
 .section-background-mask-spot-left-bottom::after,

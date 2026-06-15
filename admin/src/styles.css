@@ -718,7 +718,7 @@ textarea:focus {
 .section-background-controls {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: minmax(190px, 1fr) minmax(180px, 0.8fr) auto;
+  grid-template-columns: minmax(190px, 1fr) minmax(180px, 0.8fr) minmax(170px, 0.8fr) auto;
   gap: 10px;
   align-items: end;
   padding: 12px;

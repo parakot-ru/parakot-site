@@ -564,11 +564,13 @@ function renderSection(section) {
   if (section.image_path) {
     const backgroundMask = readMetaValue(section.meta_json, "backgroundMask") || "veil";
     const backgroundTint = readMetaValue(section.meta_json, "backgroundTint") || "default";
+    const backgroundFeather = readMetaValue(section.meta_json, "backgroundFeather") || "soft";
     const backgroundDecor = readMetaValue(section.meta_json, "backgroundDecor") || "on";
 
     element.classList.add("section-has-background");
     element.classList.add(`section-background-mask-${backgroundMask}`);
     element.classList.add(`section-background-tint-${backgroundTint}`);
+    element.classList.add(`section-background-feather-${backgroundFeather}`);
 
     if (backgroundDecor === "off") {
       element.classList.add("section-background-decor-off");

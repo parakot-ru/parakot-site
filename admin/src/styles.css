@@ -411,6 +411,7 @@ textarea:focus {
 }
 
 .section-editor-actions {
+  min-width: 0;
   justify-self: end;
   display: flex;
   flex-wrap: wrap;
@@ -423,6 +424,7 @@ textarea:focus {
   min-height: 34px;
   padding: 0 12px;
   font-size: 13px;
+  white-space: nowrap;
 }
 
 .section-toggle-button {
@@ -484,6 +486,7 @@ textarea:focus {
   display: inline-flex;
   align-items: center;
   min-height: 34px;
+  max-width: 180px;
   border: 1px solid #d4e3eb;
   border-radius: 999px;
   padding: 0 12px;
@@ -491,6 +494,8 @@ textarea:focus {
   background: rgba(255, 255, 255, 0.72);
   font-size: 13px;
   font-weight: 600;
+  line-height: 1.15;
+  text-align: center;
 }
 
 .section-editor-head,
@@ -708,6 +713,38 @@ textarea:focus {
   background:
     linear-gradient(120deg, rgba(255, 255, 255, 0.86), rgba(230, 245, 252, 0.62)),
     rgba(255, 255, 255, 0.72);
+}
+
+.section-background-controls {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(190px, 1fr) minmax(180px, 0.8fr) auto;
+  gap: 10px;
+  align-items: end;
+  padding: 12px;
+  border: 1px solid rgba(42, 142, 194, 0.14);
+  border-radius: 14px;
+  background: rgba(245, 251, 253, 0.78);
+}
+
+.section-decor-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 54px;
+  border: 1px solid #d5e4eb;
+  border-radius: 12px;
+  padding: 0 14px;
+  color: #2b4354;
+  background: #fff;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.section-decor-toggle input {
+  width: 18px;
+  height: 18px;
 }
 
 .hero-badge-fields {
@@ -1311,6 +1348,7 @@ textarea:focus {
   .new-contact,
   .section-editor-head,
   .section-type-note,
+  .section-background-controls,
   .hero-settings-grid,
   .hero-badge-fields,
   .section-item-row,

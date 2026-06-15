@@ -136,10 +136,23 @@ a {
   filter: blur(var(--hero-media-blur, 0));
 }
 
-.hero-media video {
+.hero-media video,
+.hero-media iframe {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.hero-media iframe {
+  width: 100vw;
+  height: 56.25vw;
+  min-width: 177.78vh;
+  min-height: 100vh;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 0;
+  transform: translate(-50%, -50%);
 }
 
 .hero-overlay {
@@ -2251,10 +2264,83 @@ body::after {
 }
 
 .section.section-has-background {
+  position: relative;
+  isolation: isolate;
   overflow: hidden;
+  background: #eaf7fd !important;
+}
+
+.section-background-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  background: var(--section-background-image) center/cover no-repeat;
+  opacity: 0.62;
+  pointer-events: none;
+}
+
+.section.section-has-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
   background:
-    linear-gradient(180deg, rgba(248, 252, 255, 0.48), rgba(238, 247, 252, 0.42)),
-    var(--section-background-image) center/cover no-repeat !important;
+    linear-gradient(180deg, rgba(248, 252, 255, 0.38), rgba(238, 247, 252, 0.56));
+  pointer-events: none;
+}
+
+.section-background-tint-default {
+  background: #eaf7fd !important;
+}
+
+.section-background-tint-sky {
+  background: #dff3fc !important;
+}
+
+.section-background-tint-snow {
+  background: #f5fbff !important;
+}
+
+.section-background-tint-warm {
+  background: #fff7ea !important;
+}
+
+.section-background-mask-spot-left-bottom .section-background-media {
+  opacity: 0.86;
+  mask-image: radial-gradient(circle at 18% 72%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
+  -webkit-mask-image: radial-gradient(circle at 18% 72%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
+}
+
+.section-background-mask-spot-right-bottom .section-background-media {
+  opacity: 0.86;
+  mask-image: radial-gradient(circle at 82% 72%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
+  -webkit-mask-image: radial-gradient(circle at 82% 72%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
+}
+
+.section-background-mask-spot-left-top .section-background-media {
+  opacity: 0.86;
+  mask-image: radial-gradient(circle at 18% 28%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
+  -webkit-mask-image: radial-gradient(circle at 18% 28%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
+}
+
+.section-background-mask-spot-right-top .section-background-media {
+  opacity: 0.86;
+  mask-image: radial-gradient(circle at 82% 28%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
+  -webkit-mask-image: radial-gradient(circle at 82% 28%, #000 0 30%, rgba(0, 0, 0, 0.72) 52%, transparent 78%);
+}
+
+.section-background-mask-veil .section-background-media {
+  opacity: 0.54;
+}
+
+.section-background-mask-spot-left-bottom::after,
+.section-background-mask-spot-right-bottom::after,
+.section-background-mask-spot-left-top::after,
+.section-background-mask-spot-right-top::after {
+  background:
+    linear-gradient(180deg, rgba(248, 252, 255, 0.16), rgba(238, 247, 252, 0.24));
 }
 
 .section.section-has-background .section-heading,
@@ -2264,6 +2350,10 @@ body::after {
 .section.section-has-background .faq-list {
   position: relative;
   z-index: 2;
+}
+
+[data-api-sections] > .section.section-background-decor-off .section-heading::before {
+  display: none;
 }
 
 .section-heading {

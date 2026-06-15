@@ -351,6 +351,27 @@ function applyHeroBackground(hero, section) {
 }
 
 function renderHeroVideo(container, videoUrl, posterUrl) {
+  const embedUrl = heroVideoEmbedUrl(videoUrl);
+
+  if (embedUrl) {
+    const currentFrame = container.querySelector("iframe");
+
+    if (currentFrame && currentFrame.getAttribute("src") === embedUrl) {
+      return;
+    }
+
+    const frame = document.createElement("iframe");
+    frame.className = "hero-video hero-video-embed";
+    frame.src = embedUrl;
+    frame.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
+    frame.setAttribute("allowfullscreen", "");
+    frame.setAttribute("loading", "eager");
+    frame.setAttribute("title", "Видео первого экрана");
+
+    container.replaceChildren(frame);
+    return;
+  }
+
   const currentVideo = container.querySelector("video");
 
   if (currentVideo && currentVideo.getAttribute("src") === videoUrl) {
@@ -376,6 +397,29 @@ function renderHeroVideo(container, videoUrl, posterUrl) {
   video.play().catch(() => {
     // Poster stays visible through the hero background when autoplay is blocked.
   });
+}
+
+function heroVideoEmbedUrl(videoUrl) {
+  if (!videoUrl.includes("vk.com/video")) {
+    return "";
+  }
+
+  const match = videoUrl.match(/video(-?\d+)_(\d+)/);
+
+  if (!match) {
+    return "";
+  }
+
+  const [, oid, id] = match;
+  const params = new URLSearchParams({
+    oid,
+    id,
+    hd: "2",
+    autoplay: "1",
+    muted: "1",
+  });
+
+  return `https://vk.com/video_ext.php?${params.toString()}`;
 }
 
 function setHeroBackgroundImage(hero, imageUrl) {
@@ -518,11 +562,26 @@ function renderSection(section) {
   element.dataset.editorType = section.type;
 
   if (section.image_path) {
+    const backgroundMask = readMetaValue(section.meta_json, "backgroundMask") || "veil";
+    const backgroundTint = readMetaValue(section.meta_json, "backgroundTint") || "default";
+    const backgroundDecor = readMetaValue(section.meta_json, "backgroundDecor") || "on";
+
     element.classList.add("section-has-background");
-    element.style.setProperty(
+    element.classList.add(`section-background-mask-${backgroundMask}`);
+    element.classList.add(`section-background-tint-${backgroundTint}`);
+
+    if (backgroundDecor === "off") {
+      element.classList.add("section-background-decor-off");
+    }
+
+    const backgroundMedia = document.createElement("span");
+    backgroundMedia.className = "section-background-media";
+    backgroundMedia.setAttribute("aria-hidden", "true");
+    backgroundMedia.style.setProperty(
       "--section-background-image",
       `url("${section.image_path}")`,
     );
+    element.appendChild(backgroundMedia);
   }
 
   const heading = document.createElement("div");

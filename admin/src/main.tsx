@@ -192,6 +192,21 @@ const heroBackgroundTypes = [
   { value: "video", label: "Видео" },
 ];
 
+const sectionBackgroundMaskOptions = [
+  { value: "veil", label: "Пелена" },
+  { value: "spot-left-bottom", label: "Пятно слева снизу" },
+  { value: "spot-right-bottom", label: "Пятно справа снизу" },
+  { value: "spot-left-top", label: "Пятно слева сверху" },
+  { value: "spot-right-top", label: "Пятно справа сверху" },
+];
+
+const sectionBackgroundTintOptions = [
+  { value: "default", label: "Фон сайта" },
+  { value: "sky", label: "Небесный" },
+  { value: "snow", label: "Светлый" },
+  { value: "warm", label: "Теплый" },
+];
+
 const sectionTypeDocs = [
   {
     type: "hero",
@@ -1748,6 +1763,14 @@ function App() {
                     />
                   </Field>
                   )}
+                  {section.type !== "hero" && section.image_path && (
+                    <SectionBackgroundControls
+                      mask={readMetaValue(section.meta_json, "backgroundMask") || "veil"}
+                      tint={readMetaValue(section.meta_json, "backgroundTint") || "default"}
+                      decor={readMetaValue(section.meta_json, "backgroundDecor") || "on"}
+                      onChange={(patch) => updateSectionMeta(section.id, patch)}
+                    />
+                  )}
                   <Field label="Описание" wide>
                     <textarea
                       rows={3}
@@ -2462,6 +2485,59 @@ function CardLayoutControl({
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+function SectionBackgroundControls({
+  mask,
+  tint,
+  decor,
+  onChange,
+}: {
+  mask: string;
+  tint: string;
+  decor: string;
+  onChange: (patch: Record<string, string>) => void;
+}) {
+  return (
+    <div className="section-background-controls">
+      <label className="compact-field">
+        <span>Маска фона</span>
+        <select
+          value={mask}
+          onChange={(event) => onChange({ backgroundMask: event.target.value })}
+        >
+          {sectionBackgroundMaskOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="compact-field">
+        <span>Цвет высветления</span>
+        <select
+          value={tint}
+          onChange={(event) => onChange({ backgroundTint: event.target.value })}
+        >
+          {sectionBackgroundTintOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="section-decor-toggle">
+        <input
+          type="checkbox"
+          checked={decor !== "off"}
+          onChange={(event) =>
+            onChange({ backgroundDecor: event.target.checked ? "on" : "off" })
+          }
+        />
+        <span>Параллакс-декор</span>
+      </label>
     </div>
   );
 }

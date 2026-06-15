@@ -1116,6 +1116,25 @@ function App() {
     }
   }
 
+  async function deleteLead(leadId: number) {
+    const confirmed = window.confirm("Удалить заявку? Это действие нельзя отменить.");
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await request<void>(`/leads/${leadId}`, {
+        method: "DELETE",
+      });
+
+      setLeads((current) => current.filter((lead) => lead.id !== leadId));
+      showToast("success", "Заявка удалена");
+    } catch (error) {
+      showToast("error", getErrorMessage(error));
+    }
+  }
+
   function updateContact(contactId: number, patch: Partial<Contact>) {
     setContacts((current) =>
       current.map((contact) =>
@@ -2205,6 +2224,14 @@ function App() {
                   <option value="in_progress">В работе</option>
                   <option value="done">Закрыта</option>
                 </select>
+                <button
+                  type="button"
+                  className="danger-text-button lead-delete-button"
+                  onClick={() => deleteLead(lead.id)}
+                >
+                  <Trash2 size={16} />
+                  Удалить
+                </button>
               </article>
             ))}
           </div>

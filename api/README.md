@@ -38,6 +38,7 @@
 - `DELETE /section-items/{id}`
 - `GET /leads`
 - `PUT|PATCH /leads/{id}`
+- `DELETE /leads/{id}`
 - `POST /leads`
 
 ## Конфиг

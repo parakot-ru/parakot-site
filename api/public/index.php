@@ -522,6 +522,14 @@ try {
         exit;
     }
 
+    if ($method === 'DELETE' && count($segments) === 2 && $segments[0] === 'leads') {
+        $leadId = requirePositiveInt($segments[1], 'lead id');
+        ensureRecordExists($connection, 'leads', $leadId);
+        deleteById($connection, 'leads', $leadId);
+        Response::noContent();
+        exit;
+    }
+
     Response::json([
         'ok' => false,
         'error' => 'Route not found.',

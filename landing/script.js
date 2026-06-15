@@ -1092,6 +1092,16 @@ function hrefFromContact(contact) {
       : `https://www.instagram.com/${value}/`;
   }
 
+  if (contact.type === "vk") {
+    if (/^https?:\/\//.test(value)) {
+      return value;
+    }
+
+    const vkId = value.replace(/^@/, "").replace(/^vk\.com\//, "");
+
+    return vkId ? `https://vk.com/${vkId}` : "#contacts";
+  }
+
   return value || "#contacts";
 }
 

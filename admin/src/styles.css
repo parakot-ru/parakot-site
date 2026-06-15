@@ -1168,13 +1168,23 @@ textarea:focus {
 
 .lead-row {
   display: grid;
-  grid-template-columns: 1.1fr 1fr 1.5fr 150px;
+  grid-template-columns: 1.1fr 1fr 1.5fr 150px auto;
   gap: 12px;
   align-items: center;
   padding: 12px;
   border: 1px solid #dbe4e8;
   border-radius: 8px;
   background: #fbfdfe;
+}
+
+.lead-delete-button {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 14px;
+  white-space: nowrap;
 }
 
 .lead-row div {

@@ -2538,6 +2538,28 @@ body::after {
   background: rgba(239, 248, 255, 0.78);
   box-shadow: 0 1rem 2.8rem rgba(51, 93, 126, 0.14);
   backdrop-filter: blur(18px);
+  transition:
+    top 0.25s ease,
+    right 0.25s ease,
+    left 0.25s ease,
+    padding 0.25s ease,
+    border-radius 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.site-header.is-scrolled {
+  top: 0;
+  right: 0;
+  left: 0;
+  padding: 1rem 5vw;
+  border-right: 0;
+  border-left: 0;
+  border-radius: 0;
+  border-color: var(--line);
+  background: rgba(244, 248, 252, 0.86);
+  box-shadow: 0 0.65rem 1.8rem rgba(62, 107, 148, 0.08);
 }
 
 .button-ghost {
@@ -2743,6 +2765,12 @@ body::after {
     top: 1rem;
     right: 1rem;
     left: 1rem;
+  }
+
+  .site-header.is-scrolled {
+    top: 0;
+    right: 0;
+    left: 0;
   }
 
   .hero {

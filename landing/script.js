@@ -12,6 +12,17 @@ let formStatusTimer = null;
 consumeEditorTokenFromUrl();
 
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const siteHeader = document.querySelector(".site-header");
+
+if (siteHeader) {
+  const updateHeaderState = () => {
+    siteHeader.classList.toggle("is-scrolled", window.scrollY > 80);
+  };
+
+  window.addEventListener("scroll", updateHeaderState, { passive: true });
+  window.addEventListener("resize", updateHeaderState);
+  updateHeaderState();
+}
 
 if (parallaxItems.length > 0 && !prefersReducedMotion.matches) {
   let ticking = false;

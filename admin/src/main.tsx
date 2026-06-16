@@ -193,10 +193,10 @@ const heroBackgroundTypes = [
 ];
 
 const sectionBackgroundMaskOptions = [
-  { value: "veil", label: "Пелена вниз", preview: "veil-bottom" },
-  { value: "veil-top", label: "Пелена вверх", preview: "veil-top" },
-  { value: "veil-right", label: "Пелена вправо", preview: "veil-right" },
-  { value: "veil-left", label: "Пелена влево", preview: "veil-left" },
+  { value: "veil", label: "Фото снизу", preview: "veil-bottom" },
+  { value: "veil-top", label: "Фото сверху", preview: "veil-top" },
+  { value: "veil-right", label: "Фото справа", preview: "veil-right" },
+  { value: "veil-left", label: "Фото слева", preview: "veil-left" },
   { value: "spot-left-bottom", label: "Слева снизу", preview: "left-bottom" },
   { value: "spot-right-bottom", label: "Справа снизу", preview: "right-bottom" },
   { value: "spot-left-top", label: "Слева сверху", preview: "left-top" },
@@ -1770,7 +1770,7 @@ function App() {
                     <SectionBackgroundControls
                       mask={readMetaValue(section.meta_json, "backgroundMask") || "veil"}
                       tint={readMetaValue(section.meta_json, "backgroundTint") || "default"}
-                      size={readMetaValue(section.meta_json, "backgroundSpotSize") || "58"}
+                      size={readMetaValue(section.meta_json, "backgroundSpotSize") || "50"}
                       blur={readMetaValue(section.meta_json, "backgroundSpotBlur") || "2"}
                       edgeFade={readMetaValue(section.meta_json, "backgroundEdgeFade") || "off"}
                       decor={readMetaValue(section.meta_json, "backgroundDecor") || "on"}
@@ -2512,7 +2512,7 @@ function SectionBackgroundControls({
   decor: string;
   onChange: (patch: Record<string, string>) => void;
 }) {
-  const currentSize = clampNumber(size, 34, 76, 58);
+  const currentSize = clampNumber(size, 34, 76, 50);
   const currentBlur = clampNumber(blur, 0, 12, 2);
 
   return (

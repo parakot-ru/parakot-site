@@ -568,7 +568,7 @@ function renderSection(section) {
       readMetaValue(section.meta_json, "backgroundSpotSize"),
       34,
       76,
-      58,
+      50,
     );
     const backgroundSpotBlur = clampNumber(
       readMetaValue(section.meta_json, "backgroundSpotBlur"),

@@ -2287,8 +2287,17 @@ body::after {
   z-index: 1;
   display: block;
   background:
-    linear-gradient(180deg, rgba(248, 252, 255, 0.38), rgba(238, 247, 252, 0.56));
+    linear-gradient(180deg, rgba(248, 252, 255, 0.58), rgba(238, 247, 252, 0.78));
   pointer-events: none;
+}
+
+.section.section-has-background::before {
+  z-index: 1;
+}
+
+.section.section-has-background > *:not(.section-background-media) {
+  position: relative;
+  z-index: 2;
 }
 
 .section-background-tint-default {
@@ -2314,22 +2323,22 @@ body::after {
 .section-background-mask-veil::after,
 .section-background-mask-veil-bottom::after {
   background:
-    linear-gradient(180deg, rgba(248, 252, 255, 0.56), rgba(238, 247, 252, 0.86));
+    linear-gradient(180deg, rgba(248, 252, 255, 0.34) 0%, rgba(238, 247, 252, 0.92) 100%);
 }
 
 .section-background-mask-veil-top::after {
   background:
-    linear-gradient(0deg, rgba(248, 252, 255, 0.56), rgba(238, 247, 252, 0.86));
+    linear-gradient(0deg, rgba(248, 252, 255, 0.34) 0%, rgba(238, 247, 252, 0.92) 100%);
 }
 
 .section-background-mask-veil-right::after {
   background:
-    linear-gradient(90deg, rgba(248, 252, 255, 0.56), rgba(238, 247, 252, 0.86));
+    linear-gradient(90deg, rgba(248, 252, 255, 0.34) 0%, rgba(238, 247, 252, 0.92) 100%);
 }
 
 .section-background-mask-veil-left::after {
   background:
-    linear-gradient(270deg, rgba(248, 252, 255, 0.56), rgba(238, 247, 252, 0.86));
+    linear-gradient(270deg, rgba(248, 252, 255, 0.34) 0%, rgba(238, 247, 252, 0.92) 100%);
 }
 
 .section-background-mask-veil-top .section-background-media,

@@ -2312,53 +2312,55 @@ body::after {
 }
 
 .section-background-mask-spot-left-bottom {
-  --section-spot-x: 2%;
-  --section-spot-y: 82%;
+  --section-spot-x: 12%;
+  --section-spot-y: 76%;
 }
 
 .section-background-mask-spot-right-bottom {
-  --section-spot-x: 98%;
-  --section-spot-y: 82%;
+  --section-spot-x: 88%;
+  --section-spot-y: 76%;
 }
 
 .section-background-mask-spot-left-top {
-  --section-spot-x: 2%;
-  --section-spot-y: 18%;
+  --section-spot-x: 12%;
+  --section-spot-y: 24%;
 }
 
 .section-background-mask-spot-right-top {
-  --section-spot-x: 98%;
-  --section-spot-y: 18%;
+  --section-spot-x: 88%;
+  --section-spot-y: 24%;
 }
 
 .section-background-mask-spot-left-bottom .section-background-media,
 .section-background-mask-spot-right-bottom .section-background-media,
 .section-background-mask-spot-left-top .section-background-media,
 .section-background-mask-spot-right-top .section-background-media {
-  opacity: 0.9;
-  transform: scale(1.04);
-  mask-image: radial-gradient(ellipse 78% 62% at var(--section-spot-x) var(--section-spot-y), #000 0 38%, rgba(0, 0, 0, 0.76) 58%, transparent 88%);
-  -webkit-mask-image: radial-gradient(ellipse 78% 62% at var(--section-spot-x) var(--section-spot-y), #000 0 38%, rgba(0, 0, 0, 0.76) 58%, transparent 88%);
+  opacity: 0.76;
+  transform: scale(1.015);
+  mask-image: radial-gradient(ellipse 52% 42% at var(--section-spot-x) var(--section-spot-y), #000 0 28%, rgba(0, 0, 0, 0.62) 48%, rgba(0, 0, 0, 0.16) 64%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 52% 42% at var(--section-spot-x) var(--section-spot-y), #000 0 28%, rgba(0, 0, 0, 0.62) 48%, rgba(0, 0, 0, 0.16) 64%, transparent 78%);
 }
 
 .section-background-feather-soft.section-background-mask-spot-left-bottom .section-background-media,
 .section-background-feather-soft.section-background-mask-spot-right-bottom .section-background-media,
 .section-background-feather-soft.section-background-mask-spot-left-top .section-background-media,
 .section-background-feather-soft.section-background-mask-spot-right-top .section-background-media {
-  filter: blur(8px);
-  transform: scale(1.08);
-  mask-image: radial-gradient(ellipse 88% 70% at var(--section-spot-x) var(--section-spot-y), #000 0 34%, rgba(0, 0, 0, 0.7) 60%, transparent 98%);
-  -webkit-mask-image: radial-gradient(ellipse 88% 70% at var(--section-spot-x) var(--section-spot-y), #000 0 34%, rgba(0, 0, 0, 0.7) 60%, transparent 98%);
+  filter: blur(2px);
+  opacity: 0.74;
+  transform: scale(1.025);
+  mask-image: radial-gradient(ellipse 58% 48% at var(--section-spot-x) var(--section-spot-y), #000 0 22%, rgba(0, 0, 0, 0.5) 46%, rgba(0, 0, 0, 0.18) 64%, transparent 86%);
+  -webkit-mask-image: radial-gradient(ellipse 58% 48% at var(--section-spot-x) var(--section-spot-y), #000 0 22%, rgba(0, 0, 0, 0.5) 46%, rgba(0, 0, 0, 0.18) 64%, transparent 86%);
 }
 
 .section-background-feather-mist.section-background-mask-spot-left-bottom .section-background-media,
 .section-background-feather-mist.section-background-mask-spot-right-bottom .section-background-media,
 .section-background-feather-mist.section-background-mask-spot-left-top .section-background-media,
 .section-background-feather-mist.section-background-mask-spot-right-top .section-background-media {
-  filter: blur(14px);
-  transform: scale(1.12);
-  mask-image: radial-gradient(ellipse 96% 78% at var(--section-spot-x) var(--section-spot-y), #000 0 28%, rgba(0, 0, 0, 0.58) 58%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 96% 78% at var(--section-spot-x) var(--section-spot-y), #000 0 28%, rgba(0, 0, 0, 0.58) 58%, transparent 100%);
+  filter: blur(4px);
+  opacity: 0.7;
+  transform: scale(1.04);
+  mask-image: radial-gradient(ellipse 64% 52% at var(--section-spot-x) var(--section-spot-y), #000 0 16%, rgba(0, 0, 0, 0.4) 42%, rgba(0, 0, 0, 0.14) 62%, transparent 88%);
+  -webkit-mask-image: radial-gradient(ellipse 64% 52% at var(--section-spot-x) var(--section-spot-y), #000 0 16%, rgba(0, 0, 0, 0.4) 42%, rgba(0, 0, 0, 0.14) 62%, transparent 88%);
 }
 
 .section-background-mask-spot-left-bottom::after,

@@ -2321,24 +2321,53 @@ body::after {
 }
 
 .section.section-has-background.section-background-mask-veil::after,
+.section.section-has-background.section-background-mask-veil-bottom::after,
+.section.section-has-background.section-background-mask-veil-top::after,
+.section.section-has-background.section-background-mask-veil-right::after,
+.section.section-has-background.section-background-mask-veil-left::after {
+  filter: blur(var(--section-spot-blur, 2px));
+  transform: scale(1.015);
+}
+
+.section.section-has-background.section-background-mask-veil::after,
 .section.section-has-background.section-background-mask-veil-bottom::after {
   background:
-    linear-gradient(180deg, rgba(248, 252, 255, 0.16) 0%, rgba(238, 247, 252, 0.96) 100%);
+    linear-gradient(
+      180deg,
+      rgba(248, 252, 255, 0.1) 0%,
+      rgba(248, 252, 255, 0.22) calc(100% - var(--section-spot-height, 48%)),
+      rgba(238, 247, 252, 0.96) 100%
+    );
 }
 
 .section.section-has-background.section-background-mask-veil-top::after {
   background:
-    linear-gradient(0deg, rgba(248, 252, 255, 0.16) 0%, rgba(238, 247, 252, 0.96) 100%);
+    linear-gradient(
+      0deg,
+      rgba(248, 252, 255, 0.1) 0%,
+      rgba(248, 252, 255, 0.22) calc(100% - var(--section-spot-height, 48%)),
+      rgba(238, 247, 252, 0.96) 100%
+    );
 }
 
 .section.section-has-background.section-background-mask-veil-right::after {
   background:
-    linear-gradient(90deg, rgba(248, 252, 255, 0.16) 0%, rgba(238, 247, 252, 0.96) 100%);
+    linear-gradient(
+      90deg,
+      rgba(248, 252, 255, 0.1) 0%,
+      rgba(248, 252, 255, 0.22) calc(100% - var(--section-spot-width, 59%)),
+      rgba(238, 247, 252, 0.96) 100%
+    );
 }
 
 .section.section-has-background.section-background-mask-veil-left::after {
   background:
-    linear-gradient(270deg, rgba(248, 252, 255, 0.16) 0%, rgba(238, 247, 252, 0.96) 100%);
+    linear-gradient(
+      270deg,
+      rgba(248, 252, 255, 0.1) 0%,
+      rgba(248, 252, 255, 0.22) calc(100% - var(--section-spot-width, 59%)),
+      rgba(238, 247, 252, 0.96) 100%
+    );
 }
 
 .section-background-mask-veil-top .section-background-media,

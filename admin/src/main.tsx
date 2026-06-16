@@ -1772,6 +1772,7 @@ function App() {
                       tint={readMetaValue(section.meta_json, "backgroundTint") || "default"}
                       size={readMetaValue(section.meta_json, "backgroundSpotSize") || "58"}
                       blur={readMetaValue(section.meta_json, "backgroundSpotBlur") || "2"}
+                      edgeFade={readMetaValue(section.meta_json, "backgroundEdgeFade") || "off"}
                       decor={readMetaValue(section.meta_json, "backgroundDecor") || "on"}
                       onChange={(patch) => updateSectionMeta(section.id, patch)}
                     />
@@ -2499,6 +2500,7 @@ function SectionBackgroundControls({
   tint,
   size,
   blur,
+  edgeFade,
   decor,
   onChange,
 }: {
@@ -2506,6 +2508,7 @@ function SectionBackgroundControls({
   tint: string;
   size: string;
   blur: string;
+  edgeFade: string;
   decor: string;
   onChange: (patch: Record<string, string>) => void;
 }) {
@@ -2567,6 +2570,16 @@ function SectionBackgroundControls({
           value={currentBlur}
           onChange={(event) => onChange({ backgroundSpotBlur: event.target.value })}
         />
+      </label>
+      <label className="section-decor-toggle">
+        <input
+          type="checkbox"
+          checked={edgeFade === "on"}
+          onChange={(event) =>
+            onChange({ backgroundEdgeFade: event.target.checked ? "on" : "off" })
+          }
+        />
+        <span>Убрать края</span>
       </label>
       <label className="section-decor-toggle">
         <input

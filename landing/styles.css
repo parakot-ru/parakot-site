@@ -2264,6 +2264,8 @@ body::after {
 }
 
 .section.section-has-background {
+  --section-bg-color: #eaf7fd;
+  --section-bg-edge-color: rgba(234, 247, 253, 0.88);
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -2292,7 +2294,16 @@ body::after {
 }
 
 .section.section-has-background::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  display: none;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
   z-index: 1;
+  pointer-events: none;
 }
 
 .section.section-has-background > *:not(.section-background-media) {
@@ -2300,81 +2311,68 @@ body::after {
   z-index: 2;
 }
 
-.section-background-tint-default {
+.section.section-has-background.section-background-tint-default {
+  --section-bg-color: #eaf7fd;
+  --section-bg-edge-color: rgba(234, 247, 253, 0.88);
   background: #eaf7fd !important;
 }
 
-.section-background-tint-sky {
+.section.section-has-background.section-background-tint-sky {
+  --section-bg-color: #dff3fc;
+  --section-bg-edge-color: rgba(223, 243, 252, 0.88);
   background: #dff3fc !important;
 }
 
-.section-background-tint-snow {
+.section.section-has-background.section-background-tint-snow {
+  --section-bg-color: #f5fbff;
+  --section-bg-edge-color: rgba(245, 251, 255, 0.88);
   background: #f5fbff !important;
 }
 
-.section-background-tint-warm {
+.section.section-has-background.section-background-tint-warm {
+  --section-bg-color: #fff7ea;
+  --section-bg-edge-color: rgba(255, 247, 234, 0.88);
   background: #fff7ea !important;
 }
 
-.section-background-mask-veil .section-background-media {
-  opacity: 0.54;
-}
-
-.section.section-has-background.section-background-mask-veil::after,
-.section.section-has-background.section-background-mask-veil-bottom::after,
-.section.section-has-background.section-background-mask-veil-top::after,
-.section.section-has-background.section-background-mask-veil-right::after,
-.section.section-has-background.section-background-mask-veil-left::after {
-  filter: blur(var(--section-spot-blur, 2px));
-  transform: scale(1.015);
-}
-
-.section.section-has-background.section-background-mask-veil::after,
-.section.section-has-background.section-background-mask-veil-bottom::after {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(248, 252, 255, 0.1) 0%,
-      rgba(248, 252, 255, 0.22) calc(100% - var(--section-spot-height, 48%)),
-      rgba(238, 247, 252, 0.96) 100%
-    );
-}
-
-.section.section-has-background.section-background-mask-veil-top::after {
-  background:
-    linear-gradient(
-      0deg,
-      rgba(248, 252, 255, 0.1) 0%,
-      rgba(248, 252, 255, 0.22) calc(100% - var(--section-spot-height, 48%)),
-      rgba(238, 247, 252, 0.96) 100%
-    );
-}
-
-.section.section-has-background.section-background-mask-veil-right::after {
-  background:
-    linear-gradient(
-      90deg,
-      rgba(248, 252, 255, 0.1) 0%,
-      rgba(248, 252, 255, 0.22) calc(100% - var(--section-spot-width, 59%)),
-      rgba(238, 247, 252, 0.96) 100%
-    );
-}
-
-.section.section-has-background.section-background-mask-veil-left::after {
-  background:
-    linear-gradient(
-      270deg,
-      rgba(248, 252, 255, 0.1) 0%,
-      rgba(248, 252, 255, 0.22) calc(100% - var(--section-spot-width, 59%)),
-      rgba(238, 247, 252, 0.96) 100%
-    );
-}
-
+.section-background-mask-veil .section-background-media,
 .section-background-mask-veil-top .section-background-media,
 .section-background-mask-veil-right .section-background-media,
 .section-background-mask-veil-bottom .section-background-media,
 .section-background-mask-veil-left .section-background-media {
-  opacity: 0.54;
+  filter: blur(var(--section-spot-blur, 2px));
+  opacity: 0.68;
+  transform: scale(1.025);
+}
+
+.section-background-mask-veil .section-background-media,
+.section-background-mask-veil-bottom .section-background-media {
+  mask-image: linear-gradient(to bottom, #000 0 calc(100% - var(--section-spot-height, 48%)), rgba(0, 0, 0, 0.44) 78%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0 calc(100% - var(--section-spot-height, 48%)), rgba(0, 0, 0, 0.44) 78%, transparent 100%);
+}
+
+.section-background-mask-veil-top .section-background-media {
+  mask-image: linear-gradient(to top, #000 0 calc(100% - var(--section-spot-height, 48%)), rgba(0, 0, 0, 0.44) 78%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, #000 0 calc(100% - var(--section-spot-height, 48%)), rgba(0, 0, 0, 0.44) 78%, transparent 100%);
+}
+
+.section-background-mask-veil-right .section-background-media {
+  mask-image: linear-gradient(to right, #000 0 calc(100% - var(--section-spot-width, 58%)), rgba(0, 0, 0, 0.44) 78%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, #000 0 calc(100% - var(--section-spot-width, 58%)), rgba(0, 0, 0, 0.44) 78%, transparent 100%);
+}
+
+.section-background-mask-veil-left .section-background-media {
+  mask-image: linear-gradient(to left, #000 0 calc(100% - var(--section-spot-width, 58%)), rgba(0, 0, 0, 0.44) 78%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to left, #000 0 calc(100% - var(--section-spot-width, 58%)), rgba(0, 0, 0, 0.44) 78%, transparent 100%);
+}
+
+.section-background-mask-veil::after,
+.section-background-mask-veil-bottom::after,
+.section-background-mask-veil-top::after,
+.section-background-mask-veil-right::after,
+.section-background-mask-veil-left::after {
+  background:
+    linear-gradient(180deg, rgba(248, 252, 255, 0.14), rgba(238, 247, 252, 0.24));
 }
 
 .section-background-mask-spot-left-bottom {
@@ -2414,6 +2412,13 @@ body::after {
 .section-background-mask-spot-right-top::after {
   background:
     linear-gradient(180deg, rgba(248, 252, 255, 0.16), rgba(238, 247, 252, 0.24));
+}
+
+.section.section-has-background.section-background-edge-fade::before {
+  display: block;
+  background:
+    linear-gradient(90deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) 5%, transparent 17%, transparent 83%, var(--section-bg-edge-color) 95%, var(--section-bg-color) 100%),
+    linear-gradient(180deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) 5%, transparent 17%, transparent 83%, var(--section-bg-edge-color) 95%, var(--section-bg-color) 100%);
 }
 
 .section.section-has-background .section-heading,

@@ -576,6 +576,7 @@ function renderSection(section) {
       12,
       2,
     );
+    const backgroundEdgeFade = readMetaValue(section.meta_json, "backgroundEdgeFade") || "off";
     const backgroundDecor = readMetaValue(section.meta_json, "backgroundDecor") || "on";
 
     element.classList.add("section-has-background");
@@ -587,6 +588,10 @@ function renderSection(section) {
 
     if (backgroundDecor === "off") {
       element.classList.add("section-background-decor-off");
+    }
+
+    if (backgroundEdgeFade === "on") {
+      element.classList.add("section-background-edge-fade");
     }
 
     const backgroundMedia = document.createElement("span");

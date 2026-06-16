@@ -2414,6 +2414,14 @@ body::after {
     linear-gradient(180deg, rgba(248, 252, 255, 0.16), rgba(238, 247, 252, 0.24));
 }
 
+@media (max-width: 640px) {
+  .section-background-mask-veil-right .section-background-media,
+  .section-background-mask-veil-left .section-background-media {
+    mask-image: linear-gradient(to bottom, transparent 0%, transparent 42%, rgba(0, 0, 0, 0.16) 54%, rgba(0, 0, 0, 0.58) 62%, #000 68% 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 42%, rgba(0, 0, 0, 0.16) 54%, rgba(0, 0, 0, 0.58) 62%, #000 68% 100%);
+  }
+}
+
 .section.section-has-background.section-background-edge-fade::before {
   display: block;
   background:

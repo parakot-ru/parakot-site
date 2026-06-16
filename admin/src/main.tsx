@@ -193,24 +193,18 @@ const heroBackgroundTypes = [
 ];
 
 const sectionBackgroundMaskOptions = [
-  { value: "veil", label: "Пелена" },
-  { value: "spot-left-bottom", label: "Пятно слева снизу" },
-  { value: "spot-right-bottom", label: "Пятно справа снизу" },
-  { value: "spot-left-top", label: "Пятно слева сверху" },
-  { value: "spot-right-top", label: "Пятно справа сверху" },
+  { value: "veil", label: "Пелена", preview: "veil" },
+  { value: "spot-left-bottom", label: "Слева снизу", preview: "left-bottom" },
+  { value: "spot-right-bottom", label: "Справа снизу", preview: "right-bottom" },
+  { value: "spot-left-top", label: "Слева сверху", preview: "left-top" },
+  { value: "spot-right-top", label: "Справа сверху", preview: "right-top" },
 ];
 
 const sectionBackgroundTintOptions = [
-  { value: "default", label: "Фон сайта" },
-  { value: "sky", label: "Небесный" },
-  { value: "snow", label: "Светлый" },
-  { value: "warm", label: "Теплый" },
-];
-
-const sectionBackgroundFeatherOptions = [
-  { value: "normal", label: "Обычный край" },
-  { value: "soft", label: "Плавный край" },
-  { value: "mist", label: "Очень мягкий" },
+  { value: "default", label: "Фон сайта", color: "#eaf7fd" },
+  { value: "sky", label: "Небесный", color: "#dff3fc" },
+  { value: "snow", label: "Светлый", color: "#f5fbff" },
+  { value: "warm", label: "Теплый", color: "#fff7ea" },
 ];
 
 const sectionTypeDocs = [
@@ -1773,7 +1767,8 @@ function App() {
                     <SectionBackgroundControls
                       mask={readMetaValue(section.meta_json, "backgroundMask") || "veil"}
                       tint={readMetaValue(section.meta_json, "backgroundTint") || "default"}
-                      feather={readMetaValue(section.meta_json, "backgroundFeather") || "soft"}
+                      size={readMetaValue(section.meta_json, "backgroundSpotSize") || "58"}
+                      blur={readMetaValue(section.meta_json, "backgroundSpotBlur") || "2"}
                       decor={readMetaValue(section.meta_json, "backgroundDecor") || "on"}
                       onChange={(patch) => updateSectionMeta(section.id, patch)}
                     />
@@ -2499,56 +2494,76 @@ function CardLayoutControl({
 function SectionBackgroundControls({
   mask,
   tint,
-  feather,
+  size,
+  blur,
   decor,
   onChange,
 }: {
   mask: string;
   tint: string;
-  feather: string;
+  size: string;
+  blur: string;
   decor: string;
   onChange: (patch: Record<string, string>) => void;
 }) {
+  const currentSize = clampNumber(size, 34, 76, 58);
+  const currentBlur = clampNumber(blur, 0, 12, 2);
+
   return (
     <div className="section-background-controls">
-      <label className="compact-field">
+      <div className="background-visual-field">
         <span>Маска фона</span>
-        <select
-          value={mask}
-          onChange={(event) => onChange({ backgroundMask: event.target.value })}
-        >
+        <div className="background-mask-picker">
           {sectionBackgroundMaskOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
+            <button
+              className={mask === option.value ? "is-active" : ""}
+              key={option.value}
+              type="button"
+              onClick={() => onChange({ backgroundMask: option.value })}
+            >
+              <i className={`mask-preview mask-preview-${option.preview}`} aria-hidden="true" />
+              <strong>{option.label}</strong>
+            </button>
           ))}
-        </select>
-      </label>
-      <label className="compact-field">
+        </div>
+      </div>
+      <div className="background-visual-field">
         <span>Цвет высветления</span>
-        <select
-          value={tint}
-          onChange={(event) => onChange({ backgroundTint: event.target.value })}
-        >
+        <div className="background-tint-picker">
           {sectionBackgroundTintOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
+            <button
+              className={tint === option.value ? "is-active" : ""}
+              key={option.value}
+              type="button"
+              onClick={() => onChange({ backgroundTint: option.value })}
+            >
+              <i style={{ background: option.color }} aria-hidden="true" />
+              <strong>{option.label}</strong>
+            </button>
           ))}
-        </select>
+        </div>
+      </div>
+      <label className="range-field">
+        <span>Размер пятна: {currentSize}%</span>
+        <input
+          type="range"
+          min="34"
+          max="76"
+          step="1"
+          value={currentSize}
+          onChange={(event) => onChange({ backgroundSpotSize: event.target.value })}
+        />
       </label>
-      <label className="compact-field">
-        <span>Край пятна</span>
-        <select
-          value={feather}
-          onChange={(event) => onChange({ backgroundFeather: event.target.value })}
-        >
-          {sectionBackgroundFeatherOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+      <label className="range-field">
+        <span>Размазанность: {currentBlur}px</span>
+        <input
+          type="range"
+          min="0"
+          max="12"
+          step="1"
+          value={currentBlur}
+          onChange={(event) => onChange({ backgroundSpotBlur: event.target.value })}
+        />
       </label>
       <label className="section-decor-toggle">
         <input
@@ -2725,6 +2740,16 @@ function readMetaValue(metaJson: string | null, key: string) {
   } catch {
     return "";
   }
+}
+
+function clampNumber(value: string, min: number, max: number, fallback: number) {
+  const parsed = Number(value);
+
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+
+  return Math.min(max, Math.max(min, parsed));
 }
 
 function updateMetaJson(metaJson: string | null, patch: Record<string, string>) {

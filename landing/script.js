@@ -564,13 +564,26 @@ function renderSection(section) {
   if (section.image_path) {
     const backgroundMask = readMetaValue(section.meta_json, "backgroundMask") || "veil";
     const backgroundTint = readMetaValue(section.meta_json, "backgroundTint") || "default";
-    const backgroundFeather = readMetaValue(section.meta_json, "backgroundFeather") || "soft";
+    const backgroundSpotSize = clampNumber(
+      readMetaValue(section.meta_json, "backgroundSpotSize"),
+      34,
+      76,
+      58,
+    );
+    const backgroundSpotBlur = clampNumber(
+      readMetaValue(section.meta_json, "backgroundSpotBlur"),
+      0,
+      12,
+      2,
+    );
     const backgroundDecor = readMetaValue(section.meta_json, "backgroundDecor") || "on";
 
     element.classList.add("section-has-background");
     element.classList.add(`section-background-mask-${backgroundMask}`);
     element.classList.add(`section-background-tint-${backgroundTint}`);
-    element.classList.add(`section-background-feather-${backgroundFeather}`);
+    element.style.setProperty("--section-spot-width", `${backgroundSpotSize}%`);
+    element.style.setProperty("--section-spot-height", `${Math.round(backgroundSpotSize * 0.82)}%`);
+    element.style.setProperty("--section-spot-blur", `${backgroundSpotBlur}px`);
 
     if (backgroundDecor === "off") {
       element.classList.add("section-background-decor-off");
@@ -712,6 +725,16 @@ function readMetaValue(metaJson, key) {
   } catch {
     return "";
   }
+}
+
+function clampNumber(value, min, max, fallback) {
+  const parsed = Number(value);
+
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+
+  return Math.min(max, Math.max(min, parsed));
 }
 
 function sectionClassName(type) {

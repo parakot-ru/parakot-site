@@ -2335,32 +2335,11 @@ body::after {
 .section-background-mask-spot-right-bottom .section-background-media,
 .section-background-mask-spot-left-top .section-background-media,
 .section-background-mask-spot-right-top .section-background-media {
-  opacity: 0.76;
-  transform: scale(1.015);
-  mask-image: radial-gradient(ellipse 52% 42% at var(--section-spot-x) var(--section-spot-y), #000 0 28%, rgba(0, 0, 0, 0.62) 48%, rgba(0, 0, 0, 0.16) 64%, transparent 78%);
-  -webkit-mask-image: radial-gradient(ellipse 52% 42% at var(--section-spot-x) var(--section-spot-y), #000 0 28%, rgba(0, 0, 0, 0.62) 48%, rgba(0, 0, 0, 0.16) 64%, transparent 78%);
-}
-
-.section-background-feather-soft.section-background-mask-spot-left-bottom .section-background-media,
-.section-background-feather-soft.section-background-mask-spot-right-bottom .section-background-media,
-.section-background-feather-soft.section-background-mask-spot-left-top .section-background-media,
-.section-background-feather-soft.section-background-mask-spot-right-top .section-background-media {
-  filter: blur(2px);
+  filter: blur(var(--section-spot-blur, 2px));
   opacity: 0.74;
-  transform: scale(1.025);
-  mask-image: radial-gradient(ellipse 58% 48% at var(--section-spot-x) var(--section-spot-y), #000 0 22%, rgba(0, 0, 0, 0.5) 46%, rgba(0, 0, 0, 0.18) 64%, transparent 86%);
-  -webkit-mask-image: radial-gradient(ellipse 58% 48% at var(--section-spot-x) var(--section-spot-y), #000 0 22%, rgba(0, 0, 0, 0.5) 46%, rgba(0, 0, 0, 0.18) 64%, transparent 86%);
-}
-
-.section-background-feather-mist.section-background-mask-spot-left-bottom .section-background-media,
-.section-background-feather-mist.section-background-mask-spot-right-bottom .section-background-media,
-.section-background-feather-mist.section-background-mask-spot-left-top .section-background-media,
-.section-background-feather-mist.section-background-mask-spot-right-top .section-background-media {
-  filter: blur(4px);
-  opacity: 0.7;
   transform: scale(1.04);
-  mask-image: radial-gradient(ellipse 64% 52% at var(--section-spot-x) var(--section-spot-y), #000 0 16%, rgba(0, 0, 0, 0.4) 42%, rgba(0, 0, 0, 0.14) 62%, transparent 88%);
-  -webkit-mask-image: radial-gradient(ellipse 64% 52% at var(--section-spot-x) var(--section-spot-y), #000 0 16%, rgba(0, 0, 0, 0.4) 42%, rgba(0, 0, 0, 0.14) 62%, transparent 88%);
+  mask-image: radial-gradient(ellipse var(--section-spot-width, 58%) var(--section-spot-height, 48%) at var(--section-spot-x) var(--section-spot-y), #000 0 22%, rgba(0, 0, 0, 0.5) 46%, rgba(0, 0, 0, 0.18) 64%, transparent 86%);
+  -webkit-mask-image: radial-gradient(ellipse var(--section-spot-width, 58%) var(--section-spot-height, 48%) at var(--section-spot-x) var(--section-spot-y), #000 0 22%, rgba(0, 0, 0, 0.5) 46%, rgba(0, 0, 0, 0.18) 64%, transparent 86%);
 }
 
 .section-background-mask-spot-left-bottom::after,

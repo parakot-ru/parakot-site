@@ -2347,23 +2347,23 @@ body::after {
 
 .section-background-mask-veil .section-background-media,
 .section-background-mask-veil-bottom .section-background-media {
-  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.16) 12%, rgba(0, 0, 0, 0.58) 24%, #000 calc(100% - var(--section-spot-height, 48%)) 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.16) 12%, rgba(0, 0, 0, 0.58) 24%, #000 calc(100% - var(--section-spot-height, 48%)) 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, transparent calc(var(--section-veil-start, 55%) - 20%), rgba(0, 0, 0, 0.16) calc(var(--section-veil-start, 55%) - 10%), rgba(0, 0, 0, 0.58) calc(var(--section-veil-start, 55%) - 4%), #000 var(--section-veil-start, 55%) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent calc(var(--section-veil-start, 55%) - 20%), rgba(0, 0, 0, 0.16) calc(var(--section-veil-start, 55%) - 10%), rgba(0, 0, 0, 0.58) calc(var(--section-veil-start, 55%) - 4%), #000 var(--section-veil-start, 55%) 100%);
 }
 
 .section-background-mask-veil-top .section-background-media {
-  mask-image: linear-gradient(to top, transparent 0%, rgba(0, 0, 0, 0.16) 12%, rgba(0, 0, 0, 0.58) 24%, #000 calc(100% - var(--section-spot-height, 48%)) 100%);
-  -webkit-mask-image: linear-gradient(to top, transparent 0%, rgba(0, 0, 0, 0.16) 12%, rgba(0, 0, 0, 0.58) 24%, #000 calc(100% - var(--section-spot-height, 48%)) 100%);
+  mask-image: linear-gradient(to top, transparent 0%, transparent calc(var(--section-veil-start, 55%) - 20%), rgba(0, 0, 0, 0.16) calc(var(--section-veil-start, 55%) - 10%), rgba(0, 0, 0, 0.58) calc(var(--section-veil-start, 55%) - 4%), #000 var(--section-veil-start, 55%) 100%);
+  -webkit-mask-image: linear-gradient(to top, transparent 0%, transparent calc(var(--section-veil-start, 55%) - 20%), rgba(0, 0, 0, 0.16) calc(var(--section-veil-start, 55%) - 10%), rgba(0, 0, 0, 0.58) calc(var(--section-veil-start, 55%) - 4%), #000 var(--section-veil-start, 55%) 100%);
 }
 
 .section-background-mask-veil-right .section-background-media {
-  mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.16) 12%, rgba(0, 0, 0, 0.58) 24%, #000 calc(100% - var(--section-spot-width, 58%)) 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.16) 12%, rgba(0, 0, 0, 0.58) 24%, #000 calc(100% - var(--section-spot-width, 58%)) 100%);
+  mask-image: linear-gradient(to right, transparent 0%, transparent calc(var(--section-veil-start, 55%) - 20%), rgba(0, 0, 0, 0.16) calc(var(--section-veil-start, 55%) - 10%), rgba(0, 0, 0, 0.58) calc(var(--section-veil-start, 55%) - 4%), #000 var(--section-veil-start, 55%) 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, transparent calc(var(--section-veil-start, 55%) - 20%), rgba(0, 0, 0, 0.16) calc(var(--section-veil-start, 55%) - 10%), rgba(0, 0, 0, 0.58) calc(var(--section-veil-start, 55%) - 4%), #000 var(--section-veil-start, 55%) 100%);
 }
 
 .section-background-mask-veil-left .section-background-media {
-  mask-image: linear-gradient(to left, transparent 0%, rgba(0, 0, 0, 0.16) 12%, rgba(0, 0, 0, 0.58) 24%, #000 calc(100% - var(--section-spot-width, 58%)) 100%);
-  -webkit-mask-image: linear-gradient(to left, transparent 0%, rgba(0, 0, 0, 0.16) 12%, rgba(0, 0, 0, 0.58) 24%, #000 calc(100% - var(--section-spot-width, 58%)) 100%);
+  mask-image: linear-gradient(to left, transparent 0%, transparent calc(var(--section-veil-start, 55%) - 20%), rgba(0, 0, 0, 0.16) calc(var(--section-veil-start, 55%) - 10%), rgba(0, 0, 0, 0.58) calc(var(--section-veil-start, 55%) - 4%), #000 var(--section-veil-start, 55%) 100%);
+  -webkit-mask-image: linear-gradient(to left, transparent 0%, transparent calc(var(--section-veil-start, 55%) - 20%), rgba(0, 0, 0, 0.16) calc(var(--section-veil-start, 55%) - 10%), rgba(0, 0, 0, 0.58) calc(var(--section-veil-start, 55%) - 4%), #000 var(--section-veil-start, 55%) 100%);
 }
 
 .section-background-mask-veil::after,

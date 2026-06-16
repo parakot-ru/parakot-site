@@ -585,6 +585,7 @@ function renderSection(section) {
     element.style.setProperty("--section-spot-width", `${backgroundSpotSize}%`);
     element.style.setProperty("--section-spot-height", `${Math.round(backgroundSpotSize * 0.82)}%`);
     element.style.setProperty("--section-spot-blur", `${backgroundSpotBlur}px`);
+    element.style.setProperty("--section-veil-start", `${Math.round(80 - backgroundSpotSize * 0.5)}%`);
 
     if (backgroundDecor === "off") {
       element.classList.add("section-background-decor-off");

@@ -740,7 +740,7 @@ textarea:focus {
 
 .background-mask-picker {
   display: grid;
-  grid-template-columns: repeat(5, minmax(92px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
   gap: 8px;
 }
 
@@ -797,12 +797,32 @@ textarea:focus {
     radial-gradient(ellipse at center, rgba(47, 143, 199, 0.72) 0 28%, rgba(47, 143, 199, 0.38) 52%, transparent 78%);
 }
 
-.mask-preview-veil::after {
+.mask-preview-veil::after,
+.mask-preview-veil-bottom::after,
+.mask-preview-veil-top::after,
+.mask-preview-veil-right::after,
+.mask-preview-veil-left::after {
   inset: 0;
   width: auto;
   height: auto;
   border-radius: 0;
-  background: linear-gradient(120deg, rgba(47, 143, 199, 0.22), rgba(255, 255, 255, 0.34));
+}
+
+.mask-preview-veil::after,
+.mask-preview-veil-bottom::after {
+  background: linear-gradient(180deg, rgba(47, 143, 199, 0.12), rgba(47, 143, 199, 0.38));
+}
+
+.mask-preview-veil-top::after {
+  background: linear-gradient(0deg, rgba(47, 143, 199, 0.12), rgba(47, 143, 199, 0.38));
+}
+
+.mask-preview-veil-right::after {
+  background: linear-gradient(90deg, rgba(47, 143, 199, 0.12), rgba(47, 143, 199, 0.38));
+}
+
+.mask-preview-veil-left::after {
+  background: linear-gradient(270deg, rgba(47, 143, 199, 0.12), rgba(47, 143, 199, 0.38));
 }
 
 .mask-preview-left-bottom::after {

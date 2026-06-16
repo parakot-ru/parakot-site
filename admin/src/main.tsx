@@ -193,7 +193,10 @@ const heroBackgroundTypes = [
 ];
 
 const sectionBackgroundMaskOptions = [
-  { value: "veil", label: "Пелена", preview: "veil" },
+  { value: "veil", label: "Пелена вниз", preview: "veil-bottom" },
+  { value: "veil-top", label: "Пелена вверх", preview: "veil-top" },
+  { value: "veil-right", label: "Пелена вправо", preview: "veil-right" },
+  { value: "veil-left", label: "Пелена влево", preview: "veil-left" },
   { value: "spot-left-bottom", label: "Слева снизу", preview: "left-bottom" },
   { value: "spot-right-bottom", label: "Справа снизу", preview: "right-bottom" },
   { value: "spot-left-top", label: "Слева сверху", preview: "left-top" },

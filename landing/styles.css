@@ -2558,10 +2558,15 @@ body::after {
 
 [data-api-sections] > .section .section-heading::before {
   border-radius: 999px;
-  color: var(--snow);
+  color: rgba(24, 70, 96, 0.82);
   background:
-    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.34), transparent 34%),
-    linear-gradient(145deg, var(--ridge), #2f779d);
+    radial-gradient(circle at 34% 25%, rgba(255, 255, 255, 0.74), transparent 36%),
+    linear-gradient(145deg, rgba(226, 245, 253, 0.88), rgba(176, 218, 235, 0.72));
+  border-color: rgba(72, 132, 168, 0.14);
+  box-shadow: 0 0.8rem 2rem rgba(39, 104, 139, 0.12);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  transform: none;
 }
 
 .section-heading h2 {

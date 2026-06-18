@@ -25,6 +25,8 @@ const SITE_BASE =
   (API_BASE.includes("konekon") ? "http://parakot.konekon.ru" : "https://parakot.ru");
 const TOKEN_STORAGE_KEY = "parakot_admin_token";
 const TOKEN_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+const LOGO_UPLOAD_MAX_BYTES = 4 * 1024 * 1024;
+const CONTENT_IMAGE_UPLOAD_MAX_BYTES = 24 * 1024 * 1024;
 
 type ApiResponse<T> = {
   ok: boolean;
@@ -631,8 +633,8 @@ function App() {
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      showToast("error", "Логотип должен быть не тяжелее 2 МБ");
+    if (file.size > LOGO_UPLOAD_MAX_BYTES) {
+      showToast("error", "Логотип должен быть не тяжелее 4 МБ");
       event.target.value = "";
       return;
     }
@@ -799,8 +801,8 @@ function App() {
       return;
     }
 
-    if (file.size > 8 * 1024 * 1024) {
-      showToast("error", "Изображение должно быть не тяжелее 8 МБ");
+    if (file.size > CONTENT_IMAGE_UPLOAD_MAX_BYTES) {
+      showToast("error", "Изображение должно быть не тяжелее 24 МБ");
       event.target.value = "";
       return;
     }
@@ -947,8 +949,8 @@ function App() {
       return;
     }
 
-    if (file.size > 8 * 1024 * 1024) {
-      showToast("error", "Изображение должно быть не тяжелее 8 МБ");
+    if (file.size > CONTENT_IMAGE_UPLOAD_MAX_BYTES) {
+      showToast("error", "Изображение должно быть не тяжелее 24 МБ");
       event.target.value = "";
       return;
     }
@@ -1472,7 +1474,7 @@ function App() {
                     />
                   </Field>
                   <p className="field-help">
-                    PNG, JPG или WEBP до 2 МБ. Лучше использовать
+                    PNG, JPG или WEBP до 4 МБ. Лучше использовать
                     горизонтальный логотип на прозрачном фоне, примерно 400×200 px.
                   </p>
                   <div className="row-actions">
@@ -1986,8 +1988,8 @@ function App() {
                           return;
                         }
 
-                        if (file.size > 8 * 1024 * 1024) {
-                          showToast("error", "Изображение должно быть не тяжелее 8 МБ");
+                        if (file.size > CONTENT_IMAGE_UPLOAD_MAX_BYTES) {
+                          showToast("error", "Изображение должно быть не тяжелее 24 МБ");
                           event.target.value = "";
                           return;
                         }

@@ -10,6 +10,13 @@ if (!is_file($bootstrapPath)) {
 
 require_once $bootstrapPath;
 
+const LOGO_UPLOAD_MAX_BYTES = 4 * 1024 * 1024;
+const CONTENT_IMAGE_UPLOAD_MAX_BYTES = 24 * 1024 * 1024;
+const LOGO_IMAGE_MAX_WIDTH = 640;
+const CONTENT_IMAGE_MAX_WIDTH = 2200;
+const CARD_IMAGE_MAX_WIDTH = 1600;
+const WEB_IMAGE_QUALITY = 82;
+
 sendCorsHeaders();
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -830,21 +837,13 @@ function uploadLogo(PDO $connection): array
         throw new InvalidArgumentException('Не удалось прочитать загруженный файл.');
     }
 
-    if ($size <= 0 || $size > 2 * 1024 * 1024) {
-        throw new InvalidArgumentException('Логотип должен быть не тяжелее 2 МБ.');
+    if ($size <= 0 || $size > LOGO_UPLOAD_MAX_BYTES) {
+        throw new InvalidArgumentException('Логотип должен быть не тяжелее 4 МБ.');
     }
 
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mimeType = (string) $finfo->file($tmpName);
-    $allowedTypes = [
-        'image/png' => 'png',
-        'image/jpeg' => 'jpg',
-        'image/webp' => 'webp',
-    ];
-
-    if (!array_key_exists($mimeType, $allowedTypes)) {
-        throw new InvalidArgumentException('Можно загрузить только PNG, JPG или WEBP.');
-    }
+    assertSupportedImageMimeType($mimeType);
 
     $uploadDirectory = publicRootPath() . '/uploads';
 
@@ -853,14 +852,13 @@ function uploadLogo(PDO $connection): array
     }
 
     $filename = sprintf(
-        'logo-%s-%s.%s',
+        'logo-%s-%s.webp',
         date('Ymd-His'),
-        bin2hex(random_bytes(4)),
-        $allowedTypes[$mimeType]
+        bin2hex(random_bytes(4))
     );
     $destination = $uploadDirectory . '/' . $filename;
 
-    if (!move_uploaded_file($tmpName, $destination)) {
+    if (!compressUploadedImageToWebp($tmpName, $mimeType, $destination, LOGO_IMAGE_MAX_WIDTH)) {
         throw new RuntimeException('Не удалось сохранить логотип.');
     }
 
@@ -877,7 +875,7 @@ function uploadSectionImage(PDO $connection, int $sectionId): array
 {
     $existingSection = ensureRecordExists($connection, 'sections', $sectionId);
     $oldImagePath = nullableString($existingSection, 'image_path');
-    $newImagePath = storeUploadedImage('image', 8 * 1024 * 1024, 'section');
+    $newImagePath = storeUploadedImage('image', CONTENT_IMAGE_UPLOAD_MAX_BYTES, 'section', CONTENT_IMAGE_MAX_WIDTH);
 
     try {
         $statement = $connection->prepare('UPDATE sections SET image_path = :image_path WHERE id = :id');
@@ -910,7 +908,7 @@ function uploadSectionItemImage(PDO $connection, int $itemId): array
 {
     $existingItem = ensureRecordExists($connection, 'section_items', $itemId);
     $oldImagePath = nullableString($existingItem, 'image_path');
-    $newImagePath = storeUploadedImage('image', 8 * 1024 * 1024, 'card');
+    $newImagePath = storeUploadedImage('image', CONTENT_IMAGE_UPLOAD_MAX_BYTES, 'card', CARD_IMAGE_MAX_WIDTH);
 
     try {
         $statement = $connection->prepare('UPDATE section_items SET image_path = :image_path WHERE id = :id');
@@ -939,7 +937,7 @@ function deleteSectionItemImage(PDO $connection, int $itemId): array
     return findById($connection, 'section_items', $itemId);
 }
 
-function storeUploadedImage(string $fieldName, int $maxBytes, string $prefix): string
+function storeUploadedImage(string $fieldName, int $maxBytes, string $prefix, int $maxWidth): string
 {
     if (!isset($_FILES[$fieldName]) || !is_array($_FILES[$fieldName])) {
         throw new InvalidArgumentException('Файл изображения не передан.');
@@ -960,20 +958,12 @@ function storeUploadedImage(string $fieldName, int $maxBytes, string $prefix): s
     }
 
     if ($size <= 0 || $size > $maxBytes) {
-        throw new InvalidArgumentException('Изображение должно быть не тяжелее 8 МБ.');
+        throw new InvalidArgumentException('Изображение должно быть не тяжелее 24 МБ.');
     }
 
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mimeType = (string) $finfo->file($tmpName);
-    $allowedTypes = [
-        'image/png' => 'png',
-        'image/jpeg' => 'jpg',
-        'image/webp' => 'webp',
-    ];
-
-    if (!array_key_exists($mimeType, $allowedTypes)) {
-        throw new InvalidArgumentException('Можно загрузить только PNG, JPG или WEBP.');
-    }
+    assertSupportedImageMimeType($mimeType);
 
     $uploadDirectory = publicRootPath() . '/uploads';
 
@@ -982,21 +972,142 @@ function storeUploadedImage(string $fieldName, int $maxBytes, string $prefix): s
     }
 
     $filename = sprintf(
-        '%s-%s-%s.%s',
+        '%s-%s-%s.webp',
         $prefix,
         date('Ymd-His'),
-        bin2hex(random_bytes(4)),
-        $allowedTypes[$mimeType]
+        bin2hex(random_bytes(4))
     );
     $destination = $uploadDirectory . '/' . $filename;
 
-    if (!move_uploaded_file($tmpName, $destination)) {
+    if (!compressUploadedImageToWebp($tmpName, $mimeType, $destination, $maxWidth)) {
         throw new RuntimeException('Не удалось сохранить изображение.');
     }
 
     @chmod($destination, 0644);
 
     return requestOrigin() . '/uploads/' . $filename;
+}
+
+function assertSupportedImageMimeType(string $mimeType): void
+{
+    $allowedTypes = [
+        'image/png',
+        'image/jpeg',
+        'image/webp',
+    ];
+
+    if (!in_array($mimeType, $allowedTypes, true)) {
+        throw new InvalidArgumentException('Можно загрузить только PNG, JPG или WEBP.');
+    }
+}
+
+function compressUploadedImageToWebp(string $sourcePath, string $mimeType, string $destinationPath, int $maxWidth): bool
+{
+    if (!extension_loaded('gd') || !function_exists('imagewebp')) {
+        throw new RuntimeException('На сервере не включена обработка изображений.');
+    }
+
+    $source = imageFromPath($sourcePath, $mimeType);
+
+    if ($source === null) {
+        return false;
+    }
+
+    $source = orientJpegImage($source, $sourcePath, $mimeType);
+    $width = imagesx($source);
+    $height = imagesy($source);
+
+    if ($width <= 0 || $height <= 0) {
+        imagedestroy($source);
+        return false;
+    }
+
+    $targetWidth = min($width, $maxWidth);
+    $targetHeight = (int) round($height * ($targetWidth / $width));
+
+    if ($targetWidth === $width) {
+        $target = $source;
+    } else {
+        $target = imagecreatetruecolor($targetWidth, $targetHeight);
+        imagealphablending($target, false);
+        imagesavealpha($target, true);
+
+        $transparent = imagecolorallocatealpha($target, 255, 255, 255, 127);
+        imagefilledrectangle($target, 0, 0, $targetWidth, $targetHeight, $transparent);
+
+        imagecopyresampled(
+            $target,
+            $source,
+            0,
+            0,
+            0,
+            0,
+            $targetWidth,
+            $targetHeight,
+            $width,
+            $height
+        );
+    }
+
+    $saved = imagewebp($target, $destinationPath, WEB_IMAGE_QUALITY);
+
+    if ($target !== $source) {
+        imagedestroy($target);
+    }
+
+    imagedestroy($source);
+
+    return $saved && is_file($destinationPath);
+}
+
+function imageFromPath(string $sourcePath, string $mimeType)
+{
+    if ($mimeType === 'image/jpeg') {
+        return imagecreatefromjpeg($sourcePath) ?: null;
+    }
+
+    if ($mimeType === 'image/png') {
+        return imagecreatefrompng($sourcePath) ?: null;
+    }
+
+    if ($mimeType === 'image/webp') {
+        return imagecreatefromwebp($sourcePath) ?: null;
+    }
+
+    return null;
+}
+
+function orientJpegImage($image, string $sourcePath, string $mimeType)
+{
+    if ($mimeType !== 'image/jpeg' || !function_exists('exif_read_data')) {
+        return $image;
+    }
+
+    $exif = @exif_read_data($sourcePath);
+    $orientation = is_array($exif) ? (int) ($exif['Orientation'] ?? 1) : 1;
+    $angle = 0;
+
+    if ($orientation === 3) {
+        $angle = 180;
+    } elseif ($orientation === 6) {
+        $angle = 270;
+    } elseif ($orientation === 8) {
+        $angle = 90;
+    }
+
+    if ($angle === 0) {
+        return $image;
+    }
+
+    $rotated = imagerotate($image, $angle, 0);
+
+    if ($rotated === false) {
+        return $image;
+    }
+
+    imagedestroy($image);
+
+    return $rotated;
 }
 
 function deleteUnusedLocalUpload(PDO $connection, ?string $url): void

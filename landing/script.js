@@ -8,17 +8,22 @@ const adminBaseReady = resolveAdminBase();
 const TOKEN_STORAGE_KEY = "parakot_admin_token";
 const EDITOR_MODE_STORAGE_KEY = "parakot_editor_mode";
 let formStatusTimer = null;
+let hashScrollRequest = 0;
 
 consumeEditorTokenFromUrl();
 
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const siteHeader = document.querySelector(".site-header");
 
-if (siteHeader) {
-  const updateHeaderState = () => {
-    siteHeader.classList.toggle("is-scrolled", window.scrollY > 80);
-  };
+const updateHeaderState = () => {
+  if (!siteHeader) {
+    return;
+  }
 
+  siteHeader.classList.toggle("is-scrolled", window.scrollY > 80);
+};
+
+if (siteHeader) {
   window.addEventListener("scroll", updateHeaderState, { passive: true });
   window.addEventListener("resize", updateHeaderState);
   updateHeaderState();
@@ -154,6 +159,10 @@ const sectionTypeMeta = {
 loadDynamicContent();
 wireLeadForm();
 wireInterestSelect();
+scheduleHashScroll();
+
+window.addEventListener("load", () => scheduleHashScroll());
+window.addEventListener("hashchange", () => scheduleHashScroll({ behavior: "smooth" }));
 
 async function loadDynamicContent() {
   try {
@@ -172,9 +181,39 @@ async function loadDynamicContent() {
     applySettings(payload.data.settings);
     applyContacts(payload.data.contacts);
     applySections(payload.data.sections);
+    scheduleHashScroll();
   } catch {
     // Hero and contacts remain visible if the API is temporarily unavailable.
+    scheduleHashScroll();
   }
+}
+
+function scheduleHashScroll(options = {}) {
+  const hash = window.location.hash;
+
+  if (!hash || hash === "#top") {
+    return;
+  }
+
+  const currentRequest = ++hashScrollRequest;
+  const behavior = options.behavior || "auto";
+
+  [0, 80, 220, 500].forEach((delay) => {
+    window.setTimeout(() => {
+      if (currentRequest !== hashScrollRequest || window.location.hash !== hash) {
+        return;
+      }
+
+      const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+
+      if (!target) {
+        return;
+      }
+
+      target.scrollIntoView({ block: "start", behavior });
+      updateHeaderState();
+    }, delay);
+  });
 }
 
 function applySettings(settings) {

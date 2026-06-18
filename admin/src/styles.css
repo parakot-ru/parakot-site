@@ -1343,6 +1343,32 @@ textarea:focus {
   align-self: start;
 }
 
+.compact-range {
+  display: grid;
+  gap: 5px;
+  min-height: 42px;
+  padding: 6px 10px;
+  border: 1px solid #d8e5eb;
+  border-radius: 9px;
+  background: #fbfdfe;
+}
+
+.compact-range span {
+  color: #567188;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.compact-range input[type="range"] {
+  width: 100%;
+  min-width: 0;
+}
+
+.item-overlay-control {
+  align-self: start;
+}
+
 .new-section {
   grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.35fr) 160px;
   align-items: end;

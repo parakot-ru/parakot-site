@@ -1879,6 +1879,21 @@ function App() {
                             </option>
                           ))}
                         </select>
+                        <label className="compact-range item-overlay-control">
+                          <span>Пелина: {cardImageOverlayValue(item.meta_json)}%</span>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            step="5"
+                            value={cardImageOverlayValue(item.meta_json)}
+                            onChange={(event) =>
+                              updateSectionItemMeta(section.id, item.id, {
+                                imageOverlay: event.target.value === "100" ? "" : event.target.value,
+                              })
+                            }
+                          />
+                        </label>
                         <div className="order-buttons">
                           <button
                             className="icon-button"
@@ -2021,6 +2036,29 @@ function App() {
                         </option>
                       ))}
                     </select>
+                    <label className="compact-range item-overlay-control">
+                      <span>
+                        Пелина:{" "}
+                        {cardImageOverlayValue(
+                          (draftItems[section.id] ?? emptySectionItem).meta_json,
+                        )}
+                        %
+                      </span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="5"
+                        value={cardImageOverlayValue(
+                          (draftItems[section.id] ?? emptySectionItem).meta_json,
+                        )}
+                        onChange={(event) =>
+                          updateDraftItemMeta(section.id, {
+                            imageOverlay: event.target.value === "100" ? "" : event.target.value,
+                          })
+                        }
+                      />
+                    </label>
                     <button
                       className="primary-button"
                       type="button"
@@ -2909,6 +2947,10 @@ function updateMetaJson(metaJson: string | null, patch: Record<string, string>) 
   });
 
   return Object.keys(parsed).length > 0 ? JSON.stringify(parsed) : "";
+}
+
+function cardImageOverlayValue(metaJson: string | null) {
+  return clampNumber(readMetaValue(metaJson, "imageOverlay"), 0, 100, 100);
 }
 
 function sectionTypeDoc(type: string) {

@@ -758,6 +758,14 @@ function renderItems(section) {
       card.classList.add(`placement-${placement}`);
     }
 
+    const imageOverlay = clampNumber(
+      readMetaValue(item.meta_json, "imageOverlay"),
+      0,
+      100,
+      100,
+    );
+    card.style.setProperty("--card-image-overlay", `${imageOverlay / 100}`);
+
     const title = document.createElement(isTimeline ? "strong" : "h3");
     title.textContent = item.title;
     card.appendChild(title);
@@ -769,10 +777,8 @@ function renderItems(section) {
     }
 
     if (item.image_path) {
-      card.style.backgroundImage =
-        section.type === "locations_grid"
-          ? `url("${item.image_path}")`
-          : `linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(242, 248, 253, 0.88)), url("${item.image_path}")`;
+      card.classList.add("has-card-image");
+      card.style.backgroundImage = `url("${item.image_path}")`;
     }
 
     container.appendChild(card);

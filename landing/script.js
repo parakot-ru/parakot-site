@@ -14,6 +14,8 @@ consumeEditorTokenFromUrl();
 
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const siteHeader = document.querySelector(".site-header");
+const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
+const mobileNav = document.querySelector(".mobile-nav");
 
 const updateHeaderState = () => {
   if (!siteHeader) {
@@ -27,6 +29,39 @@ if (siteHeader) {
   window.addEventListener("scroll", updateHeaderState, { passive: true });
   window.addEventListener("resize", updateHeaderState);
   updateHeaderState();
+}
+
+if (siteHeader && mobileMenuToggle && mobileNav) {
+  const setMobileMenuOpen = (isOpen) => {
+    siteHeader.classList.toggle("is-menu-open", isOpen);
+    mobileMenuToggle.setAttribute("aria-expanded", String(isOpen));
+    mobileMenuToggle.setAttribute("aria-label", isOpen ? "Закрыть меню" : "Открыть меню");
+    mobileNav.hidden = !isOpen;
+  };
+
+  mobileMenuToggle.addEventListener("click", () => {
+    setMobileMenuOpen(!siteHeader.classList.contains("is-menu-open"));
+  });
+
+  mobileNav.addEventListener("click", (event) => {
+    if (event.target.closest("a")) {
+      setMobileMenuOpen(false);
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!siteHeader.classList.contains("is-menu-open") || siteHeader.contains(event.target)) {
+      return;
+    }
+
+    setMobileMenuOpen(false);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      setMobileMenuOpen(false);
+    }
+  });
 }
 
 if (parallaxItems.length > 0 && !prefersReducedMotion.matches) {
@@ -504,16 +539,6 @@ function applyHeroBadge(hero, section) {
   }
 }
 
-function clampNumber(value, min, max) {
-  const number = Number.parseFloat(value);
-
-  if (!Number.isFinite(number)) {
-    return min;
-  }
-
-  return Math.min(Math.max(number, min), max);
-}
-
 function hideHeroSection() {
   const hero = document.querySelector(".hero");
 
@@ -565,8 +590,9 @@ function protectShortHeroPreposition(text) {
 
 function updateNavigation(sections) {
   const nav = document.querySelector(".nav");
+  const mobileNav = document.querySelector(".mobile-nav");
 
-  if (!nav) {
+  if (!nav && !mobileNav) {
     return;
   }
 
@@ -578,19 +604,28 @@ function updateNavigation(sections) {
     return;
   }
 
-  nav.replaceChildren();
+  const renderLinks = (target) => {
+    if (!target) {
+      return;
+    }
 
-  menuSections.forEach((section) => {
-    const link = document.createElement("a");
-    link.href = `#section-${section.id}`;
-    link.textContent = section.menu_title;
-    nav.appendChild(link);
-  });
+    target.replaceChildren();
 
-  const contactsLink = document.createElement("a");
-  contactsLink.href = "#contacts";
-  contactsLink.textContent = "Контакты";
-  nav.appendChild(contactsLink);
+    menuSections.forEach((section) => {
+      const link = document.createElement("a");
+      link.href = `#section-${section.id}`;
+      link.textContent = section.menu_title;
+      target.appendChild(link);
+    });
+
+    const contactsLink = document.createElement("a");
+    contactsLink.href = "#contacts";
+    contactsLink.textContent = "Контакты";
+    target.appendChild(contactsLink);
+  };
+
+  renderLinks(nav);
+  renderLinks(mobileNav);
 }
 
 function renderSection(section) {

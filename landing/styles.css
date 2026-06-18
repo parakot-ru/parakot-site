@@ -2506,6 +2506,48 @@ body::after {
   z-index: 2;
 }
 
+.section.section-has-background .section-heading {
+  margin-left: clamp(-1.1rem, -1.8vw, -0.4rem);
+  padding: clamp(1rem, 2vw, 1.45rem) clamp(1.2rem, 3vw, 2.4rem) clamp(1.1rem, 2.2vw, 1.6rem);
+  border-radius: clamp(1.2rem, 2vw, 1.8rem);
+  background:
+    linear-gradient(
+      90deg,
+      rgb(234 247 253 / 0.92) 0%,
+      rgb(234 247 253 / 0.78) 50%,
+      rgb(234 247 253 / 0) 100%
+    );
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.42);
+}
+
+[data-api-sections] > .section.section-has-background .section-heading {
+  padding-left: clamp(4.9rem, 6.8vw, 6.4rem);
+}
+
+.section.section-has-background .section-description {
+  color: rgba(58, 86, 108, 0.92);
+}
+
+.section.section-has-background.section-background-tint-snow .section-heading {
+  background:
+    linear-gradient(
+      90deg,
+      rgb(245 251 255 / 0.94) 0%,
+      rgb(245 251 255 / 0.8) 50%,
+      rgb(245 251 255 / 0) 100%
+    );
+}
+
+.section.section-has-background.section-background-tint-warm .section-heading {
+  background:
+    linear-gradient(
+      90deg,
+      rgb(255 247 234 / 0.94) 0%,
+      rgb(255 247 234 / 0.78) 50%,
+      rgb(255 247 234 / 0) 100%
+    );
+}
+
 [data-api-sections] > .section.section-background-decor-off .section-heading::before {
   display: none;
 }

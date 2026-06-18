@@ -769,7 +769,10 @@ function renderItems(section) {
     }
 
     if (item.image_path) {
-      card.style.backgroundImage = `linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(242, 248, 253, 0.88)), url("${item.image_path}")`;
+      card.style.backgroundImage =
+        section.type === "locations_grid"
+          ? `url("${item.image_path}")`
+          : `linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(242, 248, 253, 0.88)), url("${item.image_path}")`;
     }
 
     container.appendChild(card);

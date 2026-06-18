@@ -192,16 +192,43 @@ const heroBackgroundTypes = [
   { value: "video", label: "Видео" },
 ];
 
-const sectionBackgroundMaskOptions = [
-  { value: "full", label: "Фото целиком", preview: "full" },
-  { value: "veil", label: "Фото снизу", preview: "veil-bottom" },
-  { value: "veil-top", label: "Фото сверху", preview: "veil-top" },
-  { value: "veil-right", label: "Фото справа", preview: "veil-right" },
-  { value: "veil-left", label: "Фото слева", preview: "veil-left" },
-  { value: "spot-left-bottom", label: "Слева снизу", preview: "left-bottom" },
-  { value: "spot-right-bottom", label: "Справа снизу", preview: "right-bottom" },
-  { value: "spot-left-top", label: "Слева сверху", preview: "left-top" },
-  { value: "spot-right-top", label: "Справа сверху", preview: "right-top" },
+const sectionBackgroundMaskGroups = [
+  {
+    title: "Без маски",
+    hint: "Фото остается цельным, поверх работают пелена, размытие и края.",
+    options: [{ value: "full", label: "Фото целиком", preview: "full" }],
+  },
+  {
+    title: "Пятна",
+    hint: "Фото видно только в одной зоне, остальное уходит в фон сайта.",
+    options: [
+      { value: "spot-left-bottom", label: "Слева снизу", preview: "left-bottom" },
+      { value: "spot-right-bottom", label: "Справа снизу", preview: "right-bottom" },
+      { value: "spot-left-top", label: "Слева сверху", preview: "left-top" },
+      { value: "spot-right-top", label: "Справа сверху", preview: "right-top" },
+    ],
+  },
+  {
+    title: "Градиенты",
+    hint: "Фото мягко появляется с выбранной стороны секции.",
+    options: [
+      { value: "veil", label: "Снизу", preview: "veil-bottom" },
+      { value: "veil-top", label: "Сверху", preview: "veil-top" },
+      { value: "veil-right", label: "Справа", preview: "veil-right" },
+      { value: "veil-left", label: "Слева", preview: "veil-left" },
+    ],
+  },
+];
+
+const sectionBackgroundEdgeOptions = [
+  { value: "off", label: "Без краев", preview: "edge-off" },
+  { value: "all", label: "Все края", preview: "edge-all" },
+  { value: "top", label: "Сверху", preview: "edge-top" },
+  { value: "right", label: "Справа", preview: "edge-right" },
+  { value: "bottom", label: "Снизу", preview: "edge-bottom" },
+  { value: "left", label: "Слева", preview: "edge-left" },
+  { value: "x", label: "Слева и справа", preview: "edge-x" },
+  { value: "y", label: "Сверху и снизу", preview: "edge-y" },
 ];
 
 const sectionBackgroundTintOptions = [
@@ -1775,6 +1802,7 @@ function App() {
                       blur={readMetaValue(section.meta_json, "backgroundSpotBlur") || "2"}
                       overlay={readMetaValue(section.meta_json, "backgroundOverlay") || "100"}
                       edgeFade={readMetaValue(section.meta_json, "backgroundEdgeFade") || "off"}
+                      edgeMode={readMetaValue(section.meta_json, "backgroundEdgeMode") || ""}
                       edgeSoftness={readMetaValue(section.meta_json, "backgroundEdgeSoftness") || "17"}
                       decor={readMetaValue(section.meta_json, "backgroundDecor") || "on"}
                       onChange={(patch) => updateSectionMeta(section.id, patch)}
@@ -2505,6 +2533,7 @@ function SectionBackgroundControls({
   blur,
   overlay,
   edgeFade,
+  edgeMode,
   edgeSoftness,
   decor,
   onChange,
@@ -2515,6 +2544,7 @@ function SectionBackgroundControls({
   blur: string;
   overlay: string;
   edgeFade: string;
+  edgeMode: string;
   edgeSoftness: string;
   decor: string;
   onChange: (patch: Record<string, string>) => void;
@@ -2523,27 +2553,74 @@ function SectionBackgroundControls({
   const currentBlur = clampNumber(blur, 0, 12, 2);
   const currentOverlay = clampNumber(overlay, 0, 100, 100);
   const currentEdgeSoftness = clampNumber(edgeSoftness, 0, 36, 17);
+  const selectedEdgeMode = edgeMode || (edgeFade === "on" ? "all" : "off");
 
   return (
     <div className="section-background-controls">
-      <div className="background-visual-field">
-        <span>Маска фона</span>
-        <div className="background-mask-picker">
-          {sectionBackgroundMaskOptions.map((option) => (
-            <button
-              className={mask === option.value ? "is-active" : ""}
-              key={option.value}
-              type="button"
-              onClick={() => onChange({ backgroundMask: option.value })}
-            >
-              <i className={`mask-preview mask-preview-${option.preview}`} aria-hidden="true" />
-              <strong>{option.label}</strong>
-            </button>
+      <div className="background-control-card background-control-card-wide">
+        <div className="background-control-head">
+          <strong>Маска изображения</strong>
+          <span>Выберите, где фотография должна быть заметна.</span>
+        </div>
+        <div className="background-mask-groups">
+          {sectionBackgroundMaskGroups.map((group) => (
+            <div className="background-mask-group" key={group.title}>
+              <div className="background-mask-group-head">
+                <strong>{group.title}</strong>
+                <small>{group.hint}</small>
+              </div>
+              <div className="background-mask-picker">
+                {group.options.map((option) => (
+                  <button
+                    className={mask === option.value ? "is-active" : ""}
+                    key={option.value}
+                    type="button"
+                    onClick={() => onChange({ backgroundMask: option.value })}
+                  >
+                    <i className={`mask-preview mask-preview-${option.preview}`} aria-hidden="true" />
+                    <strong>{option.label}</strong>
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </div>
-      <div className="background-visual-field">
-        <span>Цвет высветления</span>
+
+      <div className="background-control-card">
+        <div className="background-control-head">
+          <strong>Изображение</strong>
+          <span>Размер видимой области и мягкость самого фото.</span>
+        </div>
+        <label className="range-field">
+          <span>Размер фото: {currentSize}%</span>
+          <input
+            type="range"
+            min="10"
+            max="115"
+            step="5"
+            value={currentSize}
+            onChange={(event) => onChange({ backgroundSpotSize: event.target.value })}
+          />
+        </label>
+        <label className="range-field">
+          <span>Размазанность: {currentBlur}px</span>
+          <input
+            type="range"
+            min="0"
+            max="12"
+            step="1"
+            value={currentBlur}
+            onChange={(event) => onChange({ backgroundSpotBlur: event.target.value })}
+          />
+        </label>
+      </div>
+
+      <div className="background-control-card">
+        <div className="background-control-head">
+          <strong>Высветление</strong>
+          <span>Пелена помогает читать текст поверх фотографии.</span>
+        </div>
         <div className="background-tint-picker">
           {sectionBackgroundTintOptions.map((option) => (
             <button
@@ -2557,71 +2634,71 @@ function SectionBackgroundControls({
             </button>
           ))}
         </div>
+        <label className="range-field">
+          <span>Пелена: {currentOverlay}%</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            step="5"
+            value={currentOverlay}
+            onChange={(event) => onChange({ backgroundOverlay: event.target.value })}
+          />
+        </label>
       </div>
-      <label className="range-field">
-        <span>Размер фото: {currentSize}%</span>
-        <input
-          type="range"
-          min="10"
-          max="115"
-          step="5"
-          value={currentSize}
-          onChange={(event) => onChange({ backgroundSpotSize: event.target.value })}
-        />
-      </label>
-      <label className="range-field">
-        <span>Размазанность: {currentBlur}px</span>
-        <input
-          type="range"
-          min="0"
-          max="12"
-          step="1"
-          value={currentBlur}
-          onChange={(event) => onChange({ backgroundSpotBlur: event.target.value })}
-        />
-      </label>
-      <label className="range-field">
-        <span>Пелена: {currentOverlay}%</span>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          step="5"
-          value={currentOverlay}
-          onChange={(event) => onChange({ backgroundOverlay: event.target.value })}
-        />
-      </label>
-      <label className="range-field">
-        <span>Мягкость краев: {currentEdgeSoftness}%</span>
-        <input
-          type="range"
-          min="0"
-          max="36"
-          step="2"
-          value={currentEdgeSoftness}
-          onChange={(event) => onChange({ backgroundEdgeSoftness: event.target.value })}
-        />
-      </label>
-      <label className="section-decor-toggle">
-        <input
-          type="checkbox"
-          checked={edgeFade === "on"}
-          onChange={(event) =>
-            onChange({ backgroundEdgeFade: event.target.checked ? "on" : "off" })
-          }
-        />
-        <span>Убрать края</span>
-      </label>
-      <label className="section-decor-toggle">
-        <input
-          type="checkbox"
-          checked={decor !== "off"}
-          onChange={(event) =>
-            onChange({ backgroundDecor: event.target.checked ? "on" : "off" })
-          }
-        />
-        <span>Параллакс-декор</span>
-      </label>
+
+      <div className="background-control-card background-control-card-wide">
+        <div className="background-control-head">
+          <strong>Края в фон сайта</strong>
+          <span>Можно убрать все края фотографии или только выбранные стороны.</span>
+        </div>
+        <div className="background-edge-picker">
+          {sectionBackgroundEdgeOptions.map((option) => (
+            <button
+              className={selectedEdgeMode === option.value ? "is-active" : ""}
+              key={option.value}
+              type="button"
+              onClick={() =>
+                onChange({
+                  backgroundEdgeMode: option.value === "off" ? "" : option.value,
+                  backgroundEdgeFade: option.value === "off" ? "off" : "on",
+                })
+              }
+            >
+              <i className={`edge-preview edge-preview-${option.preview}`} aria-hidden="true" />
+              <strong>{option.label}</strong>
+            </button>
+          ))}
+        </div>
+        <label className="range-field">
+          <span>Мягкость краев: {currentEdgeSoftness}%</span>
+          <input
+            type="range"
+            min="0"
+            max="36"
+            step="2"
+            value={currentEdgeSoftness}
+            onChange={(event) => onChange({ backgroundEdgeSoftness: event.target.value })}
+          />
+        </label>
+      </div>
+
+      <div className="background-control-card">
+        <div className="background-control-head">
+          <strong>Декор</strong>
+          <span>Дополнительные линии и воздушные элементы секции.</span>
+        </div>
+        <label className="section-decor-toggle">
+          <input
+            type="checkbox"
+            checked={decor !== "off"}
+            onChange={(event) =>
+              onChange({ backgroundDecor: event.target.checked ? "on" : "off" })
+            }
+          />
+          <span>Параллакс-декор</span>
+        </label>
+      </div>
     </div>
   );
 }

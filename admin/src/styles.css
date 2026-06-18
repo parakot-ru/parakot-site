@@ -718,7 +718,7 @@ textarea:focus {
 .section-background-controls {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(220px, 0.9fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
   align-items: start;
   padding: 12px;
@@ -727,24 +727,73 @@ textarea:focus {
   background: rgba(245, 251, 253, 0.78);
 }
 
-.background-visual-field {
+.background-control-card {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(42, 142, 194, 0.13);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(233, 247, 253, 0.5)),
+    #fff;
+}
+
+.background-control-card-wide {
+  grid-column: 1 / -1;
+}
+
+.background-control-head {
+  display: grid;
+  gap: 3px;
+}
+
+.background-control-head strong {
+  color: #182330;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.background-control-head span,
+.background-mask-group-head small {
+  color: #61717f;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.background-mask-groups {
+  display: grid;
+  gap: 12px;
+}
+
+.background-mask-group {
   display: grid;
   gap: 8px;
 }
 
-.background-visual-field > span {
-  color: #61717f;
-  font-size: 12px;
-  font-weight: 800;
+.background-mask-group-head {
+  display: grid;
+  gap: 2px;
 }
 
-.background-mask-picker {
+.background-mask-group-head strong {
+  color: #2b83b7;
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.background-mask-picker,
+.background-edge-picker {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
   gap: 8px;
 }
 
 .background-mask-picker button,
+.background-edge-picker button,
 .background-tint-picker button {
   border: 1px solid #d5e4eb;
   border-radius: 12px;
@@ -754,7 +803,8 @@ textarea:focus {
   font: inherit;
 }
 
-.background-mask-picker button {
+.background-mask-picker button,
+.background-edge-picker button {
   display: grid;
   gap: 7px;
   min-height: 86px;
@@ -763,6 +813,7 @@ textarea:focus {
 }
 
 .background-mask-picker button.is-active,
+.background-edge-picker button.is-active,
 .background-tint-picker button.is-active {
   border-color: #2f8fc7;
   background: #edf9ff;
@@ -770,13 +821,15 @@ textarea:focus {
 }
 
 .background-mask-picker strong,
+.background-edge-picker strong,
 .background-tint-picker strong {
   font-size: 12px;
   font-weight: 750;
   line-height: 1.15;
 }
 
-.mask-preview {
+.mask-preview,
+.edge-preview {
   position: relative;
   display: block;
   min-height: 44px;
@@ -787,7 +840,8 @@ textarea:focus {
     #eaf7fd;
 }
 
-.mask-preview::after {
+.mask-preview::after,
+.edge-preview::after {
   content: "";
   position: absolute;
   width: 58%;
@@ -853,6 +907,62 @@ textarea:focus {
 .mask-preview-right-top::after {
   right: -8%;
   top: -4%;
+}
+
+.edge-preview::after {
+  inset: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+}
+
+.edge-preview-edge-off::after {
+  background:
+    linear-gradient(135deg, rgba(47, 143, 199, 0.48), rgba(255, 184, 92, 0.3));
+}
+
+.edge-preview-edge-all::after {
+  background:
+    linear-gradient(90deg, #fff 0 18%, transparent 36% 64%, #fff 82% 100%),
+    linear-gradient(180deg, #fff 0 18%, transparent 36% 64%, #fff 82% 100%),
+    linear-gradient(135deg, rgba(47, 143, 199, 0.58), rgba(255, 184, 92, 0.24));
+}
+
+.edge-preview-edge-top::after {
+  background:
+    linear-gradient(180deg, #fff 0 32%, transparent 66%),
+    linear-gradient(135deg, rgba(47, 143, 199, 0.58), rgba(255, 184, 92, 0.24));
+}
+
+.edge-preview-edge-right::after {
+  background:
+    linear-gradient(270deg, #fff 0 32%, transparent 66%),
+    linear-gradient(135deg, rgba(47, 143, 199, 0.58), rgba(255, 184, 92, 0.24));
+}
+
+.edge-preview-edge-bottom::after {
+  background:
+    linear-gradient(0deg, #fff 0 32%, transparent 66%),
+    linear-gradient(135deg, rgba(47, 143, 199, 0.58), rgba(255, 184, 92, 0.24));
+}
+
+.edge-preview-edge-left::after {
+  background:
+    linear-gradient(90deg, #fff 0 32%, transparent 66%),
+    linear-gradient(135deg, rgba(47, 143, 199, 0.58), rgba(255, 184, 92, 0.24));
+}
+
+.edge-preview-edge-x::after {
+  background:
+    linear-gradient(90deg, #fff 0 24%, transparent 48% 52%, #fff 76% 100%),
+    linear-gradient(135deg, rgba(47, 143, 199, 0.58), rgba(255, 184, 92, 0.24));
+}
+
+.edge-preview-edge-y::after {
+  background:
+    linear-gradient(180deg, #fff 0 24%, transparent 48% 52%, #fff 76% 100%),
+    linear-gradient(135deg, rgba(47, 143, 199, 0.58), rgba(255, 184, 92, 0.24));
 }
 
 .background-tint-picker {
@@ -1512,6 +1622,7 @@ textarea:focus {
   }
 
   .background-mask-picker,
+  .background-edge-picker,
   .background-tint-picker {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

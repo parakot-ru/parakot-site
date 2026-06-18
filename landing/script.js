@@ -628,6 +628,9 @@ function renderSection(section) {
       17,
     );
     const backgroundEdgeFade = readMetaValue(section.meta_json, "backgroundEdgeFade") || "off";
+    const backgroundEdgeMode =
+      readMetaValue(section.meta_json, "backgroundEdgeMode") ||
+      (backgroundEdgeFade === "on" ? "all" : "off");
     const backgroundDecor = readMetaValue(section.meta_json, "backgroundDecor") || "on";
 
     element.classList.add("section-has-background");
@@ -645,8 +648,9 @@ function renderSection(section) {
       element.classList.add("section-background-decor-off");
     }
 
-    if (backgroundEdgeFade === "on") {
+    if (backgroundEdgeFade === "on" && backgroundEdgeMode !== "off") {
       element.classList.add("section-background-edge-fade");
+      element.classList.add(`section-background-edge-${backgroundEdgeMode}`);
     }
 
     const backgroundMedia = document.createElement("span");

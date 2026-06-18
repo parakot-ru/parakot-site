@@ -2416,8 +2416,41 @@ body::after {
 
 .section.section-has-background.section-background-edge-fade::before {
   display: block;
+}
+
+.section.section-has-background.section-background-edge-all::before {
   background:
     linear-gradient(90deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) var(--section-edge-inner, 5%), transparent var(--section-edge-softness, 17%), transparent calc(100% - var(--section-edge-softness, 17%)), var(--section-bg-edge-color) calc(100% - var(--section-edge-inner, 5%)), var(--section-bg-color) 100%),
+    linear-gradient(180deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) var(--section-edge-inner, 5%), transparent var(--section-edge-softness, 17%), transparent calc(100% - var(--section-edge-softness, 17%)), var(--section-bg-edge-color) calc(100% - var(--section-edge-inner, 5%)), var(--section-bg-color) 100%);
+}
+
+.section.section-has-background.section-background-edge-top::before {
+  background:
+    linear-gradient(180deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) var(--section-edge-inner, 5%), transparent var(--section-edge-softness, 17%));
+}
+
+.section.section-has-background.section-background-edge-right::before {
+  background:
+    linear-gradient(270deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) var(--section-edge-inner, 5%), transparent var(--section-edge-softness, 17%));
+}
+
+.section.section-has-background.section-background-edge-bottom::before {
+  background:
+    linear-gradient(0deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) var(--section-edge-inner, 5%), transparent var(--section-edge-softness, 17%));
+}
+
+.section.section-has-background.section-background-edge-left::before {
+  background:
+    linear-gradient(90deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) var(--section-edge-inner, 5%), transparent var(--section-edge-softness, 17%));
+}
+
+.section.section-has-background.section-background-edge-x::before {
+  background:
+    linear-gradient(90deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) var(--section-edge-inner, 5%), transparent var(--section-edge-softness, 17%), transparent calc(100% - var(--section-edge-softness, 17%)), var(--section-bg-edge-color) calc(100% - var(--section-edge-inner, 5%)), var(--section-bg-color) 100%);
+}
+
+.section.section-has-background.section-background-edge-y::before {
+  background:
     linear-gradient(180deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) var(--section-edge-inner, 5%), transparent var(--section-edge-softness, 17%), transparent calc(100% - var(--section-edge-softness, 17%)), var(--section-bg-edge-color) calc(100% - var(--section-edge-inner, 5%)), var(--section-bg-color) 100%);
 }
 

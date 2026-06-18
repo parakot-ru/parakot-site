@@ -193,6 +193,7 @@ const heroBackgroundTypes = [
 ];
 
 const sectionBackgroundMaskOptions = [
+  { value: "full", label: "Фото целиком", preview: "full" },
   { value: "veil", label: "Фото снизу", preview: "veil-bottom" },
   { value: "veil-top", label: "Фото сверху", preview: "veil-top" },
   { value: "veil-right", label: "Фото справа", preview: "veil-right" },
@@ -1772,7 +1773,9 @@ function App() {
                       tint={readMetaValue(section.meta_json, "backgroundTint") || "default"}
                       size={readMetaValue(section.meta_json, "backgroundSpotSize") || "50"}
                       blur={readMetaValue(section.meta_json, "backgroundSpotBlur") || "2"}
+                      overlay={readMetaValue(section.meta_json, "backgroundOverlay") || "100"}
                       edgeFade={readMetaValue(section.meta_json, "backgroundEdgeFade") || "off"}
+                      edgeSoftness={readMetaValue(section.meta_json, "backgroundEdgeSoftness") || "17"}
                       decor={readMetaValue(section.meta_json, "backgroundDecor") || "on"}
                       onChange={(patch) => updateSectionMeta(section.id, patch)}
                     />
@@ -2500,7 +2503,9 @@ function SectionBackgroundControls({
   tint,
   size,
   blur,
+  overlay,
   edgeFade,
+  edgeSoftness,
   decor,
   onChange,
 }: {
@@ -2508,12 +2513,16 @@ function SectionBackgroundControls({
   tint: string;
   size: string;
   blur: string;
+  overlay: string;
   edgeFade: string;
+  edgeSoftness: string;
   decor: string;
   onChange: (patch: Record<string, string>) => void;
 }) {
-  const currentSize = clampNumber(size, 34, 76, 50);
+  const currentSize = clampNumber(size, 10, 115, 50);
   const currentBlur = clampNumber(blur, 0, 12, 2);
+  const currentOverlay = clampNumber(overlay, 0, 100, 100);
+  const currentEdgeSoftness = clampNumber(edgeSoftness, 0, 36, 17);
 
   return (
     <div className="section-background-controls">
@@ -2550,12 +2559,12 @@ function SectionBackgroundControls({
         </div>
       </div>
       <label className="range-field">
-        <span>Размер пятна: {currentSize}%</span>
+        <span>Размер фото: {currentSize}%</span>
         <input
           type="range"
-          min="34"
-          max="76"
-          step="1"
+          min="10"
+          max="115"
+          step="5"
           value={currentSize}
           onChange={(event) => onChange({ backgroundSpotSize: event.target.value })}
         />
@@ -2569,6 +2578,28 @@ function SectionBackgroundControls({
           step="1"
           value={currentBlur}
           onChange={(event) => onChange({ backgroundSpotBlur: event.target.value })}
+        />
+      </label>
+      <label className="range-field">
+        <span>Пелена: {currentOverlay}%</span>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="5"
+          value={currentOverlay}
+          onChange={(event) => onChange({ backgroundOverlay: event.target.value })}
+        />
+      </label>
+      <label className="range-field">
+        <span>Мягкость краев: {currentEdgeSoftness}%</span>
+        <input
+          type="range"
+          min="0"
+          max="36"
+          step="2"
+          value={currentEdgeSoftness}
+          onChange={(event) => onChange({ backgroundEdgeSoftness: event.target.value })}
         />
       </label>
       <label className="section-decor-toggle">

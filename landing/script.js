@@ -566,8 +566,8 @@ function renderSection(section) {
     const backgroundTint = readMetaValue(section.meta_json, "backgroundTint") || "default";
     const backgroundSpotSize = clampNumber(
       readMetaValue(section.meta_json, "backgroundSpotSize"),
-      34,
-      76,
+      10,
+      115,
       50,
     );
     const backgroundSpotBlur = clampNumber(
@@ -575,6 +575,18 @@ function renderSection(section) {
       0,
       12,
       2,
+    );
+    const backgroundOverlay = clampNumber(
+      readMetaValue(section.meta_json, "backgroundOverlay"),
+      0,
+      100,
+      100,
+    );
+    const backgroundEdgeSoftness = clampNumber(
+      readMetaValue(section.meta_json, "backgroundEdgeSoftness"),
+      0,
+      36,
+      17,
     );
     const backgroundEdgeFade = readMetaValue(section.meta_json, "backgroundEdgeFade") || "off";
     const backgroundDecor = readMetaValue(section.meta_json, "backgroundDecor") || "on";
@@ -586,6 +598,9 @@ function renderSection(section) {
     element.style.setProperty("--section-spot-height", `${Math.round(backgroundSpotSize * 0.82)}%`);
     element.style.setProperty("--section-spot-blur", `${backgroundSpotBlur}px`);
     element.style.setProperty("--section-veil-start", `${Math.round(80 - backgroundSpotSize * 0.5)}%`);
+    element.style.setProperty("--section-overlay-opacity", `${backgroundOverlay / 100}`);
+    element.style.setProperty("--section-edge-softness", `${backgroundEdgeSoftness}%`);
+    element.style.setProperty("--section-edge-inner", `${Math.round(backgroundEdgeSoftness * 0.3)}%`);
 
     if (backgroundDecor === "off") {
       element.classList.add("section-background-decor-off");

@@ -2271,6 +2271,7 @@ body::after {
   display: block;
   background:
     linear-gradient(180deg, rgba(248, 252, 255, 0.58), rgba(238, 247, 252, 0.78));
+  opacity: var(--section-overlay-opacity, 1);
   pointer-events: none;
 }
 
@@ -2314,6 +2315,12 @@ body::after {
   --section-bg-color: #fff7ea;
   --section-bg-edge-color: rgba(255, 247, 234, 0.88);
   background: #fff7ea !important;
+}
+
+.section-background-mask-full .section-background-media {
+  filter: blur(var(--section-spot-blur, 2px));
+  opacity: 0.68;
+  transform: scale(1.025);
 }
 
 .section-background-mask-veil .section-background-media,
@@ -2406,8 +2413,8 @@ body::after {
 .section.section-has-background.section-background-edge-fade::before {
   display: block;
   background:
-    linear-gradient(90deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) 5%, transparent 17%, transparent 83%, var(--section-bg-edge-color) 95%, var(--section-bg-color) 100%),
-    linear-gradient(180deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) 5%, transparent 17%, transparent 83%, var(--section-bg-edge-color) 95%, var(--section-bg-color) 100%);
+    linear-gradient(90deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) var(--section-edge-inner, 5%), transparent var(--section-edge-softness, 17%), transparent calc(100% - var(--section-edge-softness, 17%)), var(--section-bg-edge-color) calc(100% - var(--section-edge-inner, 5%)), var(--section-bg-color) 100%),
+    linear-gradient(180deg, var(--section-bg-color) 0%, var(--section-bg-edge-color) var(--section-edge-inner, 5%), transparent var(--section-edge-softness, 17%), transparent calc(100% - var(--section-edge-softness, 17%)), var(--section-bg-edge-color) calc(100% - var(--section-edge-inner, 5%)), var(--section-bg-color) 100%);
 }
 
 .section.section-has-background .section-heading,

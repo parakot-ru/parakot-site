@@ -1178,14 +1178,18 @@ h3 {
 
 .contact-link span {
   grid-column: 2;
+  min-width: 0;
   color: rgba(244, 251, 255, 0.66);
   font-size: 0.86rem;
+  line-height: 1.25;
 }
 
 .contact-link strong {
   grid-column: 2;
+  min-width: 0;
   font-size: clamp(1rem, 2vw, 1.22rem);
   font-weight: 700;
+  line-height: 1.25;
   overflow-wrap: anywhere;
 }
 
@@ -3322,6 +3326,37 @@ body::after {
 
   .hero-location-map {
     display: none;
+  }
+
+  .contacts-grid {
+    gap: 1rem;
+  }
+
+  .contacts .contact-card {
+    gap: 0.58rem;
+    padding: 1rem;
+  }
+
+  .contact-link {
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    min-height: 3.95rem;
+    column-gap: 0.72rem;
+    padding: 0.72rem 0.78rem;
+    border-radius: 0.85rem;
+  }
+
+  .contact-link::before {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 0.98rem;
+  }
+
+  .contact-link span {
+    font-size: 0.78rem;
+  }
+
+  .contact-link strong {
+    font-size: 1rem;
   }
 }
 

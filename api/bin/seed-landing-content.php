@@ -60,7 +60,7 @@ try {
     insertContact($connection, 'phone', 'Телефон', '+7 (928) 358-06-03', 'tel:+79283580603', 20);
     insertContact($connection, 'telegram', 'Telegram', '@parakot_obuchenie', 'https://t.me/parakot_obuchenie', 30);
     insertContact($connection, 'instagram', 'Instagram', '@parakot_official', 'https://www.instagram.com/parakot_official/', 40);
-    insertContact($connection, 'vk', 'VK', 'vk.com/rus.xfly', 'https://vk.com/rus.xfly', 50);
+    insertContact($connection, 'vk', 'VK', 'vk.com/nebo_paraplan', 'https://vk.com/nebo_paraplan', 50);
 
     insertSection(
         $connection,

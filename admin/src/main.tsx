@@ -1646,7 +1646,8 @@ function App() {
                   <span>
                     <strong>Показывать ленту</strong>
                     <small>
-                      Посты появятся на поддомене, когда задан owner_id и сохранен VK-токен.
+                      Сейчас {Number(vkFeedSettings.is_enabled) === 1 ? "включена" : "выключена"}.
+                      Для показа нужны owner_id и сохраненный VK-токен.
                     </small>
                   </span>
                 </label>
@@ -1680,7 +1681,7 @@ function App() {
                     value={vkAccessTokenDraft}
                     placeholder={
                       vkFeedSettings.has_token
-                        ? "Оставьте пустым, если токен менять не нужно"
+                        ? `•••••••• сохранен: ${vkFeedSettings.token_mask ?? "токен скрыт"}`
                         : "Вставьте ключ VK"
                     }
                     autoComplete="off"

@@ -1055,9 +1055,27 @@ function maskSecret(string $secret): ?string
  */
 function vkFeedIsConfigured(array $settings): bool
 {
-    return (int) ($settings['is_enabled'] ?? 0) === 1
-        && trim((string) ($settings['owner_id'] ?? '')) !== ''
-        && trim((string) ($settings['access_token'] ?? '')) !== '';
+    return vkFeedStatusReason($settings) === 'ready';
+}
+
+/**
+ * @param array<string, mixed> $settings
+ */
+function vkFeedStatusReason(array $settings): string
+{
+    if ((int) ($settings['is_enabled'] ?? 0) !== 1) {
+        return 'disabled';
+    }
+
+    if (trim((string) ($settings['owner_id'] ?? '')) === '') {
+        return 'missing_owner_id';
+    }
+
+    if (trim((string) ($settings['access_token'] ?? '')) === '') {
+        return 'missing_token';
+    }
+
+    return 'ready';
 }
 
 /**
@@ -1067,11 +1085,14 @@ function vkFeedIsConfigured(array $settings): bool
  */
 function fetchVkFeedPosts(array $settings, array $query): array
 {
-    if (!vkFeedIsConfigured($settings)) {
+    $statusReason = vkFeedStatusReason($settings);
+
+    if ($statusReason !== 'ready') {
         return [
             'posts' => [],
             'next_offset' => 0,
             'has_more' => false,
+            'status_reason' => $statusReason,
             'settings' => publicVkFeedSettings($settings),
         ];
     }
@@ -1088,6 +1109,7 @@ function fetchVkFeedPosts(array $settings, array $query): array
         'posts' => $posts,
         'next_offset' => $nextOffset,
         'has_more' => $nextOffset < $total && count($posts) > 0,
+        'status_reason' => 'ready',
         'settings' => publicVkFeedSettings($settings),
     ];
 }

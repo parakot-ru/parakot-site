@@ -40,10 +40,8 @@ async function loadPosts() {
     }
 
     if (payload.configured === false) {
-      showStatus(
-        "Ждем ключ от VK",
-        payload.message || "Как только появится токен сообщества, здесь появятся свежие посты.",
-      );
+      const reason = payload.data?.status_reason || "missing_token";
+      showStatus(...feedStatusCopy(reason));
     } else {
       hideStatus();
     }
@@ -154,6 +152,18 @@ function formatDate(value) {
 function showStatus(title, message) {
   statusElement.hidden = false;
   statusElement.innerHTML = `<strong>${escapeHtml(title)}</strong>${escapeHtml(message)}`;
+}
+
+function feedStatusCopy(reason) {
+  if (reason === "disabled") {
+    return ["Лента выключена", "Включите переключатель «Показывать ленту» в админке и сохраните настройки."];
+  }
+
+  if (reason === "missing_owner_id") {
+    return ["Не найден VK owner_id", "Укажите ссылку на группу или owner_id в настройках VK-ленты."];
+  }
+
+  return ["Ждем ключ от VK", "Как только появится токен сообщества, здесь появятся свежие посты."];
 }
 
 function hideStatus() {

@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS vk_feed_settings (
+  id TINYINT UNSIGNED NOT NULL PRIMARY KEY DEFAULT 1,
+  is_enabled TINYINT(1) NOT NULL DEFAULT 0,
+  owner_id VARCHAR(40) DEFAULT NULL,
+  group_url VARCHAR(255) DEFAULT NULL,
+  access_token TEXT DEFAULT NULL,
+  page_size TINYINT UNSIGNED NOT NULL DEFAULT 10,
+  cache_ttl INT UNSIGNED NOT NULL DEFAULT 600,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO vk_feed_settings (id, is_enabled, owner_id, group_url, page_size, cache_ttl)
+VALUES (1, 0, NULL, 'https://vk.com/nebo_paraplan', 10, 600)
+ON DUPLICATE KEY UPDATE
+  id = VALUES(id);

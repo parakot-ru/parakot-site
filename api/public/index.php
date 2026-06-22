@@ -91,6 +91,19 @@ try {
         exit;
     }
 
+    if ($method === 'GET' && $segments === ['vk-feed', 'posts']) {
+        $connection = Database::connection();
+        ensureVkFeedSettingsTable($connection);
+        $settings = fetchVkFeedSettings($connection);
+
+        Response::json([
+            'ok' => true,
+            'configured' => vkFeedIsConfigured($settings),
+            'data' => fetchVkFeedPosts($settings, $_GET),
+        ]);
+        exit;
+    }
+
     if ($method === 'POST' && $lastSegment === 'leads') {
         $input = json_decode((string) file_get_contents('php://input'), true);
 
@@ -245,6 +258,28 @@ try {
         Response::json([
             'ok' => true,
             'data' => fetchSettings($connection),
+        ]);
+        exit;
+    }
+
+    if ($method === 'GET' && $segments === ['vk-feed', 'settings']) {
+        ensureVkFeedSettingsTable($connection);
+
+        Response::json([
+            'ok' => true,
+            'data' => publicVkFeedSettings(fetchVkFeedSettings($connection)),
+        ]);
+        exit;
+    }
+
+    if (($method === 'PUT' || $method === 'PATCH') && $segments === ['vk-feed', 'settings']) {
+        ensureVkFeedSettingsTable($connection);
+        $payload = requireJsonBody();
+        saveVkFeedSettings($connection, $payload);
+
+        Response::json([
+            'ok' => true,
+            'data' => publicVkFeedSettings(fetchVkFeedSettings($connection)),
         ]);
         exit;
     }
@@ -815,6 +850,310 @@ function fetchSettings(PDO $connection): array
     $settings = $statement->fetch();
 
     return is_array($settings) ? $settings : [];
+}
+
+function ensureVkFeedSettingsTable(PDO $connection): void
+{
+    $connection->exec(
+        'CREATE TABLE IF NOT EXISTS vk_feed_settings (
+            id TINYINT UNSIGNED NOT NULL PRIMARY KEY DEFAULT 1,
+            is_enabled TINYINT(1) NOT NULL DEFAULT 0,
+            owner_id VARCHAR(40) DEFAULT NULL,
+            group_url VARCHAR(255) DEFAULT NULL,
+            access_token TEXT DEFAULT NULL,
+            page_size TINYINT UNSIGNED NOT NULL DEFAULT 10,
+            cache_ttl INT UNSIGNED NOT NULL DEFAULT 600,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+    );
+
+    $connection->exec(
+        "INSERT INTO vk_feed_settings (id, is_enabled, owner_id, group_url, page_size, cache_ttl)
+         VALUES (1, 0, NULL, 'https://vk.com/nebo_paraplan', 10, 600)
+         ON DUPLICATE KEY UPDATE id = VALUES(id)"
+    );
+}
+
+function fetchVkFeedSettings(PDO $connection): array
+{
+    $statement = $connection->query('SELECT * FROM vk_feed_settings WHERE id = 1');
+    $settings = $statement->fetch();
+
+    return is_array($settings) ? $settings : [];
+}
+
+/**
+ * @param array<string, mixed> $settings
+ * @return array<string, mixed>
+ */
+function publicVkFeedSettings(array $settings): array
+{
+    $token = trim((string) ($settings['access_token'] ?? ''));
+
+    return [
+        'is_enabled' => (int) ($settings['is_enabled'] ?? 0),
+        'owner_id' => $settings['owner_id'] ?? null,
+        'group_url' => $settings['group_url'] ?? null,
+        'page_size' => (int) ($settings['page_size'] ?? 10),
+        'cache_ttl' => (int) ($settings['cache_ttl'] ?? 600),
+        'has_token' => $token !== '',
+        'token_mask' => maskSecret($token),
+        'updated_at' => $settings['updated_at'] ?? null,
+    ];
+}
+
+/**
+ * @param array<string, mixed> $payload
+ */
+function saveVkFeedSettings(PDO $connection, array $payload): void
+{
+    $current = fetchVkFeedSettings($connection);
+    $token = trim((string) ($current['access_token'] ?? ''));
+
+    if (boolToInt($payload, 'clear_token', false) === 1) {
+        $token = '';
+    }
+
+    if (array_key_exists('access_token', $payload) && trim((string) $payload['access_token']) !== '') {
+        $token = trim((string) $payload['access_token']);
+    }
+
+    $statement = $connection->prepare(
+        'UPDATE vk_feed_settings
+         SET is_enabled = :is_enabled,
+             owner_id = :owner_id,
+             group_url = :group_url,
+             access_token = :access_token,
+             page_size = :page_size,
+             cache_ttl = :cache_ttl
+         WHERE id = 1'
+    );
+    $statement->execute([
+        ':is_enabled' => boolToInt($payload, 'is_enabled', false),
+        ':owner_id' => nullableString($payload, 'owner_id'),
+        ':group_url' => nullableString($payload, 'group_url'),
+        ':access_token' => $token !== '' ? $token : null,
+        ':page_size' => clampInt($payload['page_size'] ?? 10, 1, 10, 10),
+        ':cache_ttl' => clampInt($payload['cache_ttl'] ?? 600, 30, 86400, 600),
+    ]);
+}
+
+function maskSecret(string $secret): ?string
+{
+    if ($secret === '') {
+        return null;
+    }
+
+    if (strlen($secret) <= 12) {
+        return substr($secret, 0, 2) . '****';
+    }
+
+    return substr($secret, 0, 6) . '...' . substr($secret, -4);
+}
+
+/**
+ * @param array<string, mixed> $settings
+ */
+function vkFeedIsConfigured(array $settings): bool
+{
+    return (int) ($settings['is_enabled'] ?? 0) === 1
+        && trim((string) ($settings['owner_id'] ?? '')) !== ''
+        && trim((string) ($settings['access_token'] ?? '')) !== '';
+}
+
+/**
+ * @param array<string, mixed> $settings
+ * @param array<string, mixed> $query
+ * @return array<string, mixed>
+ */
+function fetchVkFeedPosts(array $settings, array $query): array
+{
+    if (!vkFeedIsConfigured($settings)) {
+        return [
+            'posts' => [],
+            'next_offset' => 0,
+            'has_more' => false,
+            'settings' => publicVkFeedSettings($settings),
+        ];
+    }
+
+    $defaultCount = clampInt($settings['page_size'] ?? 10, 1, 10, 10);
+    $count = clampInt($query['count'] ?? $defaultCount, 1, 10, $defaultCount);
+    $offset = clampInt($query['offset'] ?? 0, 0, 1000, 0);
+    $payload = fetchVkWall($settings, $count, $offset);
+    $posts = array_map('normalizeVkPost', $payload['items'] ?? []);
+    $total = (int) ($payload['count'] ?? 0);
+    $nextOffset = $offset + count($posts);
+
+    return [
+        'posts' => $posts,
+        'next_offset' => $nextOffset,
+        'has_more' => $nextOffset < $total && count($posts) > 0,
+        'settings' => publicVkFeedSettings($settings),
+    ];
+}
+
+/**
+ * @param array<string, mixed> $settings
+ * @return array<string, mixed>
+ */
+function fetchVkWall(array $settings, int $count, int $offset): array
+{
+    $ownerId = trim((string) ($settings['owner_id'] ?? ''));
+    $token = trim((string) ($settings['access_token'] ?? ''));
+    $cacheKey = sprintf('wall-%s-%d-%d.json', preg_replace('/[^0-9-]/', '', $ownerId), $count, $offset);
+    $cachePath = sys_get_temp_dir() . '/parakot-vk-feed-' . $cacheKey;
+    $ttl = clampInt($settings['cache_ttl'] ?? 600, 30, 86400, 600);
+
+    if (is_file($cachePath) && time() - filemtime($cachePath) < $ttl) {
+        $cached = json_decode((string) file_get_contents($cachePath), true);
+
+        if (is_array($cached)) {
+            return $cached;
+        }
+    }
+
+    $params = [
+        'owner_id' => $ownerId,
+        'count' => (string) $count,
+        'offset' => (string) $offset,
+        'filter' => 'owner',
+        'access_token' => $token,
+        'v' => Env::get('VK_API_VERSION', '5.199'),
+    ];
+    $url = 'https://api.vk.com/method/wall.get?' . http_build_query($params);
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'GET',
+            'timeout' => 12,
+            'ignore_errors' => true,
+            'header' => "Accept: application/json\r\n",
+        ],
+    ]);
+    $raw = file_get_contents($url, false, $context);
+
+    if ($raw === false) {
+        throw new RuntimeException('VK request failed.');
+    }
+
+    $decoded = json_decode($raw, true);
+
+    if (!is_array($decoded)) {
+        throw new RuntimeException('VK returned invalid JSON.');
+    }
+
+    if (isset($decoded['error'])) {
+        $message = (string) ($decoded['error']['error_msg'] ?? 'VK API error.');
+        throw new RuntimeException($message);
+    }
+
+    $response = $decoded['response'] ?? [];
+
+    if (!is_array($response)) {
+        throw new RuntimeException('VK response is incomplete.');
+    }
+
+    file_put_contents($cachePath, json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+    return $response;
+}
+
+/**
+ * @param array<string, mixed> $post
+ * @return array<string, mixed>
+ */
+function normalizeVkPost(array $post): array
+{
+    $ownerId = (string) ($post['owner_id'] ?? '');
+    $postId = (string) ($post['id'] ?? '');
+
+    return [
+        'id' => $postId,
+        'date' => (int) ($post['date'] ?? 0),
+        'text' => trim((string) ($post['text'] ?? '')),
+        'url' => $ownerId !== '' && $postId !== '' ? "https://vk.com/wall{$ownerId}_{$postId}" : '',
+        'media' => normalizeVkAttachments($post['attachments'] ?? []),
+    ];
+}
+
+/**
+ * @param mixed $attachments
+ * @return array<int, array<string, string>>
+ */
+function normalizeVkAttachments($attachments): array
+{
+    if (!is_array($attachments)) {
+        return [];
+    }
+
+    $media = [];
+
+    foreach ($attachments as $attachment) {
+        if (!is_array($attachment)) {
+            continue;
+        }
+
+        $type = (string) ($attachment['type'] ?? '');
+
+        if ($type === 'photo' && isset($attachment['photo']) && is_array($attachment['photo'])) {
+            $image = largestVkImage($attachment['photo']['sizes'] ?? []);
+
+            if ($image !== '') {
+                $media[] = [
+                    'type' => 'photo',
+                    'preview' => $image,
+                    'url' => $image,
+                    'alt' => 'Фото из поста VK',
+                ];
+            }
+        }
+
+        if ($type === 'video' && isset($attachment['video']) && is_array($attachment['video'])) {
+            $video = $attachment['video'];
+            $preview = largestVkImage($video['image'] ?? []);
+            $ownerId = (string) ($video['owner_id'] ?? '');
+            $videoId = (string) ($video['id'] ?? '');
+
+            $media[] = [
+                'type' => 'video',
+                'preview' => $preview,
+                'url' => $ownerId !== '' && $videoId !== '' ? "https://vk.com/video{$ownerId}_{$videoId}" : '',
+                'alt' => (string) ($video['title'] ?? 'Видео VK'),
+            ];
+        }
+    }
+
+    return $media;
+}
+
+/**
+ * @param mixed $sizes
+ */
+function largestVkImage($sizes): string
+{
+    if (!is_array($sizes)) {
+        return '';
+    }
+
+    $bestUrl = '';
+    $bestArea = 0;
+
+    foreach ($sizes as $size) {
+        if (!is_array($size)) {
+            continue;
+        }
+
+        $url = (string) ($size['url'] ?? '');
+        $area = (int) ($size['width'] ?? 0) * (int) ($size['height'] ?? 0);
+
+        if ($url !== '' && $area >= $bestArea) {
+            $bestUrl = $url;
+            $bestArea = $area;
+        }
+    }
+
+    return $bestUrl;
 }
 
 function uploadLogo(PDO $connection): array

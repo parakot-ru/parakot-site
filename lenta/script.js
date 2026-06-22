@@ -1,4 +1,8 @@
-const API_URL = "./api/posts";
+const API_URL =
+  window.PARAKOT_FEED_API_URL ||
+  (window.location.hostname.includes("konekon")
+    ? "http://parakot.konekon.ru/api/vk-feed/posts"
+    : "https://parakot.ru/api/vk-feed/posts");
 const PAGE_SIZE = 10;
 
 const feedElement = document.querySelector("[data-feed]");

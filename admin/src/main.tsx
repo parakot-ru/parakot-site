@@ -44,6 +44,17 @@ type Settings = {
   recipient_email_cc: string | null;
 };
 
+type VkFeedSettings = {
+  is_enabled: number;
+  owner_id: string | null;
+  group_url: string | null;
+  page_size: number;
+  cache_ttl: number;
+  has_token: boolean;
+  token_mask: string | null;
+  updated_at: string | null;
+};
+
 type Contact = {
   id: number;
   type: string;
@@ -113,7 +124,7 @@ type LoginPayload = {
   user: AdminUser;
 };
 
-type AdminPage = "general" | "hero" | "sections" | "contacts" | "leads" | "seo" | "help";
+type AdminPage = "general" | "hero" | "sections" | "contacts" | "feed" | "leads" | "seo" | "help";
 
 function pageFromHash(hash: string): AdminPage {
   const value = hash.replace(/^#/, "");
@@ -126,7 +137,7 @@ function pageFromHash(hash: string): AdminPage {
     return "general";
   }
 
-  if (["general", "hero", "sections", "contacts", "leads", "seo", "help"].includes(value)) {
+  if (["general", "hero", "sections", "contacts", "feed", "leads", "seo", "help"].includes(value)) {
     return value as AdminPage;
   }
 
@@ -344,6 +355,8 @@ function App() {
   const [loginPassword, setLoginPassword] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [settings, setSettings] = useState<Settings | null>(null);
+  const [vkFeedSettings, setVkFeedSettings] = useState<VkFeedSettings | null>(null);
+  const [vkAccessTokenDraft, setVkAccessTokenDraft] = useState("");
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -353,6 +366,7 @@ function App() {
   const [draftItemImages, setDraftItemImages] = useState<Record<number, File | null>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [isSavingVkFeed, setIsSavingVkFeed] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [imageBusyKey, setImageBusyKey] = useState<string | null>(null);
   const [publishingSectionId, setPublishingSectionId] = useState<number | null>(null);
@@ -577,6 +591,8 @@ function App() {
     setToken(null);
     setUser(null);
     setSettings(null);
+    setVkFeedSettings(null);
+    setVkAccessTokenDraft("");
     setContacts([]);
     setSections([]);
     setLeads([]);
@@ -586,14 +602,16 @@ function App() {
     setIsLoading(true);
 
     try {
-      const [content, contactsList, sectionsList, leadsList] = await Promise.all([
+      const [content, contactsList, sectionsList, leadsList, vkFeed] = await Promise.all([
         request<ContentPayload>("/content"),
         request<Contact[]>("/contacts"),
         request<Section[]>("/sections"),
         request<Lead[]>("/leads"),
+        request<VkFeedSettings>("/vk-feed/settings"),
       ]);
 
       setSettings(content.settings);
+      setVkFeedSettings(vkFeed);
       setContacts(contactsList);
       setSections(sectionsList);
       setLeads(leadsList);
@@ -623,6 +641,33 @@ function App() {
       showToast("error", getErrorMessage(error));
     } finally {
       setIsSavingSettings(false);
+    }
+  }
+
+  async function saveVkFeedSettings(options?: { clearToken?: boolean }) {
+    if (!vkFeedSettings) {
+      return;
+    }
+
+    setIsSavingVkFeed(true);
+
+    try {
+      const saved = await request<VkFeedSettings>("/vk-feed/settings", {
+        method: "PUT",
+        body: JSON.stringify({
+          ...vkFeedSettings,
+          access_token: vkAccessTokenDraft.trim(),
+          clear_token: options?.clearToken ?? false,
+        }),
+      });
+
+      setVkFeedSettings(saved);
+      setVkAccessTokenDraft("");
+      showToast("success", "VK лента сохранена");
+    } catch (error) {
+      showToast("error", getErrorMessage(error));
+    } finally {
+      setIsSavingVkFeed(false);
     }
   }
 
@@ -1350,6 +1395,14 @@ function App() {
             Контакты
           </button>
           <button
+            className={activePage === "feed" ? "is-active" : ""}
+            type="button"
+            onClick={() => openAdminPage("feed")}
+          >
+            <BookOpen size={17} />
+            VK лента
+          </button>
+          <button
             className={activePage === "leads" ? "is-active" : ""}
             type="button"
             onClick={() => openAdminPage("leads")}
@@ -1554,6 +1607,135 @@ function App() {
                   }
                 />
               </Field>
+            </div>
+          )}
+        </section>
+        )}
+
+        {activePage === "feed" && (
+        <section className="panel" id="feed">
+          <PanelHeader
+            icon={<BookOpen size={19} />}
+            title="VK лента"
+            action={
+              <button
+                className="primary-button"
+                type="button"
+                onClick={() => saveVkFeedSettings()}
+                disabled={!vkFeedSettings || isSavingVkFeed}
+              >
+                {isSavingVkFeed ? <Loader2 size={18} className="spin" /> : <Save size={18} />}
+                Сохранить
+              </button>
+            }
+          />
+          {vkFeedSettings && (
+            <div className="vk-feed-settings">
+              <div className="vk-feed-status">
+                <label className="toggle-card">
+                  <input
+                    type="checkbox"
+                    checked={Number(vkFeedSettings.is_enabled) === 1}
+                    onChange={(event) =>
+                      setVkFeedSettings({
+                        ...vkFeedSettings,
+                        is_enabled: event.target.checked ? 1 : 0,
+                      })
+                    }
+                  />
+                  <span>
+                    <strong>Показывать ленту</strong>
+                    <small>
+                      Посты появятся на поддомене, когда задан owner_id и сохранен VK-токен.
+                    </small>
+                  </span>
+                </label>
+                <div className={`token-state${vkFeedSettings.has_token ? " is-ready" : ""}`}>
+                  <strong>{vkFeedSettings.has_token ? "Токен сохранен" : "Токена пока нет"}</strong>
+                  <small>{vkFeedSettings.token_mask ?? "Вставьте ключ VK и нажмите сохранить"}</small>
+                </div>
+              </div>
+              <div className="form-grid">
+                <Field label="VK owner_id">
+                  <input
+                    value={vkFeedSettings.owner_id ?? ""}
+                    placeholder="Например: -123456789"
+                    onChange={(event) =>
+                      setVkFeedSettings({ ...vkFeedSettings, owner_id: event.target.value })
+                    }
+                  />
+                </Field>
+                <Field label="Ссылка на группу">
+                  <input
+                    value={vkFeedSettings.group_url ?? ""}
+                    placeholder="https://vk.com/nebo_paraplan"
+                    onChange={(event) =>
+                      setVkFeedSettings({ ...vkFeedSettings, group_url: event.target.value })
+                    }
+                  />
+                </Field>
+                <Field label="Новый VK access token" wide>
+                  <input
+                    type="password"
+                    value={vkAccessTokenDraft}
+                    placeholder={
+                      vkFeedSettings.has_token
+                        ? "Оставьте пустым, если токен менять не нужно"
+                        : "Вставьте ключ VK"
+                    }
+                    autoComplete="off"
+                    onChange={(event) => setVkAccessTokenDraft(event.target.value)}
+                  />
+                </Field>
+                <Field label="Постов за раз">
+                  <input
+                    type="number"
+                    min={1}
+                    max={10}
+                    value={vkFeedSettings.page_size}
+                    onChange={(event) =>
+                      setVkFeedSettings({
+                        ...vkFeedSettings,
+                        page_size: Number(event.target.value),
+                      })
+                    }
+                  />
+                </Field>
+                <Field label="Кеш, секунд">
+                  <input
+                    type="number"
+                    min={30}
+                    max={86400}
+                    step={30}
+                    value={vkFeedSettings.cache_ttl}
+                    onChange={(event) =>
+                      setVkFeedSettings({
+                        ...vkFeedSettings,
+                        cache_ttl: Number(event.target.value),
+                      })
+                    }
+                  />
+                </Field>
+              </div>
+              <div className="row-actions">
+                <a
+                  className="ghost-link"
+                  href="http://lenta.parakot.konekon.ru"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Открыть staging-ленту
+                </a>
+                <button
+                  className="danger-text-button"
+                  type="button"
+                  disabled={!vkFeedSettings.has_token || isSavingVkFeed}
+                  onClick={() => saveVkFeedSettings({ clearToken: true })}
+                >
+                  <Trash2 size={17} />
+                  Удалить токен
+                </button>
+              </div>
             </div>
           )}
         </section>

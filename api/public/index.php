@@ -95,11 +95,12 @@ try {
         $connection = Database::connection();
         ensureVkFeedSettingsTable($connection);
         $settings = fetchVkFeedSettings($connection);
+        $feedData = fetchVkFeedPosts($settings, $_GET);
 
         Response::json([
             'ok' => true,
-            'configured' => vkFeedIsConfigured($settings),
-            'data' => fetchVkFeedPosts($settings, $_GET),
+            'configured' => ($feedData['status_reason'] ?? '') === 'ready',
+            'data' => $feedData,
         ]);
         exit;
     }
@@ -1100,7 +1101,18 @@ function fetchVkFeedPosts(array $settings, array $query): array
     $defaultCount = clampInt($settings['page_size'] ?? 10, 1, 10, 10);
     $count = clampInt($query['count'] ?? $defaultCount, 1, 10, $defaultCount);
     $offset = clampInt($query['offset'] ?? 0, 0, 1000, 0);
-    $payload = fetchVkWall($settings, $count, $offset);
+    try {
+        $payload = fetchVkWall($settings, $count, $offset);
+    } catch (RuntimeException $exception) {
+        return [
+            'posts' => [],
+            'next_offset' => $offset,
+            'has_more' => false,
+            'status_reason' => 'vk_error',
+            'error_message' => $exception->getMessage(),
+            'settings' => publicVkFeedSettings($settings),
+        ];
+    }
     $posts = array_map('normalizeVkPost', $payload['items'] ?? []);
     $total = (int) ($payload['count'] ?? 0);
     $nextOffset = $offset + count($posts);

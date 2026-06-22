@@ -41,7 +41,7 @@ async function loadPosts() {
 
     if (payload.configured === false) {
       const reason = payload.data?.status_reason || "missing_token";
-      showStatus(...feedStatusCopy(reason));
+      showStatus(...feedStatusCopy(reason, payload.data?.error_message));
     } else {
       hideStatus();
     }
@@ -154,13 +154,26 @@ function showStatus(title, message) {
   statusElement.innerHTML = `<strong>${escapeHtml(title)}</strong>${escapeHtml(message)}`;
 }
 
-function feedStatusCopy(reason) {
+function feedStatusCopy(reason, errorMessage = "") {
   if (reason === "disabled") {
     return ["Лента выключена", "Включите переключатель «Показывать ленту» в админке и сохраните настройки."];
   }
 
   if (reason === "missing_owner_id") {
     return ["Не найден VK owner_id", "Укажите ссылку на группу или owner_id в настройках VK-ленты."];
+  }
+
+  if (reason === "vk_error") {
+    const normalizedError = String(errorMessage).toLowerCase();
+
+    if (normalizedError.includes("group authorization failed")) {
+      return [
+        "VK не отдал посты",
+        "Сохраненный ключ похож на ключ сообщества. Для чтения стены нужен пользовательский или сервисный VK-токен.",
+      ];
+    }
+
+    return ["VK не отдал посты", errorMessage || "Проверьте тип токена, owner_id и доступ к стене сообщества."];
   }
 
   return ["Ждем ключ от VK", "Как только появится токен сообщества, здесь появятся свежие посты."];

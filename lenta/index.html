@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Лента Паракота</title>
+    <meta
+      name="description"
+      content="Свежие посты Паракота из VK: выезды, полеты, фотографии и заметки с Кавказа."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Oranienbaum&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" href="./assets/favicon.png" />
+    <link rel="stylesheet" href="./styles.css?v=20260622-1" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="./">
+        <img src="./assets/parakot-logo.webp" alt="" />
+        <span>Паракот</span>
+      </a>
+      <nav class="top-nav" aria-label="Основное меню">
+        <a href="https://parakot.ru/">Сайт</a>
+        <a href="https://vk.com/nebo_paraplan" target="_blank" rel="noopener noreferrer">VK</a>
+        <a class="nav-cta" href="https://parakot.ru/#contacts">Записаться</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Лента Паракота</p>
+          <h1>Свежие истории из воздуха и с гор</h1>
+          <p>
+            Посты из VK будут подгружаться сюда: фотографии, видео, заметки о
+            погоде, выездах и летных местах. Пока ключ не подключен, страница
+            аккуратно показывает состояние ожидания.
+          </p>
+        </div>
+        <div class="hero-note" aria-label="План ленты">
+          <span>10</span>
+          <strong>постов за раз</strong>
+          <small>с ленивой подгрузкой</small>
+        </div>
+      </section>
+
+      <section class="feed-section" aria-labelledby="feed-title">
+        <div class="section-head">
+          <p class="eyebrow">VK / nebo_paraplan</p>
+          <h2 id="feed-title">Последние записи</h2>
+        </div>
+
+        <div class="status-card" data-status hidden></div>
+        <div class="feed-grid" data-feed></div>
+
+        <div class="feed-actions">
+          <button class="button" type="button" data-load-more hidden>Показать еще</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="./script.js?v=20260622-1" defer></script>
+  </body>
+</html>

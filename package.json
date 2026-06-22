@@ -11,7 +11,9 @@
     "smoke:landing": "playwright test tests/e2e/landing.spec.ts",
     "test:admin:build": "npm --prefix admin run build",
     "deploy:staging": "./scripts/deploy-staging.sh",
-    "deploy:production": "./scripts/deploy-production.sh"
+    "deploy:production": "./scripts/deploy-production.sh",
+    "deploy:lenta:staging": "./scripts/deploy-lenta-staging.sh",
+    "deploy:lenta:production": "./scripts/deploy-lenta-production.sh"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0"

@@ -1659,7 +1659,7 @@ function App() {
                 <Field label="VK owner_id">
                   <input
                     value={vkFeedSettings.owner_id ?? ""}
-                    placeholder="Например: -123456789"
+                    placeholder="Можно оставить пустым: API попробует найти по ссылке"
                     onChange={(event) =>
                       setVkFeedSettings({ ...vkFeedSettings, owner_id: event.target.value })
                     }

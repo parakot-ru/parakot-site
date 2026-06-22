@@ -794,6 +794,20 @@ function intValue(array $payload, string $key, int $default = 0): int
 }
 
 /**
+ * @param mixed $value
+ */
+function clampInt($value, int $min, int $max, int $fallback): int
+{
+    $parsed = filter_var($value, FILTER_VALIDATE_INT);
+
+    if ($parsed === false) {
+        return $fallback;
+    }
+
+    return min($max, max($min, (int) $parsed));
+}
+
+/**
  * @param array<string, mixed> $payload
  */
 function boolToInt(array $payload, string $key, bool $default = false): int
@@ -919,6 +933,17 @@ function saveVkFeedSettings(PDO $connection, array $payload): void
         $token = trim((string) $payload['access_token']);
     }
 
+    $groupUrl = nullableString($payload, 'group_url');
+    $ownerId = nullableString($payload, 'owner_id');
+
+    if ($ownerId === null && $groupUrl !== null && $token !== '') {
+        $screenName = extractVkScreenName($groupUrl);
+
+        if ($screenName !== null) {
+            $ownerId = resolveVkOwnerId($screenName, $token);
+        }
+    }
+
     $statement = $connection->prepare(
         'UPDATE vk_feed_settings
          SET is_enabled = :is_enabled,
@@ -931,12 +956,85 @@ function saveVkFeedSettings(PDO $connection, array $payload): void
     );
     $statement->execute([
         ':is_enabled' => boolToInt($payload, 'is_enabled', false),
-        ':owner_id' => nullableString($payload, 'owner_id'),
-        ':group_url' => nullableString($payload, 'group_url'),
+        ':owner_id' => $ownerId,
+        ':group_url' => $groupUrl,
         ':access_token' => $token !== '' ? $token : null,
         ':page_size' => clampInt($payload['page_size'] ?? 10, 1, 10, 10),
         ':cache_ttl' => clampInt($payload['cache_ttl'] ?? 600, 30, 86400, 600),
     ]);
+}
+
+function extractVkScreenName(string $url): ?string
+{
+    $value = trim($url);
+
+    if ($value === '') {
+        return null;
+    }
+
+    $path = parse_url($value, PHP_URL_PATH);
+
+    if (is_string($path) && $path !== '') {
+        $value = trim($path, '/');
+    }
+
+    $value = preg_replace('/[?#].*$/', '', $value);
+    $value = trim((string) $value, " \t\n\r\0\x0B/@");
+
+    if (preg_match('/^[A-Za-z0-9_.-]+$/', $value) !== 1) {
+        return null;
+    }
+
+    return $value;
+}
+
+function resolveVkOwnerId(string $screenName, string $token): ?string
+{
+    $params = [
+        'screen_name' => $screenName,
+        'access_token' => $token,
+        'v' => Env::get('VK_API_VERSION', '5.199'),
+    ];
+    $url = 'https://api.vk.com/method/utils.resolveScreenName?' . http_build_query($params);
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'GET',
+            'timeout' => 12,
+            'ignore_errors' => true,
+            'header' => "Accept: application/json\r\n",
+        ],
+    ]);
+    $raw = file_get_contents($url, false, $context);
+
+    if ($raw === false) {
+        throw new RuntimeException('Не удалось получить VK owner_id по ссылке.');
+    }
+
+    $decoded = json_decode($raw, true);
+
+    if (!is_array($decoded)) {
+        throw new RuntimeException('VK вернул некорректный ответ при поиске owner_id.');
+    }
+
+    if (isset($decoded['error'])) {
+        $message = (string) ($decoded['error']['error_msg'] ?? 'VK API error.');
+        throw new RuntimeException($message);
+    }
+
+    $response = $decoded['response'] ?? null;
+
+    if (!is_array($response) || $response === []) {
+        throw new RuntimeException('VK не нашел страницу или группу по этой ссылке.');
+    }
+
+    $objectId = (string) ($response['object_id'] ?? '');
+    $type = (string) ($response['type'] ?? '');
+
+    if ($objectId === '') {
+        throw new RuntimeException('VK не вернул числовой owner_id.');
+    }
+
+    return in_array($type, ['group', 'page', 'event'], true) ? '-' . $objectId : $objectId;
 }
 
 function maskSecret(string $secret): ?string

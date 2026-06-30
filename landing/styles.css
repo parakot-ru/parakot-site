@@ -2749,9 +2749,14 @@ body::after {
   color: #fff;
   background-blend-mode: normal;
   background-clip: padding-box;
+  background-size: 108%;
   box-shadow:
     var(--photo-shadow),
     inset 0 -12rem 8rem rgba(3, 16, 25, calc(var(--card-image-overlay, 1) * 0.28));
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    background-size 420ms ease;
 }
 
 .location-card[style*="background-image"]::before {
@@ -2762,28 +2767,33 @@ body::after {
   border-radius: inherit;
   background:
     linear-gradient(
+      90deg,
+      rgb(3 16 25 / calc(var(--card-image-overlay, 1) * 0.34)) 0%,
+      rgb(3 16 25 / calc(var(--card-image-overlay, 1) * 0.12)) 48%,
+      rgb(3 16 25 / calc(var(--card-image-overlay, 1) * 0.22)) 100%
+    ),
+    linear-gradient(
       180deg,
-      rgb(3 16 25 / 0) 0%,
-      rgb(3 16 25 / 0) 38%,
-      rgb(3 16 25 / calc(var(--card-image-overlay, 1) * 0.24)) 68%,
-      rgb(3 16 25 / calc(var(--card-image-overlay, 1) * 0.7)) 100%
+      rgb(3 16 25 / calc(var(--card-image-overlay, 1) * 0.04)) 0%,
+      rgb(3 16 25 / calc(var(--card-image-overlay, 1) * 0.08)) 36%,
+      rgb(3 16 25 / calc(var(--card-image-overlay, 1) * 0.32)) 68%,
+      rgb(3 16 25 / calc(var(--card-image-overlay, 1) * 0.76)) 100%
     );
   opacity: 1;
 }
 
 .location-card[style*="background-image"]::after {
   display: block;
-  inset: auto 0 0;
-  top: auto;
-  right: 0;
+  inset: 0;
   width: 100%;
-  height: 68%;
-  border-radius: 0 0 var(--photo-radius) var(--photo-radius);
+  height: 100%;
+  border-radius: inherit;
   background: linear-gradient(
     180deg,
-    rgba(3, 16, 25, 0) 0%,
-    rgba(3, 16, 25, 0.2) 36%,
-    rgba(3, 16, 25, 0.68) 100%
+    rgba(3, 16, 25, 0.18) 0%,
+    rgba(3, 16, 25, 0.26) 30%,
+    rgba(3, 16, 25, 0.54) 68%,
+    rgba(3, 16, 25, 0.86) 100%
   );
   opacity: 1;
   z-index: 0;
@@ -2796,33 +2806,34 @@ body::after {
   z-index: 1;
   color: inherit;
   text-shadow:
-    0 0.12rem 0.4rem rgba(0, 0, 0, 0.34),
-    0 0.65rem 1.55rem rgba(0, 0, 0, 0.26);
+    0 0 0.08rem rgba(2, 14, 22, 0.52),
+    0 0.08rem 0.18rem rgba(0, 0, 0, 0.74),
+    0 0.5rem 1.25rem rgba(0, 0, 0, 0.48);
 }
 
 .location-card[style*="background-image"] h3 {
-  display: inline-flex;
-  width: fit-content;
   max-width: 100%;
-  padding: 0.42rem 0.68rem;
+  padding: 0;
   color: #f9fcff;
-  background: rgba(9, 30, 43, 0.34);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-  backdrop-filter: blur(10px);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  backdrop-filter: none;
+  font-size: clamp(1.36rem, 2vw, 1.9rem);
+  line-height: 1.08;
 }
 
 .location-card[style*="background-image"] p {
   max-width: min(100%, 34rem);
-  margin-top: 0.7rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 1.1rem;
-  padding: 0.85rem 0.95rem;
-  color: rgba(249, 252, 255, 0.94);
-  background: linear-gradient(135deg, rgba(8, 26, 38, 0.48), rgba(8, 26, 38, 0.22));
-  box-shadow: 0 1rem 2.4rem rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(12px);
-  line-height: 1.58;
+  margin-top: 0.85rem;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  color: rgba(249, 252, 255, 0.96);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  line-height: 1.54;
 }
 
 .timeline {
@@ -2864,10 +2875,15 @@ body::after {
   border: 0;
   border-radius: var(--photo-radius);
   background-clip: padding-box;
+  background-size: 108%;
   scroll-snap-align: start;
   box-shadow:
     var(--photo-shadow),
     inset 0 -10rem 8rem rgba(5, 22, 34, calc(var(--card-image-overlay, 1) * 0.34));
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    background-size 420ms ease;
 }
 
 .mood-card:nth-child(2) {
@@ -2882,11 +2898,17 @@ body::after {
   z-index: 0;
   background:
     linear-gradient(
+      90deg,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.3)) 0%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.1)) 52%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.18)) 100%
+    ),
+    linear-gradient(
       180deg,
-      rgb(5 22 34 / 0) 0%,
-      rgb(5 22 34 / 0) 40%,
-      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.28)) 72%,
-      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.74)) 100%
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.04)) 0%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.08)) 40%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.34)) 72%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.78)) 100%
     );
 }
 
@@ -2896,28 +2918,27 @@ body::after {
   z-index: 1;
   color: #fff;
   text-shadow:
-    0 0.12rem 0.4rem rgba(0, 0, 0, 0.34),
-    0 0.7rem 1.7rem rgba(0, 0, 0, 0.3);
+    0 0 0.08rem rgba(2, 14, 22, 0.52),
+    0 0.08rem 0.18rem rgba(0, 0, 0, 0.74),
+    0 0.5rem 1.25rem rgba(0, 0, 0, 0.46);
 }
 
 .mood-card h3 {
-  display: inline-flex;
-  width: fit-content;
-  padding: 0.42rem 0.68rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-  background: rgba(9, 30, 43, 0.34);
-  backdrop-filter: blur(10px);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
 }
 
 .mood-card p {
   margin-top: 0.7rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 1.1rem;
-  padding: 0.85rem 0.95rem;
-  background: linear-gradient(135deg, rgba(8, 26, 38, 0.48), rgba(8, 26, 38, 0.22));
-  box-shadow: 0 1rem 2.4rem rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(12px);
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .cards[data-card-style="photo"] .card-style-photo,
@@ -2930,35 +2951,47 @@ body::after {
   border: 0;
   border-radius: var(--photo-radius);
   background-clip: padding-box;
+  background-size: 108%;
   color: #fff;
   box-shadow:
     var(--photo-shadow),
     inset 0 -12rem 8rem rgba(5, 22, 34, calc(var(--card-image-overlay, 1) * 0.28));
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    background-size 420ms ease;
 }
 
 .cards[data-card-style="photo"] .card-style-photo.has-card-image::before {
   z-index: 0;
   background:
     linear-gradient(
+      90deg,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.3)) 0%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.1)) 52%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.18)) 100%
+    ),
+    linear-gradient(
       180deg,
-      rgb(5 22 34 / 0) 0%,
-      rgb(5 22 34 / 0) 40%,
-      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.28)) 72%,
-      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.74)) 100%
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.04)) 0%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.08)) 40%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.34)) 72%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.78)) 100%
     );
 }
 
 .cards[data-card-style="photo"] .card-style-photo.has-card-image::after,
 .mood-card::after {
-  inset: auto 0 0;
+  inset: 0;
   width: 100%;
-  height: 68%;
-  border-radius: 0 0 var(--photo-radius) var(--photo-radius);
+  height: 100%;
+  border-radius: inherit;
   background: linear-gradient(
     180deg,
-    rgba(5, 22, 34, 0) 0%,
-    rgba(5, 22, 34, 0.2) 36%,
-    rgba(5, 22, 34, 0.68) 100%
+    rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.16)) 0%,
+    rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.22)) 30%,
+    rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.5)) 68%,
+    rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.84)) 100%
   );
   mix-blend-mode: normal;
   opacity: 1;
@@ -2972,34 +3005,34 @@ body::after {
   z-index: 1;
   color: #fff;
   text-shadow:
-    0 0.12rem 0.4rem rgba(0, 0, 0, 0.34),
-    0 0.7rem 1.7rem rgba(0, 0, 0, 0.28);
+    0 0 0.08rem rgba(2, 14, 22, 0.52),
+    0 0.08rem 0.18rem rgba(0, 0, 0, 0.74),
+    0 0.5rem 1.25rem rgba(0, 0, 0, 0.46);
 }
 
 .cards[data-card-style="photo"] .card-style-photo.has-card-image h3 {
-  display: inline-flex;
-  width: fit-content;
-  padding: 0.42rem 0.68rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-  background: rgba(9, 30, 43, 0.34);
-  backdrop-filter: blur(10px);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
 }
 
 .cards[data-card-style="photo"] .card-style-photo.has-card-image p {
   margin-top: 0.7rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 1.1rem;
-  padding: 0.85rem 0.95rem;
-  background: linear-gradient(135deg, rgba(8, 26, 38, 0.48), rgba(8, 26, 38, 0.22));
-  box-shadow: 0 1rem 2.4rem rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(12px);
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .cards[data-card-style="photo"] .card-style-photo.has-card-image:hover,
 .location-card[style*="background-image"]:hover,
 .mood-card:hover {
   border-color: transparent;
+  background-size: 114%;
   box-shadow:
     var(--photo-shadow-hover),
     inset 0 -12rem 8rem rgba(5, 22, 34, calc(var(--card-image-overlay, 1) * 0.3));

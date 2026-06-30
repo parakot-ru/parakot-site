@@ -2241,6 +2241,8 @@ body::after {
   --pine: #2f6b5b;
   --sunset: #f2a64f;
   --snow: #f9fcff;
+  --photo-shadow: 0 1.35rem 3.8rem rgba(18, 52, 76, 0.16);
+  --photo-shadow-hover: 0 1.8rem 4.5rem rgba(18, 52, 76, 0.22);
 }
 
 body {
@@ -2736,33 +2738,50 @@ body::after {
   background-blend-mode: normal;
   background-clip: padding-box;
   box-shadow:
-    0 1.35rem 3.5rem rgba(31, 76, 112, 0.18),
-    0 0.35rem 1rem rgba(31, 76, 112, 0.1);
+    var(--photo-shadow),
+    inset 0 -10rem 8rem rgba(3, 16, 25, calc(var(--card-image-overlay, 1) * 0.34));
 }
 
 .location-card[style*="background-image"]::before {
   inset: 0;
   width: auto;
   height: auto;
+  z-index: 0;
   border-radius: inherit;
   background:
     linear-gradient(
       180deg,
-      rgb(5 22 34 / 0) 0%,
-      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.04)) 42%,
-      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.46)) 74%,
-      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.66)) 100%
+      rgb(3 16 25 / 0) 0%,
+      rgb(3 16 25 / 0) 38%,
+      rgb(3 16 25 / calc(var(--card-image-overlay, 1) * 0.24)) 68%,
+      rgb(3 16 25 / calc(var(--card-image-overlay, 1) * 0.7)) 100%
     );
   opacity: 1;
 }
 
 .location-card[style*="background-image"]::after {
-  display: none;
+  display: block;
+  inset: auto 0 0;
+  top: auto;
+  right: 0;
+  width: 100%;
+  height: 58%;
+  border-radius: 0 0 1.45rem 1.45rem;
+  background: linear-gradient(
+    180deg,
+    rgba(3, 16, 25, 0) 0%,
+    rgba(3, 16, 25, 0.28) 48%,
+    rgba(3, 16, 25, 0.58) 100%
+  );
+  opacity: 1;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .location-card[style*="background-image"] h3,
 .location-card[style*="background-image"] p {
   position: relative;
+  z-index: 1;
   color: inherit;
   text-shadow:
     0 0.12rem 0.4rem rgba(0, 0, 0, 0.34),
@@ -2832,8 +2851,8 @@ body::after {
   background-clip: padding-box;
   scroll-snap-align: start;
   box-shadow:
-    0 1.35rem 3.5rem rgba(31, 76, 112, 0.16),
-    0 0.35rem 1rem rgba(31, 76, 112, 0.08);
+    var(--photo-shadow),
+    inset 0 -10rem 8rem rgba(5, 22, 34, calc(var(--card-image-overlay, 1) * 0.34));
 }
 
 .mood-card:nth-child(2) {
@@ -2841,22 +2860,90 @@ body::after {
 }
 
 .mood-card::before {
+  z-index: 0;
   background:
     linear-gradient(
       180deg,
       rgb(5 22 34 / 0) 0%,
-      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.05)) 46%,
-      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.5)) 78%,
-      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.7)) 100%
+      rgb(5 22 34 / 0) 40%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.28)) 72%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.74)) 100%
     );
 }
 
 .mood-card h3,
 .mood-card p {
+  position: relative;
+  z-index: 1;
   color: #fff;
   text-shadow:
     0 0.12rem 0.4rem rgba(0, 0, 0, 0.34),
     0 0.7rem 1.7rem rgba(0, 0, 0, 0.3);
+}
+
+.cards[data-card-style="photo"] .card-style-photo,
+.location-card[style*="background-image"],
+.mood-card {
+  isolation: isolate;
+}
+
+.cards[data-card-style="photo"] .card-style-photo.has-card-image {
+  border: 0;
+  border-radius: 1.35rem;
+  background-clip: padding-box;
+  color: #fff;
+  box-shadow:
+    var(--photo-shadow),
+    inset 0 -10rem 8rem rgba(5, 22, 34, calc(var(--card-image-overlay, 1) * 0.34));
+}
+
+.cards[data-card-style="photo"] .card-style-photo.has-card-image::before {
+  z-index: 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(5 22 34 / 0) 0%,
+      rgb(5 22 34 / 0) 40%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.28)) 72%,
+      rgb(5 22 34 / calc(var(--card-image-overlay, 1) * 0.74)) 100%
+    );
+}
+
+.cards[data-card-style="photo"] .card-style-photo.has-card-image::after,
+.mood-card::after {
+  inset: auto 0 0;
+  width: 100%;
+  height: 58%;
+  border-radius: 0 0 1.35rem 1.35rem;
+  background: linear-gradient(
+    180deg,
+    rgba(5, 22, 34, 0) 0%,
+    rgba(5, 22, 34, 0.28) 48%,
+    rgba(5, 22, 34, 0.58) 100%
+  );
+  mix-blend-mode: normal;
+  opacity: 1;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.cards[data-card-style="photo"] .card-style-photo.has-card-image h3,
+.cards[data-card-style="photo"] .card-style-photo.has-card-image p {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  text-shadow:
+    0 0.12rem 0.4rem rgba(0, 0, 0, 0.34),
+    0 0.7rem 1.7rem rgba(0, 0, 0, 0.28);
+}
+
+.cards[data-card-style="photo"] .card-style-photo.has-card-image:hover,
+.location-card[style*="background-image"]:hover,
+.mood-card:hover {
+  border-color: transparent;
+  box-shadow:
+    var(--photo-shadow-hover),
+    inset 0 -10rem 8rem rgba(5, 22, 34, calc(var(--card-image-overlay, 1) * 0.36));
 }
 
 .faq-list article {

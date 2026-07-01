@@ -2749,14 +2749,14 @@ body::after {
   color: #fff;
   background-blend-mode: normal;
   background-clip: padding-box;
-  background-size: 108%;
+  background-repeat: no-repeat;
+  background-size: cover;
   box-shadow:
     var(--photo-shadow),
     inset 0 -12rem 8rem rgba(3, 16, 25, calc(var(--card-image-overlay, 1) * 0.28));
   transition:
     transform 220ms ease,
-    box-shadow 220ms ease,
-    background-size 420ms ease;
+    box-shadow 220ms ease;
 }
 
 .location-card[style*="background-image"]::before {
@@ -2875,15 +2875,15 @@ body::after {
   border: 0;
   border-radius: var(--photo-radius);
   background-clip: padding-box;
-  background-size: 108%;
+  background-repeat: no-repeat;
+  background-size: cover;
   scroll-snap-align: start;
   box-shadow:
     var(--photo-shadow),
     inset 0 -10rem 8rem rgba(5, 22, 34, calc(var(--card-image-overlay, 1) * 0.34));
   transition:
     transform 220ms ease,
-    box-shadow 220ms ease,
-    background-size 420ms ease;
+    box-shadow 220ms ease;
 }
 
 .mood-card:nth-child(2) {
@@ -2951,15 +2951,15 @@ body::after {
   border: 0;
   border-radius: var(--photo-radius);
   background-clip: padding-box;
-  background-size: 108%;
+  background-repeat: no-repeat;
+  background-size: cover;
   color: #fff;
   box-shadow:
     var(--photo-shadow),
     inset 0 -12rem 8rem rgba(5, 22, 34, calc(var(--card-image-overlay, 1) * 0.28));
   transition:
     transform 220ms ease,
-    box-shadow 220ms ease,
-    background-size 420ms ease;
+    box-shadow 220ms ease;
 }
 
 .cards[data-card-style="photo"] .card-style-photo.has-card-image::before {
@@ -3032,7 +3032,6 @@ body::after {
 .location-card[style*="background-image"]:hover,
 .mood-card:hover {
   border-color: transparent;
-  background-size: 114%;
   box-shadow:
     var(--photo-shadow-hover),
     inset 0 -12rem 8rem rgba(5, 22, 34, calc(var(--card-image-overlay, 1) * 0.3));
